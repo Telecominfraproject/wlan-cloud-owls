@@ -21,4 +21,8 @@ find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite Dat
 
 include_directories(/usr/local/include  /usr/local/opt/openssl/include src)
 
-add_executable(ucentral_clnt src/main.cpp)
+add_executable(ucentral_clnt src/main.cpp src/uCentralClient.cpp src/uCentralClient.h src/uCentralClientApp.cpp src/uCentralClientApp.h)
+
+target_link_libraries(ucentral_clnt PRIVATE yaml-cpp
+        ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
+        ${MySQL_LIBRARIES} ${ODBC_LIBRARIES})

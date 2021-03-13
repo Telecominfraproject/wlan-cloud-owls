@@ -1,8 +1,3 @@
-#include <iostream>
+#include "uCentralClientApp.h"
 
-#include "Poco/Net/WebSocket.h"
-
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
-}
+POCO_SERVER_MAIN(uCentralClientApp)

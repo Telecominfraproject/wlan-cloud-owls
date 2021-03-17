@@ -6,31 +6,62 @@
 #define UCENTRAL_CLNT_UCENTRALCLIENT_H
 
 #include "Poco/Thread.h"
+#include "Poco/Net/SocketReactor.h"
+#include "Poco/Net/SocketNotification.h"
+#include "Poco/AutoPtr.h"
+#include "Poco/Net/WebSocket.h"
 
-class uCentralClient : public Poco::Runnable {
+class uCentralClient {
 public:
-    uCentralClient( const std::string & SerialNumber,
+    enum Protocol {
+        legacy,
+        jsonrpc
+    };
+
+    uCentralClient(
+              Poco::Net::SocketReactor  & Reactor,
+              const std::string & SerialNumber,
               const std::string & URI,
               const std::string & KeyFileName,
-              const std::string & CertFileName)
-      : SerialNumber_(SerialNumber),
+              const std::string & CertFileName,
+              Protocol Proto)
+      : Reactor_(Reactor),
+      SerialNumber_(SerialNumber),
       URI_( URI ),
       KeyFileName_(KeyFileName),
-      CertFileName_(CertFileName)
+      CertFileName_(CertFileName),
+      Protocol_(Proto),
+      Connected_(false)
     {
-
+        DefaultConfiguration(CurrentConfig_,CurrentConfigUUID_);
     }
 
-    [[nodiscard]] std::string DefaultCapabilities() const ;
-    [[nodiscard]] std::string DefaultConfiguration() const ;
+    static std::string DefaultCapabilities();
+    static std::string DefaultState();
+    static void DefaultConfiguration( std::string & Config, uint64_t & UUID );
 
-    void run() override;
+    bool SendCommand(const std::string &Cmd);
+    void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf);
+    void OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification>& pNf);
+
+    void Connect();
+    void SendState();
+    void Terminate();
+    void Disconnect();
+    void SendHeartBeat();
 
 private:
-    std::string     SerialNumber_;
-    std::string     URI_;
-    std::string     KeyFileName_;
-    std::string     CertFileName_;
+    Poco::Net::SocketReactor    & Reactor_;
+    std::string             CurrentConfig_;
+    uint64_t                CurrentConfigUUID_;
+    std::string             SerialNumber_;
+    std::string             URI_;
+    std::string             KeyFileName_;
+    std::string             CertFileName_;
+    std::shared_ptr<Poco::Net::WebSocket>   WS_;
+    Protocol                Protocol_;
+    bool                    Connected_;
+
 };
 
 

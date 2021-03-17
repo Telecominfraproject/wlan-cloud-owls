@@ -1,31 +1,23 @@
 //
 // Created by stephane bourque on 2021-03-12.
 //
-
 #include "uCentralClientApp.h"
+
+#include "Poco/Path.h"
+#include "Simulator.h"
 
 int uCentralClientApp::main(const ArgVec &args) {
 
-    std::string URI = "ws://localhost:15002";
-    std::string Cert = "cert.pem";
-    std::string Key = "key.pem";
+    Poco::Thread    SimThr;
+    Simulator       Sim;
 
-    uint64_t    NumClients = 5;
-    std::string SerialBase{ "220000300000"};
-
-    for(auto i=0;i<NumClients;i++)
-    {
-        std::string Serial = SerialBase + std::to_string(i);
-
-        auto Client = std::shared_ptr<uCentralClient>(new uCentralClient(Serial,URI,Key,Cert));
-
-        Clients_.push_back(Client);
-        Poco::ThreadPool::defaultPool().start(*Client);
-    }
+    SimThr.start(Sim);
 
     waitForTerminationRequest();
 
-    Poco::ThreadPool::defaultPool().joinAll();
+    Sim.stop();
+
+    SimThr.join();
 
     return 0;
 }
@@ -33,7 +25,8 @@ int uCentralClientApp::main(const ArgVec &args) {
 void uCentralClientApp::initialize(Application &self) {
     ServerApplication::initialize(self);
     logger().information("Starting...");
-    loadConfiguration();
+    std::string ConfigFileName = Poco::Path::expand( "$UCENTRAL_CLIENT_ROOT/ucentral-clnt.properties");
+    loadConfiguration(ConfigFileName);
 }
 
 void uCentralClientApp::uninitialize() {

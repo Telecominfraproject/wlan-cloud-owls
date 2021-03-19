@@ -43,8 +43,10 @@ void Simulator::run() {
                 {
                     case uCentralClient::initialized:
                         {
-                            std::thread T( [CC]() { CC->Connect(); } );
-                            T.detach();
+                            if(Client->GetNextConnect()<Now) {
+                                std::thread T([CC]() { CC->Connect(); });
+                                T.detach();
+                            }
                         }
                         break;
                     case uCentralClient::connecting:

@@ -5,78 +5,111 @@
 #include "Simulator.h"
 
 #include "uCentralClientApp.h"
+#include <thread>
+#include "Poco/Logger.h"
 
 Simulator *Simulator::instance_ = nullptr;
 
+void Connect(std::shared_ptr<uCentralClient> C)
+{
+    C->Connect();
+}
+
+void SendState(std::shared_ptr<uCentralClient> C)
+{
+    C->SendState();
+}
+
+void SendHealthCheck(std::shared_ptr<uCentralClient> C)
+{
+    C->SendHealthCheck();
+}
+
+void SendConnection( std::shared_ptr<uCentralClient> C)
+{
+    C->SendConnection();
+}
+
+void SendClosing( std::shared_ptr<uCentralClient> C)
+{
+    C->SendClosing();
+}
+
 void Simulator::run() {
 
-    initialize();
-
-    for(auto i=0;i<NumClients_;i++)
+    for(auto i=0;i<Service()->GetNumClients();i++)
     {
-        std::string Serial = SerialNumberBase_ + std::to_string(i);
-        auto Client = std::shared_ptr<uCentralClient>(new uCentralClient(Reactor_,Serial,URI_,KeyFileName_,CertFileName_,uCentralClient::legacy));
+        std::string Serial = Service()->GetSerialNumberBase() + std::to_string(i);
+        auto Client = std::shared_ptr<uCentralClient>(new uCentralClient(Reactor_,
+                                                                         Serial,
+                                                                         Service()->GetURI(),
+                                                                         Service()->GetKeyFileName(),
+                                                                         Service()->GetCertFileName(),
+                                                                         uCentralClientApp::instance().logger()));
         Clients_[Serial] = Client;
     }
 
     SocketReactorThread_.start(Reactor_);
 
-    for(auto &[SerialNumber,Client]:Clients_)
-        CommandList_[SerialNumber] = std::make_pair(0,Command::connect);
-
-    while(!stop_)
+    while(!Stop_)
     {
+        //  wake up every quarter second
+        Poco::Thread::sleep(250);
+
         {
             std::lock_guard<std::mutex> guard(mutex_);
 
             auto Now = time(nullptr);
 
-            std::set<std::string>   ToBeRemoved;
-
-            typedef void(*FunctionPointer)();
-
-            std::vector<FunctionPointer>  Functions;
-
-            for( auto &[Serial, Action] : CommandList_ )
+            for( const auto &[SerialNumber,Client] : Clients_ )
             {
-                auto &[Time,Cmd] = Action;
-
-                if(Time==0 || Time<Now)
+                switch( Client->GetState() )
                 {
-                    auto Client = Clients_[Serial];
-                    ToBeRemoved.insert(Serial);
-                    switch(Cmd) {
-                        case Command::send_heartbeat:
+                    case uCentralClient::initialized:
+                        {
+                            std::thread T(Connect,Client);
+                            T.detach();
+                        }
+                        break;
+                    case uCentralClient::connecting:
+                        {
+
+                        }
+                        break;
+                    case uCentralClient::connected:
+                        {
+                            std::thread T(SendConnection,Client);
+                            T.detach();
+                        }
+                        break;
+                    case uCentralClient::sending_hello:
+                        {
+
+                        }
+                        break;
+                    case uCentralClient::running:
+                        {
+                            if(Client->GetNextCheck()<Now)
                             {
-                                Client->SendHeartBeat();
-                                Functions.push_back(Client->SendHeartBeat);
+                                std::thread T(SendHealthCheck,Client);
+                                T.detach();
                             }
-                            break;
-                        case Command::reconnect:
+                            else if(Client->GetNextState()<Now)
                             {
-                                Client->Connect();
+                                std::thread T(SendState,Client);
+                                T.detach();
                             }
-                            break;
-                        case Command::send_state:
-                            {
-                                Client->SendState();
-                            }
-                            break;
-                        case Command::connect:
-                            {
-                                Client->Connect();
-                            }
-                            break;
-                    }
+                        }
+                        break;
+                    case uCentralClient::closing:
+                        {
+                            std::thread T(SendClosing,Client);
+                            T.detach();
+                        }
+                        break;
                 }
-
-                for( const auto & Serial : ToBeRemoved )
-                    CommandList_.erase(Serial);
-
-                std::cout << "Serial: " << Serial << " time: " << Time << " Command: " << Cmd << std::endl;
             }
         }
-
         Poco::Thread::sleep(1000);
     }
 
@@ -84,27 +117,4 @@ void Simulator::run() {
         Client->Terminate();
 
     Reactor_.stop();
-}
-
-void Simulator::Reconnect(const std::string &Serial) {
-    std::lock_guard<std::mutex> guard(mutex_);
-    CommandList_[Serial] = std::make_pair(time(nullptr)+10,Command::reconnect);
-}
-
-void Simulator::SendState(const std::string &Serial) {
-    std::lock_guard<std::mutex> guard(mutex_);
-    CommandList_[Serial] = std::make_pair(time(nullptr)+30,Command::send_state);
-}
-
-void Simulator::HeartBeat(const std::string &Serial) {
-    std::lock_guard<std::mutex> guard(mutex_);
-    CommandList_[Serial] = std::make_pair(time(nullptr)+2,Command::send_heartbeat);
-}
-
-void Simulator::initialize() {
-    CertFileName_ = Poco::Path::expand(uCentralClientApp::instance().config().getString("ucentral.simulation.certfile"));
-    KeyFileName_ = Poco::Path::expand(uCentralClientApp::instance().config().getString("ucentral.simulation.keyfile"));
-    URI_ = uCentralClientApp::instance().config().getString("ucentral.simulation.uri");
-    NumClients_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.maxclients");
-    SerialNumberBase_ = uCentralClientApp::instance().config().getString("ucentral.simulation.serialbase");
 }

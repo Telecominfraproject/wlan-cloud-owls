@@ -10,12 +10,23 @@
 #include "Poco/Net/SocketNotification.h"
 #include "Poco/AutoPtr.h"
 #include "Poco/Net/WebSocket.h"
+#include "Poco/Logger.h"
+
+/*
+ * States initialized -> connecting -> connected -> sending_hello -> waiting_for_hello -> running -> terminating
+ *
+ */
 
 class uCentralClient {
 public:
-    enum Protocol {
-        legacy,
-        jsonrpc
+
+    enum ClientStates {
+        initialized,
+        connecting,
+        connected,
+        sending_hello,
+        running,
+        closing
     };
 
     uCentralClient(
@@ -24,14 +35,18 @@ public:
               const std::string & URI,
               const std::string & KeyFileName,
               const std::string & CertFileName,
-              Protocol Proto)
-      : Reactor_(Reactor),
-      SerialNumber_(SerialNumber),
-      URI_( URI ),
-      KeyFileName_(KeyFileName),
-      CertFileName_(CertFileName),
-      Protocol_(Proto),
-      Connected_(false)
+                    Poco::Logger & Logger):
+                    Logger_(Logger),
+                    Reactor_(Reactor),
+                    SerialNumber_(SerialNumber),
+                    URI_( URI ),
+                    KeyFileName_(KeyFileName),
+                    CertFileName_(CertFileName),
+                    State_(initialized),
+                    NextState_(0),
+                    NextCheck_(0),
+                    NextConnect_(0),
+                    Connected_(false)
     {
         DefaultConfiguration(CurrentConfig_,CurrentConfigUUID_);
     }
@@ -44,24 +59,39 @@ public:
     void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf);
     void OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification>& pNf);
 
+    void Connect1();
     void Connect();
     void SendState();
     void Terminate();
     void Disconnect();
-    void SendHeartBeat();
+    void SendHealthCheck();
+    void SendConnection();
+    void SendClosing();
+
+    void SetState(ClientStates C) { State_ = C; };
+    ClientStates GetState() { std::lock_guard<std::mutex> guard(mutex_); return State_; }
+    uint64_t GetNextState() { return NextState_; }
+    uint64_t GetNextCheck() { return NextCheck_; }
+    uint64_t GetNextConnect() { return NextConnect_; }
+
+    bool Connected() { return Connected_; }
 
 private:
+    std::mutex                  mutex_;
     Poco::Net::SocketReactor    & Reactor_;
-    std::string             CurrentConfig_;
-    uint64_t                CurrentConfigUUID_;
-    std::string             SerialNumber_;
-    std::string             URI_;
-    std::string             KeyFileName_;
-    std::string             CertFileName_;
+    Poco::Logger                & Logger_;
+    std::string                 CurrentConfig_;
+    uint64_t                    CurrentConfigUUID_;
+    std::string                 SerialNumber_;
+    std::string                 URI_;
+    std::string                 KeyFileName_;
+    std::string                 CertFileName_;
     std::shared_ptr<Poco::Net::WebSocket>   WS_;
-    Protocol                Protocol_;
-    bool                    Connected_;
-
+    ClientStates                State_;
+    uint64_t                    NextState_;
+    uint64_t                    NextCheck_;
+    uint64_t                    NextConnect_;
+    bool                        Connected_;
 };
 
 

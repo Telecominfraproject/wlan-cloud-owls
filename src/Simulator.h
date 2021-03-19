@@ -15,47 +15,22 @@
 class Simulator : public Poco::Runnable {
 public:
 
-    enum Command {
-        connect,
-        send_state,
-        reconnect,
-        send_heartbeat
-    };
-
     Simulator() :
-        stop_(false)
+        Stop_(false)
     {
 
     }
 
-    void run();
-    void Reconnect(const std::string & Serial);
-    void HeartBeat(const std::string & Serial);
-    void SendState(const std::string & Serial);
-
-    void initialize();
-
-    static Simulator * instance() {
-        if(instance_== nullptr)
-            instance_ = new Simulator;
-        return instance_;
-    }
-
-    void stop() { stop_ = true; }
+    void run() override;
+    void stop() { Stop_ = true; }
 
 private:
     static Simulator * instance_;
-    volatile bool stop_;
     std::mutex mutex_;
-    std::map<std::string,std::shared_ptr<uCentralClient>>   Clients_;
-    std::map<std::string,std::pair<uint64_t,Command>>       CommandList_;
-    std::string                                             URI_;
-    std::string                                             CertFileName_;
-    std::string                                             KeyFileName_;
-    std::string                                             SerialNumberBase_;
-    uint64_t                                                NumClients_;
     Poco::Net::SocketReactor                                Reactor_;
+    std::map<std::string,std::shared_ptr<uCentralClient>>   Clients_;
     Poco::Thread                                            SocketReactorThread_;
+    volatile bool                                           Stop_;
 };
 
 

@@ -11,14 +11,32 @@
 
 #include "Poco/Util/ServerApplication.h"
 #include "Simulator.h"
+#include "Poco/Util/OptionSet.h"
+using Poco::Util::OptionSet;
+
 
 class uCentralClientApp : public Poco::Util::ServerApplication {
 
 public:
+    uCentralClientApp()
+    : helpRequested_(false),
+    DebugMode_(false),
+    NumClients_(0) {
+
+    }
+
     void initialize(Application &self) override;
     void uninitialize() override;
     void reinitialize(Application &self) override;
     int main(const ArgVec &args) override;
+    void defineOptions(OptionSet &options) override;
+
+    void handleHelp(const std::string &name, const std::string &value);
+    void handleDebug(const std::string &name, const std::string &value);
+    void handleLogs(const std::string &name, const std::string &value);
+    void handleConfig(const std::string &name, const std::string &value);
+    void handleNumClients(const std::string &name, const std::string &value);
+    void displayHelp();
 
     Simulator & GetSimulator() { return Sim_; }
     uint64_t GetStateInterval() const { return StateInterval_; }
@@ -33,6 +51,8 @@ public:
 private:
     Poco::Thread    SimThr;
     Simulator       Sim_;
+    bool                        helpRequested_;
+    bool                        DebugMode_;
     std::string                                             URI_;
     std::string                                             CertFileName_;
     std::string                                             KeyFileName_;
@@ -41,6 +61,8 @@ private:
     uint64_t                                                HealthCheckInterval_;
     uint64_t                                                StateInterval_;
     uint64_t                                                ReconnectInterval_;
+    std::string                 ConfigFileName_;
+    std::string                 LogDir_;
 };
 
 uCentralClientApp * Service();

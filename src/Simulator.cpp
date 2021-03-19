@@ -10,31 +10,6 @@
 
 Simulator *Simulator::instance_ = nullptr;
 
-void Connect(std::shared_ptr<uCentralClient> C)
-{
-    C->Connect();
-}
-
-void SendState(std::shared_ptr<uCentralClient> C)
-{
-    C->SendState();
-}
-
-void SendHealthCheck(std::shared_ptr<uCentralClient> C)
-{
-    C->SendHealthCheck();
-}
-
-void SendConnection( std::shared_ptr<uCentralClient> C)
-{
-    C->SendConnection();
-}
-
-void SendClosing( std::shared_ptr<uCentralClient> C)
-{
-    C->SendClosing();
-}
-
 void Simulator::run() {
 
     for(auto i=0;i<Service()->GetNumClients();i++)
@@ -54,7 +29,7 @@ void Simulator::run() {
     while(!Stop_)
     {
         //  wake up every quarter second
-        Poco::Thread::sleep(250);
+        Poco::Thread::sleep(1000);
 
         {
             std::lock_guard<std::mutex> guard(mutex_);
@@ -63,11 +38,12 @@ void Simulator::run() {
 
             for( const auto &[SerialNumber,Client] : Clients_ )
             {
+                auto CC = Client;
                 switch( Client->GetState() )
                 {
                     case uCentralClient::initialized:
                         {
-                            std::thread T(Connect,Client);
+                            std::thread T( [CC]() { CC->Connect(); } );
                             T.detach();
                         }
                         break;
@@ -78,7 +54,7 @@ void Simulator::run() {
                         break;
                     case uCentralClient::connected:
                         {
-                            std::thread T(SendConnection,Client);
+                            std::thread T([CC](){ CC->SendConnection(); } );
                             T.detach();
                         }
                         break;
@@ -91,26 +67,25 @@ void Simulator::run() {
                         {
                             if(Client->GetNextCheck()<Now)
                             {
-                                std::thread T(SendHealthCheck,Client);
+                                std::thread T([CC](){ CC->SendHealthCheck();});
                                 T.detach();
                             }
                             else if(Client->GetNextState()<Now)
                             {
-                                std::thread T(SendState,Client);
+                                std::thread T([CC](){ CC->SendState(); });
                                 T.detach();
                             }
                         }
                         break;
                     case uCentralClient::closing:
                         {
-                            std::thread T(SendClosing,Client);
+                            std::thread T([CC](){ CC->SendClosing(); });
                             T.detach();
                         }
                         break;
                 }
             }
         }
-        Poco::Thread::sleep(1000);
     }
 
     for(auto &[Key,Client]:Clients_)

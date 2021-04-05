@@ -4,6 +4,9 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <cstdio>
+#include <ctime>
+#include <cstdlib>
 #include <strstream>
 
 #include "uCentralClient.h"

@@ -11,87 +11,88 @@
 #include "Poco/AutoPtr.h"
 #include "Poco/Net/WebSocket.h"
 #include "Poco/Logger.h"
+#include "Poco/JSON/Object.h"
 
-/*
- * States initialized -> connecting -> connected -> sending_hello -> waiting_for_hello -> running -> terminating
- *
- */
+#include "uCentralEventTypes.h"
+
+typedef std::recursive_mutex        my_mutex;
+typedef std::lock_guard<my_mutex>   my_guard;
 
 class uCentralClient {
 public:
 
-    enum ClientStates {
-        initialized,
-        connecting,
-        connected,
-        sending_hello,
-        running,
-        closing
-    };
-
     uCentralClient(
               Poco::Net::SocketReactor  & Reactor,
-              const std::string & SerialNumber,
-              const std::string & URI,
-              const std::string & KeyFileName,
-              const std::string & CertFileName,
-                    Poco::Logger & Logger):
+              std::string SerialNumber,
+              std::string URI,
+              std::string KeyFileName,
+              std::string CertFileName,
+              Poco::Logger & Logger):
                     Logger_(Logger),
                     Reactor_(Reactor),
-                    SerialNumber_(SerialNumber),
-                    URI_( URI ),
-                    KeyFileName_(KeyFileName),
-                    CertFileName_(CertFileName),
-                    State_(initialized),
-                    NextState_(0),
-                    NextCheck_(0),
-                    NextConnect_(0),
-                    Connected_(false)
+                    SerialNumber_(std::move(SerialNumber)),
+                    URI_(std::move(URI)),
+                    KeyFileName_(std::move(KeyFileName)),
+                    CertFileName_(std::move(CertFileName))
     {
-        DefaultConfiguration(CurrentConfig_,CurrentConfigUUID_);
+        SetFirmware();
+        DefaultConfiguration(CurrentConfig_,Active_);
     }
 
-    static std::string DefaultCapabilities();
-    static std::string DefaultState();
-    static void DefaultConfiguration( std::string & Config, uint64_t & UUID );
+    std::string DefaultCapabilities();
+    std::string DefaultState();
+    void DefaultConfiguration( std::string & Config, uint64_t & UUID );
 
-    bool SendCommand(const std::string &Cmd);
+    bool Send(const std::string &Cmd);
+    bool SendWSPing();
+    bool SendObject(Poco::JSON::Object O);
     void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf);
     void OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification>& pNf);
 
-    void Connect1();
-    void Connect();
-    void SendState();
+    void EstablishConnection();
     void Terminate();
-    void Disconnect();
-    void SendHealthCheck();
-    void SendConnection();
-    void SendClosing();
+    void Disconnect(bool Reconnect);
 
-    void SetState(ClientStates C) { State_ = C; };
-    ClientStates GetState() { std::lock_guard<std::mutex> guard(mutex_); return State_; }
-    uint64_t GetNextState() { return NextState_; }
-    uint64_t GetNextCheck() { return NextCheck_; }
-    uint64_t GetNextConnect() { return NextConnect_; }
+    void ProcessCommand(Poco::DynamicStruct Vars);
 
-    bool Connected() { return Connected_; }
+    void SetFirmware() { Firmware_ = "sim-firmware-1." + std::to_string(Version_); }
+
+    [[nodiscard]] const std::string & Serial() const { return SerialNumber_; }
+    [[nodiscard]] uint64_t UUID() const { return UUID_; }
+    [[nodiscard]] uint64_t Active() const { return Active_;}
+    [[nodiscard]] const std::string & Firmware() const { return Firmware_; }
+    [[nodiscard]] bool Connected() const { return Connected_; }
+
+    void AddEvent(uCentralEventType E, uint64_t InSeconds);
+    uCentralEventType NextEvent();
+
+    void  DoConfigure(uint64_t Id, Poco::DynamicStruct Params);
+    void  DoReboot(uint64_t Id, Poco::DynamicStruct Params);
+    void  DoUpgrade(uint64_t Id, Poco::DynamicStruct Params);
+    void  DoFactory(uint64_t Id, Poco::DynamicStruct Params);
+    void  DoBlink(uint64_t Id, Poco::DynamicStruct Params);
+    void  DoPerform(uint64_t Id, Poco::DynamicStruct Params);
+    void  DoTrace(uint64_t Id, Poco::DynamicStruct Params);
 
 private:
-    std::mutex                  mutex_;
+    my_mutex                    Mutex_;
     Poco::Net::SocketReactor    & Reactor_;
     Poco::Logger                & Logger_;
     std::string                 CurrentConfig_;
-    uint64_t                    CurrentConfigUUID_;
     std::string                 SerialNumber_;
     std::string                 URI_;
     std::string                 KeyFileName_;
     std::string                 CertFileName_;
-    std::shared_ptr<Poco::Net::WebSocket>   WS_;
-    ClientStates                State_;
-    uint64_t                    NextState_;
-    uint64_t                    NextCheck_;
-    uint64_t                    NextConnect_;
-    bool                        Connected_;
+    std::string                 Firmware_;
+    std::unique_ptr<Poco::Net::WebSocket>   WS_;
+    uint64_t                    Active_=0;
+    uint64_t                    UUID_=0;
+    bool                        Connected_=false;
+    bool                        KeepRedirector_=false;
+    uint64_t                    Version_=0;
+
+    // outstanding commands are marked with a time and the event itself
+    std::map< uint64_t , uCentralEventType >    Commands_;
 };
 
 

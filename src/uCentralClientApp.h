@@ -22,7 +22,6 @@ public:
     : helpRequested_(false),
     DebugMode_(false),
     NumClients_(0) {
-
     }
 
     void initialize(Application &self) override;
@@ -38,34 +37,41 @@ public:
     void handleNumClients(const std::string &name, const std::string &value);
     void displayHelp();
 
-    Simulator & GetSimulator() { return Sim_; }
-    uint64_t GetStateInterval() const { return StateInterval_; }
-    uint64_t GetHealthCheckInterval() const { return HealthCheckInterval_; }
-    uint64_t GetReconnectInterval() const { return ReconnectInterval_; }
-    const std::string & GetURI() { return URI_; }
-    const std::string & GetCertFileName() { return CertFileName_; }
-    const std::string & GetKeyFileName() { return KeyFileName_; }
-    const std::string & GetSerialNumberBase() { return SerialNumberBase_; }
-    uint64_t GetNumClients() const { return NumClients_; }
+    [[nodiscard]] Simulator & GetSimulator() { return Sim_; }
+
+    [[nodiscard]] uint64_t GetStateInterval() const { return StateInterval_; }
+    [[nodiscard]] uint64_t GetHealthCheckInterval() const { return HealthCheckInterval_; }
+    [[nodiscard]] uint64_t GetReconnectInterval() const { return ReconnectInterval_; }
+    [[nodiscard]] uint64_t GetKeepAliveInterval() const { return KeepAliveInterval_; }
+    [[nodiscard]] uint64_t GetConfigChangePendingInterval() const { return ConfigChangePendingInterval_; }
+
+    [[nodiscard]] const std::string & GetURI() { return URI_; }
+    [[nodiscard]] const std::string & GetCertFileName() { return CertFileName_; }
+    [[nodiscard]] const std::string & GetKeyFileName() { return KeyFileName_; }
+    [[nodiscard]] const std::string & GetSerialNumberBase() { return SerialNumberBase_; }
+
+    [[nodiscard]] uint64_t GetNumClients() const { return NumClients_; }
 
 private:
     Poco::Thread    SimThr;
     Simulator       Sim_;
-    bool                        helpRequested_;
-    bool                        DebugMode_;
-    std::string                                             URI_;
-    std::string                                             CertFileName_;
-    std::string                                             KeyFileName_;
-    std::string                                             SerialNumberBase_;
-    uint64_t                                                NumClients_;
-    uint64_t                                                HealthCheckInterval_;
-    uint64_t                                                StateInterval_;
-    uint64_t                                                ReconnectInterval_;
+    bool                        helpRequested_ = false;
+    bool                        DebugMode_ = false ;
+    std::string                 URI_;
+    std::string                 CertFileName_;
+    std::string                 KeyFileName_;
+    std::string                 SerialNumberBase_;
     std::string                 ConfigFileName_;
     std::string                 LogDir_;
-};
+    uint64_t                    NumClients_=0;
+    uint64_t                    HealthCheckInterval_=0;
+    uint64_t                    StateInterval_=0;
+    uint64_t                    ReconnectInterval_=0;
+    uint64_t                    KeepAliveInterval_=0;
+    uint64_t                    ConfigChangePendingInterval_=0;
+    };
 
-uCentralClientApp * Service();
+uCentralClientApp * App();
 
 
 #endif //UCENTRAL_CLNT_UCENTRALCLIENTAPP_H

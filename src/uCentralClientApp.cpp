@@ -15,7 +15,7 @@ using Poco::Util::OptionSet;
 using Poco::Util::HelpFormatter;
 using Poco::Util::OptionCallback;
 
-uCentralClientApp * Service() { return reinterpret_cast<uCentralClientApp *>(&uCentralClientApp::instance()); } ;
+uCentralClientApp * App() { return dynamic_cast<uCentralClientApp *>(&uCentralClientApp::instance()); } ;
 
 void uCentralClientApp::defineOptions(OptionSet &options) {
 
@@ -144,6 +144,8 @@ void uCentralClientApp::initialize(Application &self) {
     HealthCheckInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.healthcheckinterval");
     StateInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.stateinterval");
     ReconnectInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.reconnect");
+    KeepAliveInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.keepalive");
+    ConfigChangePendingInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.configchangepending");
 }
 
 void uCentralClientApp::uninitialize() {

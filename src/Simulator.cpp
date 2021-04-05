@@ -1,27 +1,36 @@
 //
 // Created by stephane bourque on 2021-03-13.
 //
+#include <thread>
+#include <random>
+
+#include "Poco/Logger.h"
 
 #include "Simulator.h"
-
 #include "uCentralClientApp.h"
-#include <thread>
-#include "Poco/Logger.h"
+#include "uCentralEvent.h"
 
 Simulator *Simulator::instance_ = nullptr;
 
 void Simulator::run() {
 
-    for(auto i=0;i<Service()->GetNumClients();i++)
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(1, 15);
+
+    Poco::Logger    & Logger_ = App()->logger();
+
+    for(auto i=0;i<App()->GetNumClients();i++)
     {
-        std::string Serial = Service()->GetSerialNumberBase() + std::to_string(i);
-        auto Client = std::shared_ptr<uCentralClient>(new uCentralClient(Reactor_,
-                                                                         Serial,
-                                                                         Service()->GetURI(),
-                                                                         Service()->GetKeyFileName(),
-                                                                         Service()->GetCertFileName(),
-                                                                         uCentralClientApp::instance().logger()));
-        Clients_[Serial] = Client;
+        std::string Serial = App()->GetSerialNumberBase() + std::to_string(i);
+        auto Client = std::make_shared<uCentralClient>( Reactor_,
+                                                         Serial,
+                                                         App()->GetURI(),
+                                                         App()->GetKeyFileName(),
+                                                         App()->GetCertFileName(),
+                                                         uCentralClientApp::instance().logger());
+        Client->AddEvent(ev_reconnect, distrib(gen) );
+        Clients_[Serial] = std::move(Client);
     }
 
     SocketReactorThread_.start(Reactor_);
@@ -30,62 +39,120 @@ void Simulator::run() {
     {
         //  wake up every quarter second
         Poco::Thread::sleep(1000);
+        auto Now = time(nullptr);
 
+        // Logger_.information("Looking for new events...");
+
+        for(const auto & i:Clients_)
         {
-            std::lock_guard<std::mutex> guard(mutex_);
+            auto Client = i.second;
+            auto Event = Client->NextEvent();
 
-            auto Now = time(nullptr);
-
-            for( const auto &[SerialNumber,Client] : Clients_ )
+            switch(Event)
             {
-                auto CC = Client;
-                switch( Client->GetState() )
-                {
-                    case uCentralClient::initialized:
-                        {
-                            if(Client->GetNextConnect()<Now) {
-                                std::thread T([CC]() { CC->Connect(); });
-                                T.detach();
-                            }
-                        }
-                        break;
-                    case uCentralClient::connecting:
-                        {
+                case ev_none: {
+                        // nothing to do
+                    }
+                    break;
 
-                        }
-                        break;
-                    case uCentralClient::connected:
-                        {
-                            std::thread T([CC](){ CC->SendConnection(); } );
-                            T.detach();
-                        }
-                        break;
-                    case uCentralClient::sending_hello:
-                        {
+                case ev_reconnect: {
+                        Logger_.information(Poco::format("reconnect(%s): ",Client->Serial()));
+                        std::thread T([Client]() {
+                            Client->EstablishConnection();
+                        });
+                        T.detach();
+                    }
+                    break;
 
-                        }
-                        break;
-                    case uCentralClient::running:
-                        {
-                            if(Client->GetNextCheck()<Now)
-                            {
-                                std::thread T([CC](){ CC->SendHealthCheck();});
-                                T.detach();
-                            }
-                            else if(Client->GetNextState()<Now)
-                            {
-                                std::thread T([CC](){ CC->SendState(); });
-                                T.detach();
-                            }
-                        }
-                        break;
-                    case uCentralClient::closing:
-                        {
-                            std::thread T([CC](){ CC->SendClosing(); });
-                            T.detach();
-                        }
-                        break;
-                }
+                case ev_connect: {
+                    Logger_.information(Poco::format("connect(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            ConnectEvent    E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_healthcheck: {
+                    Logger_.information(Poco::format("healthcheck(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            HealthCheckEvent    E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_state: {
+                    Logger_.information(Poco::format("state(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            StateEvent    E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_log: {
+                    Logger_.information(Poco::format("log(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            LogEvent    E(Client,std::string("log"),2);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_crashlog:  {
+                    Logger_.information(Poco::format("crash-log(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            CrashLogEvent E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_configpendingchange: {
+                    Logger_.information(Poco::format("pendingchange(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                        ConfigChangePendingEvent E(Client);
+                        E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_keepalive: {
+                    Logger_.information(Poco::format("keepalive(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            KeepAliveEvent    E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_reboot: {
+                    Logger_.information(Poco::format("reboot(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            RebootEvent    E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_disconnect: {
+                    Logger_.information(Poco::format("disconnect(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            DisconnectEvent    E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
+
+                case ev_wsping: {
+                    Logger_.information(Poco::format("wp-ping(%s): ",Client->Serial()));
+                    std::thread T([Client]() {
+                            WSPingEvent    E(Client);
+                            E.Send(); });
+                        T.detach();
+                    }
+                    break;
             }
         }
     }

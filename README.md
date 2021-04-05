@@ -66,5 +66,11 @@ Simply run the `docker_run.sh` script in order to start the simulation. To stop 
 docker stop ucentralsim
 ```
 
+## Verify the simulation is running
+To verify that the simulation is running, simply go into your `logs` directory and type
 
+```shell
+tail -f sample.log
+```
 
+This will show you what the simulator is doing.

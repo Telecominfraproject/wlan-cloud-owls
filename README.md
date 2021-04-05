@@ -43,7 +43,7 @@ the only entries that need changing are the following:
 
 ```asm
 ucentral.simulation.uri = wss://localhost:15002
-ucentral.simulation.maxclients = 2000
+ucentral.simulation.maxclients = 100
 ucentral.simulation.serialbase = 22334400
 ```
 

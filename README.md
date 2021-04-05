@@ -1,2 +1,2 @@
-# ucentral-clnt
+# ucentralsim
 uCentral test client bed

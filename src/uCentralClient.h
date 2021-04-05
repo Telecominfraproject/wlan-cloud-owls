@@ -38,12 +38,14 @@ public:
                     CertFileName_(std::move(CertFileName))
     {
         SetFirmware();
-        DefaultConfiguration(CurrentConfig_,Active_);
+        CurrentConfig_ = DefaultConfiguration();
+        Active_ = UUID_ = DefaultUUID();
     }
 
-    std::string DefaultCapabilities();
-    std::string DefaultState();
-    void DefaultConfiguration( std::string & Config, uint64_t & UUID );
+    static const char * DefaultCapabilities();
+    static const char * DefaultState();
+    static const char * DefaultConfiguration();
+    static uint64_t DefaultUUID();
 
     bool Send(const std::string &Cmd);
     bool SendWSPing();

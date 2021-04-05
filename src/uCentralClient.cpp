@@ -25,8 +25,8 @@
 
 using namespace std::chrono_literals;
 
-std::string uCentralClient::DefaultCapabilities() {
-    return std::string(
+const char * uCentralClient::DefaultCapabilities() {
+    static const char * R =
             "{\"model\":{\"id\":\"linksys,ea8300\",\"name\":\"Linksys EA8300 (Dallas)\"},\"network\":{\"lan\":{\"ifname\":"
             "\"eth0\",\"protocol\":\"static\"},\"wan\":{\"ifname\":\"eth1\",\"protocol\":\"dhcp\"}},\"switch\":{\"switch0\":"
             "{\"enable\":true,\"reset\":true,\"ports\":[{\"num\":0,\"device\":\"eth0\",\"need_tag\":false,\"want_untag\":true},"
@@ -38,11 +38,12 @@ std::string uCentralClient::DefaultCapabilities() {
             "6639,\"vht_capa\":865687986,\"htmode\":[\"HT20\",\"HT40\",\"VHT20\",\"VHT40\",\"VHT80\"],\"tx_ant\":3,\"rx_ant\":3,"
             "\"channels\":[1,2,3,4,5,6,7,8,9,10,11]},\"platform/soc/a800000.wifi\":{\"band\":[\"5l\"],\"ht_capa\":6639,\"vht_capa\":"
             "865687986,\"htmode\":[\"HT20\",\"HT40\",\"VHT20\",\"VHT40\",\"VHT80\"],\"tx_ant\":3,\"rx_ant\":3,"
-            "\"channels\":[36,40,44,48,52,56,60,64]}}}");
+            "\"channels\":[36,40,44,48,52,56,60,64]}}}";
+    return R;
 }
 
-void uCentralClient::DefaultConfiguration(std::string & Config, uint64_t & UUID )  {
-    Config = std::string{
+const char * uCentralClient::DefaultConfiguration() {
+    static const char * R =
             "{\"uuid\":1613927736,\"steer\":{\"enabled\":1,\"network\":\"wan\",\"debug_level\":0},\"stats\":"
             "{\"interval\":60,\"neighbours\":1,\"traffic\":1,\"wifiiface\":1,\"wifistation\":1,\"pids\":1,"
             "\"serviceprobe\":1,\"lldp\":1,\"system\":1,\"poe\":1},\"phy\":[{\"band\":\"2\",\"cfg\":{\"disabled\":0"
@@ -72,12 +73,14 @@ void uCentralClient::DefaultConfiguration(std::string & Config, uint64_t & UUID 
             "\"server\":[\"0.openwrt.pool.ntp.org\",\"1.openwrt.pool.ntp.org\"]},\"ssh\":{\"enable\":1,\"Port\":22},"
             "\"system\":{\"timezone\":\"CET-1CEST,M3.5.0,M10.5.0/3\"},\"log\":{\"_log_proto\":\"udp\",\"_log_ip\":"
             "\"192.168.11.23\",\"_log_port\":12345,\"_log_hostname\":\"foo\",\"_log_size\":128},\"rtty\":{\"host\":"
-            "\"websocket.usync.org\",\"token\":\"7049cb6b7949ba06c6b356d76f0f6275\",\"interface\":\"wan\"}}"};
-    UUID = 1613927736;
+            "\"websocket.usync.org\",\"token\":\"7049cb6b7949ba06c6b356d76f0f6275\",\"interface\":\"wan\"}}";
+    return R;
 }
 
-std::string uCentralClient::DefaultState() {
-    return std::string(
+uint64_t uCentralClient::DefaultUUID() { return 1613927736; };
+
+const char * uCentralClient::DefaultState() {
+    static const char *R =
         "{\"uuid\":1615694464,\"cfg_uuid\":1615694035,\"system\":{\"localtime\":1615698064,\"uptime\":1312691,"
            "\"load\":[14272,10944,11232],\"memory\":{\"total\":254595072,\"free\":107769856,\"shared\":135168,\"buffered\":6066176,"
            "\"available\":96727040,\"cached\":16949248},\"swap\":{\"total\":0,\"free\":0}},\"wifi-iface\":{\"wlan1\":"
@@ -138,8 +141,8 @@ std::string uCentralClient::DefaultState() {
            "\"tx_packets\":64699,\"rx_bytes\":0,\"tx_bytes\":14853420,\"rx_errors\":0,\"tx_errors\":0,\"rx_dropped\":0,\"tx_dropped\":0,\"multicast\":0,\"collisions\":0}},"
            "\"wlan2-1\":{\"hwaddr\":\"26:f5:a2:07:a1:33\",\"stats\":{\"rx_packets\":0,\"tx_packets\":216740,\"rx_bytes\":0,\"tx_bytes\":45023656,\"rx_errors\":0,\"tx_errors\":0,"
            "\"rx_dropped\":0,\"tx_dropped\":0,\"multicast\":0,\"collisions\":0}},\"wlan2-2\":{\"hwaddr\":\"22:f5:a2:07:a1:33\",\"stats\":{\"rx_packets\":0,\"tx_packets\":7712835,"
-           "\"rx_bytes\":0,\"tx_bytes\":2573638616,\"rx_errors\":0,\"tx_errors\":0,\"rx_dropped\":0,\"tx_dropped\":0,\"multicast\":0,\"collisions\":0}}},\"lldp\":{}}");
-
+           "\"rx_bytes\":0,\"tx_bytes\":2573638616,\"rx_errors\":0,\"tx_errors\":0,\"rx_dropped\":0,\"tx_dropped\":0,\"multicast\":0,\"collisions\":0}}},\"lldp\":{}}";
+    return R;
 }
 
 void uCentralClient::Disconnect( bool Reconnect ) {
@@ -147,8 +150,6 @@ void uCentralClient::Disconnect( bool Reconnect ) {
     if(Connected_) {
         Reactor_.removeEventHandler(*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(*this,
                                                                                                            &uCentralClient::OnSocketReadable));
-        Reactor_.removeEventHandler(*WS_, Poco::NObserver<uCentralClient, Poco::Net::ShutdownNotification>(*this,
-                                                                                                           &uCentralClient::OnSocketShutdown));
         (*WS_).close();
     }
 

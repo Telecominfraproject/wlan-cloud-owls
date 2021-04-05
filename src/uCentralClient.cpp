@@ -8,7 +8,6 @@
 #include <cstdio>
 #include <ctime>
 #include <cstdlib>
-#include <strstream>
 
 #include "uCentralClient.h"
 #include "uCentralClientApp.h"

@@ -33,9 +33,9 @@ WORKDIR /ucentral-clnt/cmake-build
 RUN cmake ..
 RUN cmake --build . --config Release -j8
 
-RUN mkdir /ucentral-clnt
+RUN mkdir /ucentral
 RUN cp /ucentral-clnt/cmake-build/ucentral_clnt /ucentral/ucentral_clnt
-RUN chmod +x /ucentral-clnt/ucentral_clnt
+RUN chmod +x /ucentral/ucentral_clnt
 RUN mkdir /ucentral-data
 
 RUN rm -rf /poco
@@ -45,6 +45,6 @@ EXPOSE 15002
 EXPOSE 16001
 EXPOSE 16003
 
-ENTRYPOINT /ucentral-clnt/ucentral_clnt
+ENTRYPOINT /ucentral/ucentral_clnt
 
 

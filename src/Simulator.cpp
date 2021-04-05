@@ -167,5 +167,5 @@ void Simulator::run() {
 
     Reactor_.stop();
     SocketReactorThread_.join();
-    std::cout << "stopped reactor " << Index_ << std::endl;
+    Logger_.information(Poco::format("Stopped reactor %Lu...",Index_));
 }

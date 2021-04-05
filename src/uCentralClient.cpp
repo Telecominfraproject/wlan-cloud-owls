@@ -1,6 +1,7 @@
 //
 // Created by stephane bourque on 2021-03-12.
 //
+#include <sys/time.h>
 #include <iostream>
 #include <thread>
 #include <chrono>

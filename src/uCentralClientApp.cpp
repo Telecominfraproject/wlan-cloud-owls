@@ -109,12 +109,12 @@ int uCentralClientApp::main(const ArgVec &args) {
 }
 
 void uCentralClientApp::initialize(Application &self) {
-    std::string ConfigFileName = Poco::Path::expand( "$UCENTRAL_CLIENT_ROOT/ucentral-clnt.properties");
+    std::string ConfigFileName = Poco::Path::expand( "$UCENTRAL_CLIENT_ROOT/ucentralsim.properties");
     Poco::Path ConfigFile = ConfigFileName_.empty() ? ConfigFileName : ConfigFileName_;
 
     if(!ConfigFile.isFile())
     {
-        std::cout << "Configuration " << ConfigFile.toString() << " does not seem to exist. Please set $UCENTRAL_CLIENT_ROOT env variable the path of the ucentral-clnt.properties file." << std::endl;
+        std::cout << "Configuration " << ConfigFile.toString() << " does not seem to exist. Please set $UCENTRAL_CLIENT_ROOT env variable the path of the ucentralsim.properties file." << std::endl;
         std::exit(EXIT_CONFIG);
     }
 

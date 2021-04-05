@@ -159,11 +159,13 @@ bool KeepAliveEvent::Send() {
     return SendObject(O);
 };
 
+// This is just a fake event, reboot is handled somewhere else.
 bool RebootEvent::Send() {
 
     return true;
 }
 
+// This is just a fake event, disconnect is handled somewhere else.
 bool DisconnectEvent::Send() {
 
     return true;

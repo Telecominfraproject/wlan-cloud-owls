@@ -27,12 +27,9 @@ then
   exit 2
 fi
 
-docker run -d -p 15002:15002 \
-              -p 16001:16001 \
-              -p 16003:16003 \
-              --init \
-              --volume="$PWD:/ucentral-data" \
-              -e UCENTRAL_CLIENT_ROOT="/ucentral-data" \
-              -e UCENTRAL_CLIENT_CONFIG="/ucentral-data" \
+docker run -d --init \
+              --volume="$PWD:/ucentralsim-data" \
+              -e UCENTRAL_CLIENT_ROOT="/ucentralsim-data" \
+              -e UCENTRAL_CLIENT_CONFIG="/ucentralsim-data" \
               --name="$CONTAINER_NAME" $DOCKER_NAME
 

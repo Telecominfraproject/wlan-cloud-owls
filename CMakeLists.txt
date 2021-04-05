@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(ucentral_clnt)
+project(ucentralsim)
 
 # cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 -DMYSQL_ROOT_DIR=/usr/local/opt/mysql-client
 
@@ -30,11 +30,11 @@ find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite Dat
 
 include_directories(/usr/local/include  /usr/local/opt/openssl/include src)
 
-add_executable( ucentral_clnt src/main.cpp src/uCentralClient.cpp src/uCentralClient.h src/uCentralClientApp.cpp
+add_executable( ucentralsim src/main.cpp src/uCentralClient.cpp src/uCentralClient.h src/uCentralClientApp.cpp
                 src/uCentralClientApp.h src/Simulator.cpp src/Simulator.h src/uCentralEvent.cpp src/uCentralEvent.h
                 src/uCentralCommand.cpp src/uCentralCommand.h src/uCentralEventTypes.h src/base64util.cpp
                 src/base64util.h )
 
-target_link_libraries(ucentral_clnt PRIVATE yaml-cpp
+target_link_libraries(ucentralsim PRIVATE yaml-cpp
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
         ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${ZLIB_LIBRARIES})

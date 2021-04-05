@@ -34,17 +34,13 @@ RUN cmake ..
 RUN cmake --build . --config Release -j8
 
 RUN mkdir /ucentral
-RUN cp /ucentral-clnt/cmake-build/ucentral_clnt /ucentral/ucentral_clnt
-RUN chmod +x /ucentral/ucentral_clnt
-RUN mkdir /ucentral-data
+RUN cp /ucentral-clnt/cmake-build/ucentral_clnt /ucentral/ucentralsim
+RUN chmod +x /ucentral/ucentralsim
+RUN mkdir /ucentralsim-data
 
 RUN rm -rf /poco
 RUN rm -rf /ucentral-clnt
 
-EXPOSE 15002
-EXPOSE 16001
-EXPOSE 16003
-
-ENTRYPOINT /ucentral/ucentral_clnt
+ENTRYPOINT /ucentral/ucentralsim
 
 

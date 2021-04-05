@@ -18,7 +18,7 @@ RUN chmod 600 /root/.ssh/git_rsa && \
     echo "IdentityFile /root/.ssh/git_rsa" >> /etc/ssh/ssh_config && \
     echo -e "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
-RUN git clone git@github.com:stephb9959/ucentral-clnt.git /ucentral-clnt
+RUN git clone git@github.com:stephb9959/ucentralsim.git /ucentralsim
 
 RUN git clone https://github.com/stephb9959/poco /poco
 WORKDIR /poco
@@ -27,19 +27,19 @@ WORKDIR cmake-build
 RUN cmake ..
 RUN cmake --build . --config Release -j8
 RUN cmake --build . --target install
-WORKDIR /ucentral-clnt
+WORKDIR /ucentralsim
 RUN mkdir cmake-build
-WORKDIR /ucentral-clnt/cmake-build
+WORKDIR /ucentralsim/cmake-build
 RUN cmake ..
 RUN cmake --build . --config Release -j8
 
 RUN mkdir /ucentral
-RUN cp /ucentral-clnt/cmake-build/ucentral_clnt /ucentral/ucentralsim
+RUN cp /ucentralsim/cmake-build/ucentral_clnt /ucentral/ucentralsim
 RUN chmod +x /ucentral/ucentralsim
 RUN mkdir /ucentralsim-data
 
 RUN rm -rf /poco
-RUN rm -rf /ucentral-clnt
+RUN rm -rf /ucentralsim
 
 ENTRYPOINT /ucentral/ucentralsim
 

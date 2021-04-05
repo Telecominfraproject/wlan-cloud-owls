@@ -34,7 +34,7 @@ RUN cmake ..
 RUN cmake --build . --config Release -j8
 
 RUN mkdir /ucentral
-RUN cp /ucentralsim/cmake-build/ucentral_clnt /ucentral/ucentralsim
+RUN cp /ucentralsim/cmake-build/ucentralsim /ucentral/ucentralsim
 RUN chmod +x /ucentral/ucentralsim
 RUN mkdir /ucentralsim-data
 

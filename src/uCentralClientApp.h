@@ -38,7 +38,6 @@ public:
     void displayHelp();
 
     [[nodiscard]] Simulator & GetSimulator() { return Sim_; }
-
     [[nodiscard]] uint64_t GetStateInterval() const { return StateInterval_; }
     [[nodiscard]] uint64_t GetHealthCheckInterval() const { return HealthCheckInterval_; }
     [[nodiscard]] uint64_t GetReconnectInterval() const { return ReconnectInterval_; }
@@ -69,7 +68,7 @@ private:
     uint64_t                    ReconnectInterval_=0;
     uint64_t                    KeepAliveInterval_=0;
     uint64_t                    ConfigChangePendingInterval_=0;
-    };
+};
 
 uCentralClientApp * App();
 

@@ -5,6 +5,8 @@
 #include "Poco/JSON/Object.h"
 #include "Poco/JSON/Parser.h"
 #include "Poco/JSON/Stringifier.h"
+#include "Poco/zlib.h"
+#include "base64util.h"
 
 #include "uCentralEvent.h"
 #include "uCentralClientApp.h"
@@ -56,9 +58,24 @@ bool StateEvent::Send() {
 
     Poco::JSON::Parser  Parser;
 
-    auto StateObj = Parser.parse(Client_->DefaultState()).extract<Poco::JSON::Object::Ptr>();
-    Params.set("state",StateObj);
-    O.set("params",Params);
+    std::string State{ Client_->DefaultState() };
+
+    if(State.size()>3000) {
+        // compress
+        unsigned long BufSize = State.size()+2000;
+        std::vector<Bytef>   Buffer(BufSize);
+
+        compress( &Buffer[0], &BufSize, (Bytef*)State.c_str(), State.size());
+        auto Compressed = base64::encode(&Buffer[0],BufSize);
+        O.set("compress_64",Compressed);
+
+    } else {
+
+        auto StateObj = Parser.parse(State).extract<Poco::JSON::Object::Ptr>();
+        Params.set("state", StateObj);
+        O.set("params", Params);
+
+    }
 
     Client_->AddEvent(ev_state, App()->GetStateInterval());
 

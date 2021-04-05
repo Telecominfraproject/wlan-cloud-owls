@@ -25,12 +25,16 @@ find_package(yaml-cpp REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(MySQL REQUIRED)
 find_package(ODBC REQUIRED)
+find_package(ZLIB REQUIRED)
 find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite DataPostgreSQL DataMySQL DataODBC)
 
 include_directories(/usr/local/include  /usr/local/opt/openssl/include src)
 
-add_executable(ucentral_clnt src/main.cpp src/uCentralClient.cpp src/uCentralClient.h src/uCentralClientApp.cpp src/uCentralClientApp.h src/Simulator.cpp src/Simulator.h src/uCentralEvent.cpp src/uCentralEvent.h src/uCentralCommand.cpp src/uCentralCommand.h src/uCentralEventTypes.h)
+add_executable( ucentral_clnt src/main.cpp src/uCentralClient.cpp src/uCentralClient.h src/uCentralClientApp.cpp
+                src/uCentralClientApp.h src/Simulator.cpp src/Simulator.h src/uCentralEvent.cpp src/uCentralEvent.h
+                src/uCentralCommand.cpp src/uCentralCommand.h src/uCentralEventTypes.h src/base64util.cpp
+                src/base64util.h )
 
 target_link_libraries(ucentral_clnt PRIVATE yaml-cpp
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
-        ${MySQL_LIBRARIES} ${ODBC_LIBRARIES})
+        ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${ZLIB_LIBRARIES})

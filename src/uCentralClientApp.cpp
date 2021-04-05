@@ -1,6 +1,7 @@
 //
 // Created by stephane bourque on 2021-03-12.
 //
+#include <utility>
 #include "uCentralClientApp.h"
 
 #include "Poco/Path.h"
@@ -86,22 +87,56 @@ void uCentralClientApp::displayHelp() {
     helpFormatter.format(std::cout);
 }
 
+void uCentralClientApp::StartSimulators() {
+
+    logger().information("Starting simulation threads...");
+    for(const auto &i:SimThreads_)
+        i->Thread.start(i->Sim);
+}
+
+void uCentralClientApp::StopSimulators() {
+    logger().information("Stopping simulation threads...");
+    for(const auto &i:SimThreads_) {
+        i->Sim.stop();
+        i->Thread.join();
+    }
+}
+
 int uCentralClientApp::main(const ArgVec &args) {
 
     if (!helpRequested_) {
 
         Poco::Logger &logger = Poco::Logger::get("uCentral");
 
-        SimThr.start(Sim_);
+        //  How many reactors do we need??
+        auto NumThreads = 1;
+        auto ClientCount = NumClients_;
+        auto NumClientsPerThread = NumClients_;
 
+        if(NumClients_>250) {
+            NumThreads = MaxThreads_;
+            if(NumClients_ % NumThreads == 0)
+            {
+                NumClientsPerThread = NumClients_ / NumThreads;
+            }
+            else
+            {
+                NumClientsPerThread = NumClients_ / (NumThreads+1);
+            }
+        }
+
+        for(auto i=0;ClientCount;i++)
+        {
+            auto Clients = std::min(ClientCount,NumClientsPerThread);
+            auto NewSimThread = std::make_unique<SimThread>(i,SerialNumberBase_,Clients);
+            NewSimThread->Sim.Initialize();
+            SimThreads_.push_back(std::move(NewSimThread));
+            ClientCount -= Clients;
+        }
+
+        StartSimulators();
         waitForTerminationRequest();
-
-        logger.information("Waiting for simulation to stop...");
-
-        Sim_.stop();
-
-        SimThr.join();
-
+        StopSimulators();
         logger.information("Simulation done...");
     }
 
@@ -135,17 +170,18 @@ void uCentralClientApp::initialize(Application &self) {
     ServerApplication::initialize(self);
     logger().information("Starting...");
 
-    CertFileName_ = Poco::Path::expand(uCentralClientApp::instance().config().getString("ucentral.simulation.certfile"));
-    KeyFileName_ = Poco::Path::expand(uCentralClientApp::instance().config().getString("ucentral.simulation.keyfile"));
-    URI_ = uCentralClientApp::instance().config().getString("ucentral.simulation.uri");
+    CertFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.certfile"));
+    KeyFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.keyfile"));
+    URI_ = App()->config().getString("ucentral.simulation.uri");
     if(NumClients_==0)
-        NumClients_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.maxclients");
-    SerialNumberBase_ = uCentralClientApp::instance().config().getString("ucentral.simulation.serialbase");
-    HealthCheckInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.healthcheckinterval");
-    StateInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.stateinterval");
-    ReconnectInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.reconnect");
-    KeepAliveInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.keepalive");
+        NumClients_ = App()->config().getInt64("ucentral.simulation.maxclients");
+    SerialNumberBase_ = App()->config().getString("ucentral.simulation.serialbase");
+    HealthCheckInterval_ = App()->config().getInt64("ucentral.simulation.healthcheckinterval");
+    StateInterval_ =App()->config().getInt64("ucentral.simulation.stateinterval");
+    ReconnectInterval_ = App()->config().getInt64("ucentral.simulation.reconnect");
+    KeepAliveInterval_ = App()->config().getInt64("ucentral.simulation.keepalive");
     ConfigChangePendingInterval_ = uCentralClientApp::instance().config().getInt64("ucentral.simulation.configchangepending");
+    MaxThreads_ = App()->config().getInt64("ucentral.simulation.maxthreads",3);
 }
 
 void uCentralClientApp::uninitialize() {

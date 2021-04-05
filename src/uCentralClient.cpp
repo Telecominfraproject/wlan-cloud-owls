@@ -148,13 +148,12 @@ const char * uCentralClient::DefaultState() {
 void uCentralClient::Disconnect( bool Reconnect ) {
     my_guard guard(Mutex_);
     if(Connected_) {
-        Reactor_.removeEventHandler(*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(*this,
-                                                                                                           &uCentralClient::OnSocketReadable));
+        Reactor_.removeEventHandler(*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
         (*WS_).close();
     }
 
     Connected_ = false ;
-    Commands_.erase(Commands_.begin(),Commands_.end());
+    Commands_.clear();
 
     if(Reconnect)
         AddEvent(ev_reconnect,App()->GetReconnectInterval());

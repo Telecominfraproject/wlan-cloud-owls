@@ -37,12 +37,12 @@ public:
     void handleNumClients(const std::string &name, const std::string &value);
     void displayHelp();
 
-    [[nodiscard]] Simulator & GetSimulator() { return Sim_; }
     [[nodiscard]] uint64_t GetStateInterval() const { return StateInterval_; }
     [[nodiscard]] uint64_t GetHealthCheckInterval() const { return HealthCheckInterval_; }
     [[nodiscard]] uint64_t GetReconnectInterval() const { return ReconnectInterval_; }
     [[nodiscard]] uint64_t GetKeepAliveInterval() const { return KeepAliveInterval_; }
     [[nodiscard]] uint64_t GetConfigChangePendingInterval() const { return ConfigChangePendingInterval_; }
+    [[nodiscard]] uint64_t GetMaxThreads() const { return MaxThreads_; }
 
     [[nodiscard]] const std::string & GetURI() { return URI_; }
     [[nodiscard]] const std::string & GetCertFileName() { return CertFileName_; }
@@ -52,8 +52,17 @@ public:
     [[nodiscard]] uint64_t GetNumClients() const { return NumClients_; }
 
 private:
-    Poco::Thread    SimThr;
-    Simulator       Sim_;
+    void StartSimulators();
+    void StopSimulators();
+
+    struct SimThread {
+        Poco::Thread    Thread;
+        Simulator       Sim;
+        SimThread(uint Index, std::string SerialBase, uint NumClients):
+            Sim(Index,std::move(SerialBase),NumClients) {};
+    };
+
+    std::vector<std::unique_ptr<SimThread>>   SimThreads_;
     bool                        helpRequested_ = false;
     bool                        DebugMode_ = false ;
     std::string                 URI_;
@@ -68,6 +77,7 @@ private:
     uint64_t                    ReconnectInterval_=0;
     uint64_t                    KeepAliveInterval_=0;
     uint64_t                    ConfigChangePendingInterval_=0;
+    uint64_t                    MaxThreads_=3;
 };
 
 uCentralClientApp * App();

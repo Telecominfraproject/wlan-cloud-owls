@@ -12,26 +12,31 @@
 
 Simulator *Simulator::instance_ = nullptr;
 
-void Simulator::run() {
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
+void Simulator::Initialize() {
+    std::random_device  rd;
+    std::mt19937        gen(rd());
     std::uniform_int_distribution<> distrib(1, 15);
 
     Poco::Logger    & Logger_ = App()->logger();
 
-    for(auto i=0;i<App()->GetNumClients();i++)
+    for(auto i=0;i<NumClients_;i++)
     {
-        std::string Serial = App()->GetSerialNumberBase() + std::to_string(i);
+        char Buffer[32];
+        snprintf(Buffer,sizeof(Buffer),"%s%02x%04x",SerialStart_.c_str(),(unsigned int)Index_,i);
         auto Client = std::make_shared<uCentralClient>( Reactor_,
-                                                         Serial,
-                                                         App()->GetURI(),
-                                                         App()->GetKeyFileName(),
-                                                         App()->GetCertFileName(),
-                                                         uCentralClientApp::instance().logger());
+                                                        Buffer,
+                                                        App()->GetURI(),
+                                                        App()->GetKeyFileName(),
+                                                        App()->GetCertFileName(),
+                                                        uCentralClientApp::instance().logger());
         Client->AddEvent(ev_reconnect, distrib(gen) );
-        Clients_[Serial] = std::move(Client);
+        Clients_[Buffer] = std::move(Client);
     }
+}
+
+void Simulator::run() {
+
+    Poco::Logger    & Logger_ = App()->logger();
 
     SocketReactorThread_.start(Reactor_);
 
@@ -161,4 +166,6 @@ void Simulator::run() {
         Client->Terminate();
 
     Reactor_.stop();
+    SocketReactorThread_.join();
+    std::cout << "stopped reactor " << Index_ << std::endl;
 }

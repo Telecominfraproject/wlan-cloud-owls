@@ -5,6 +5,8 @@
 #ifndef UCENTRAL_CLNT_UCENTRALCLIENT_H
 #define UCENTRAL_CLNT_UCENTRALCLIENT_H
 
+#include <mutex>
+
 #include "Poco/Thread.h"
 #include "Poco/Net/SocketReactor.h"
 #include "Poco/Net/SocketNotification.h"

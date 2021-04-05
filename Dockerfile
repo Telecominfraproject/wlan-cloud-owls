@@ -25,13 +25,13 @@ WORKDIR /poco
 RUN mkdir cmake-build
 WORKDIR cmake-build
 RUN cmake ..
-RUN cmake --build . --config Release
+RUN cmake --build . --config Release -j
 RUN cmake --build . --target install
 WORKDIR /ucentral-clnt
 RUN mkdir cmake-build
 WORKDIR /ucentral-clnt/cmake-build
 RUN cmake ..
-RUN cmake --build . --config Release
+RUN cmake --build . --config Release -j
 
 RUN mkdir /ucentral-clnt
 RUN cp /ucentral-clnt/cmake-build/ucentral_clnt /ucentral/ucentral_clnt

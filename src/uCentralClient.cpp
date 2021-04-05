@@ -576,9 +576,6 @@ void uCentralClient::EstablishConnection() {
     try {
         my_guard guard(Mutex_);
 
-        if(WS_!= nullptr)
-            WS_.reset(nullptr);
-
         WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);
 
         Reactor_.addEventHandler(*WS_, Poco::NObserver<uCentralClient,

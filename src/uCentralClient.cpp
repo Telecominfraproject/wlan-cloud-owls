@@ -224,16 +224,16 @@ void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNot
 void uCentralClient::ProcessCommand(Poco::DynamicStruct Vars) {
 
     auto ParamsObj = Vars["params"];
+    auto Method = Vars["method"].toString();
 
     if(!ParamsObj.isStruct())
     {
-        std::cout << "Command does not contain proper parameters." << std::endl;
+        Logger_.warning(Poco::format("COMMAND(%s): command '%s' does not have proper parameters",SerialNumber_,Method));
         return;
     }
 
     const auto & Params = ParamsObj.extract<Poco::DynamicStruct>();
 
-    auto Method = Vars["method"].toString();
     auto Id = Vars["id"];
 
     if(Method == "configure") {
@@ -251,7 +251,7 @@ void uCentralClient::ProcessCommand(Poco::DynamicStruct Vars) {
     } else if(Method == "trace") {
         DoTrace(Id,Params);
     } else {
-        std::cout << "Unknown method: " << Method << std::endl;
+        Logger_.warning(Poco::format("COMMAND(%s): unknown method '%s'",SerialNumber_,Method));
     }
 }
 
@@ -547,12 +547,6 @@ void  uCentralClient::DoTrace(uint64_t Id, Poco::DynamicStruct Params) {
         Logger_.warning(Poco::format("trace(%s): Exception. %s",SerialNumber_,E.displayText()));
     }
 }
-
-
-void uCentralClient::OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification>& pNf) {
-    std::cout << "Serial:" << SerialNumber_ << " disconnecting" << std::endl;
-    // delete this;
-};
 
 void uCentralClient::Terminate() {
     my_guard guard(Mutex_);

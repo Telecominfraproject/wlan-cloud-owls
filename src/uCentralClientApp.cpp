@@ -6,7 +6,6 @@
 
 #include "Poco/Path.h"
 #include "Poco/Logger.h"
-#include "Simulator.h"
 #include "Poco/Util/Option.h"
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"

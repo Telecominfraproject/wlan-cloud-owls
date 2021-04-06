@@ -4,16 +4,16 @@
 
 #ifndef UCENTRAL_CLNT_UCENTRALCLIENTAPP_H
 #define UCENTRAL_CLNT_UCENTRALCLIENTAPP_H
+
 #include <string>
-#include <map>
 #include <mutex>
+#include <vector>
+
 #include "uCentralClient.h"
+#include "Simulator.h"
 
 #include "Poco/Util/ServerApplication.h"
-#include "Simulator.h"
 #include "Poco/Util/OptionSet.h"
-using Poco::Util::OptionSet;
-
 
 class uCentralClientApp : public Poco::Util::ServerApplication {
 
@@ -28,7 +28,7 @@ public:
     void uninitialize() override;
     void reinitialize(Application &self) override;
     int main(const ArgVec &args) override;
-    void defineOptions(OptionSet &options) override;
+    void defineOptions(Poco::Util::OptionSet &options) override;
 
     void handleHelp(const std::string &name, const std::string &value);
     void handleDebug(const std::string &name, const std::string &value);

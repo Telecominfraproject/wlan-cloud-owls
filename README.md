@@ -44,7 +44,8 @@ the only entries that need changing are the following:
 ```asm
 ucentral.simulation.uri = wss://localhost:15002
 ucentral.simulation.maxclients = 100
-ucentral.simulation.serialbase = 22334400
+ucentral.simulation.serialbase = 223344
+ucentral.simulation.maxthreads = 5
 ```
 
 ### `ucentral.simulation.uri`
@@ -56,11 +57,24 @@ How many simulated clients would you like to have? Have fun with this one. Pleas
 some sockets limits on your gateway or the host where you are running this application. 1 socket per client is needed. Bare that in mind.
 
 ### `ucentral.simulation.serialbase`
-All the serial numbers generated for these devices will begin with  this base. This is a hex string and should be 10 characters in order to create a 
-real simulation bed. 
+All the serial numbers generated for these devices will begin with  this base. This is a hex string and should be 6 characters in order to create a 
+real simulation bed. The final serial number for a simulated device is given with the following formula:
+
+```
+serialnumber = serialbase + (thread number in 2 digit hex) + (device number for this thread in hex)
+
+example:
+serialnumber for the 27th device for the second thread
+
+22334402001b
+```
+
+### `ucentral.simulation.maxthreads`
+This is the maximum number of threads that should be used during the simulation. This number is only used if you 
+need more than 250 clients. The simulator will do its best ats splitting all devices euqally between all threads. 
 
 ## Running the docker simulation
-Simply run the `docker_run.sh` script in order to start the simulation. To stop the simulation,
+Simply run the `docker_run.sh` script in order to start the simulation. To stop the simulation:
 
 ```shell
 docker stop ucentralsim

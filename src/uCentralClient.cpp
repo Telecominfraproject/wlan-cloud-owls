@@ -199,7 +199,7 @@ void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNot
                         {
                             ProcessCommand(Vars);
                         } else {
-                            std::cout << "Bad incoming message: " << Message << std::endl;
+                            Logger_.warning(Poco::format("MESSAGE(%s): invalid incoming message.",SerialNumber_));
                         }
                     }
                 }
@@ -212,11 +212,11 @@ void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNot
     }
     catch ( const Poco::Net::SSLException & E )
     {
-        std::cout << "Caught SSL exception: " << E.displayText() << std::endl;
+        Logger_.warning(Poco::format("Exception(%s): SSL exception: %s", SerialNumber_,E.displayText()));
     }
     catch ( const Poco::Exception & E )
     {
-        std::cout << "Caught exception: " << E.displayText() << std::endl;
+        Logger_.warning(Poco::format("Exception(%s): Generic exception: %s", SerialNumber_,E.displayText()));
     }
     Disconnect(true);
 }
@@ -231,7 +231,7 @@ void uCentralClient::ProcessCommand(Poco::DynamicStruct Vars) {
         return;
     }
 
-    Poco::DynamicStruct Params = ParamsObj.extract<Poco::DynamicStruct>();
+    const auto & Params = ParamsObj.extract<Poco::DynamicStruct>();
 
     auto Method = Vars["method"].toString();
     auto Id = Vars["id"];

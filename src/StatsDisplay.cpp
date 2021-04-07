@@ -3,22 +3,20 @@
 //
 #include <ostream>
 #include <iostream>
+#include <iomanip>
 
 #include "StatsDisplay.h"
 #include "SimStats.h"
 
 void StatsDisplay::run() {
 
-    char Buffer[256];
-    StatsReport R;
+    StatsReport R{0};
 
     while(!Stop_)
     {
         Poco::Thread::sleep(3000);
-
         Stats()->Report(R);
-
-        snprintf(Buffer,sizeof(Buffer),"Connected:%06llu  TX:%09llu  RX:%09llu  IN:%08llu OUT:%08llu",R.Connected,R.TX,R.RX,R.InMsgs,R.OutMsgs);
-        std::cout << Buffer << std::endl;
+        std::cout << "Connected:" << std::setw(6) << R.Connected << " TX:" << std::setw(10) << R.TX << " RX:" << std::setw(10) << R.RX <<
+        " IN:" << std::setw(9) << R.InMsgs << " OUT:" << std::setw(9) << R.OutMsgs << std::endl;
     }
 }

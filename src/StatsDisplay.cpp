@@ -1,6 +1,7 @@
 //
 // Created by stephane bourque on 2021-04-07.
 //
+#include <ostream>
 
 #include "StatsDisplay.h"
 #include "SimStats.h"

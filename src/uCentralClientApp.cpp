@@ -10,49 +10,47 @@
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
 
-using Poco::Util::Option;
-using Poco::Util::OptionSet;
-using Poco::Util::HelpFormatter;
-using Poco::Util::OptionCallback;
+#include "SimStats.h"
+#include "StatsDisplay.h"
 
 uCentralClientApp * App() { return dynamic_cast<uCentralClientApp *>(&uCentralClientApp::instance()); } ;
 
-void uCentralClientApp::defineOptions(OptionSet &options) {
+void uCentralClientApp::defineOptions(Poco::Util::OptionSet &options) {
 
     ServerApplication::defineOptions(options);
 
     options.addOption(
-            Option("help", "", "display help information on command line arguments")
+            Poco::Util::Option("help", "", "display help information on command line arguments")
                     .required(false)
                     .repeatable(false)
-                    .callback(OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleHelp)));
+                    .callback(Poco::Util::OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleHelp)));
 
     options.addOption(
-            Option("file", "", "specify the configuration file")
+            Poco::Util::Option("file", "", "specify the configuration file")
                     .required(false)
                     .repeatable(false)
                     .argument("file")
-                    .callback(OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleConfig)));
+                    .callback(Poco::Util::OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleConfig)));
 
     options.addOption(
-            Option("debug", "", "to run in debug, set to true")
+            Poco::Util::Option("debug", "", "to run in debug, set to true")
                     .required(false)
                     .repeatable(false)
-                    .callback(OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleDebug)));
+                    .callback(Poco::Util::OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleDebug)));
 
     options.addOption(
-            Option("logs", "", "specify the log directory and file (i.e. dir/file.log)")
+            Poco::Util::Option("logs", "", "specify the log directory and file (i.e. dir/file.log)")
                     .required(false)
                     .repeatable(false)
                     .argument("dir")
-                    .callback(OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleLogs)));
+                    .callback(Poco::Util::OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleLogs)));
 
     options.addOption(
-            Option("clients", "", "The number of clients to run.")
+            Poco::Util::Option("clients", "", "The number of clients to run.")
                     .required(false)
                     .repeatable(false)
                     .argument("number")
-                    .callback(OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleNumClients)));
+                    .callback(Poco::Util::OptionCallback<uCentralClientApp>(this, &uCentralClientApp::handleNumClients)));
 }
 
 void uCentralClientApp::handleHelp(const std::string &name, const std::string &value) {
@@ -79,7 +77,7 @@ void uCentralClientApp::handleNumClients(const std::string &name, const std::str
 }
 
 void uCentralClientApp::displayHelp() {
-    HelpFormatter helpFormatter(options());
+    Poco::Util::HelpFormatter helpFormatter(options());
     helpFormatter.setCommand(commandName());
     helpFormatter.setUsage("OPTIONS");
     helpFormatter.setHeader("A uCentral gateway implementation for TIP.");
@@ -134,7 +132,16 @@ int uCentralClientApp::main(const ArgVec &args) {
         }
 
         StartSimulators();
+
+        StatsDisplay    StatsReporting;
+        Poco::Thread    Display;
+
+        Display.start(StatsReporting);
+
         waitForTerminationRequest();
+
+        StatsReporting.Stop();
+
         StopSimulators();
         logger.information("Simulation done...");
     }

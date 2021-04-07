@@ -23,6 +23,8 @@
 #include "Poco/JSON/Stringifier.h"
 #include "Poco/JSON/Parser.h"
 
+#include "SimStats.h"
+
 using namespace std::chrono_literals;
 
 const char * uCentralClient::DefaultCapabilities() {
@@ -157,6 +159,8 @@ void uCentralClient::Disconnect( bool Reconnect ) {
 
     if(Reconnect)
         AddEvent(ev_reconnect,App()->GetReconnectInterval());
+
+    Stats()->Disconnect();
 }
 
 void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf) {
@@ -188,6 +192,9 @@ void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNot
             case Poco::Net::WebSocket::FRAME_OP_TEXT: {
                     if (MessageSize > 0) {
                         Poco::JSON::Parser  Parser;
+
+                        Stats()->AddRX(MessageSize);
+                        Stats()->AddInMsg();
 
                         auto ParsedMessage = Parser.parse(Message);
                         auto Result = ParsedMessage.extract<Poco::JSON::Object::Ptr>();
@@ -572,6 +579,8 @@ void uCentralClient::EstablishConnection() {
 
         WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);
 
+        Stats()->Connect();
+
         Reactor_.addEventHandler(*WS_, Poco::NObserver<uCentralClient,
                                  Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
         Connected_ = true ;
@@ -590,6 +599,8 @@ void uCentralClient::EstablishConnection() {
 bool uCentralClient::Send(const std::string & Cmd) {
     my_guard guard(Mutex_);
 
+    Stats()->AddTX(Cmd.size());
+    Stats()->AddOutMsg();
     WS_->sendFrame(Cmd.c_str(),Cmd.size());
 
     return true;
@@ -608,6 +619,9 @@ bool uCentralClient::SendObject(Poco::JSON::Object O) {
     std::stringstream OS;
     Poco::JSON::Stringifier::stringify( O, OS );
     auto BytesSent = WS_->sendFrame(OS.str().c_str(),OS.str().size());
+    Stats()->AddTX(BytesSent);
+    Stats()->AddOutMsg();
+
     return BytesSent == OS.str().size();
 }
 

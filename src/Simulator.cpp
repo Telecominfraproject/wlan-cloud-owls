@@ -9,6 +9,7 @@
 #include "Simulator.h"
 #include "uCentralClientApp.h"
 #include "uCentralEvent.h"
+#include "SimStats.h"
 
 Simulator *Simulator::instance_ = nullptr;
 
@@ -32,6 +33,8 @@ void Simulator::Initialize() {
         Client->AddEvent(ev_reconnect, distrib(gen) );
         Clients_[Buffer] = std::move(Client);
     }
+
+    Stats()->AddClients(NumClients_);
 }
 
 void Simulator::run() {

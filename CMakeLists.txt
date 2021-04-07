@@ -32,7 +32,7 @@ include_directories(/usr/local/include  /usr/local/opt/openssl/include src)
 
 add_executable( ucentralsim src/main.cpp src/uCentralClient.cpp src/uCentralClient.h src/uCentralClientApp.cpp
                 src/uCentralClientApp.h src/Simulator.cpp src/Simulator.h src/uCentralEvent.cpp src/uCentralEvent.h
-                src/uCentralEventTypes.h src/base64util.cpp src/base64util.h )
+                src/uCentralEventTypes.h src/base64util.cpp src/base64util.h src/SimStats.cpp src/SimStats.h src/StatsDisplay.cpp src/StatsDisplay.h)
 
 target_link_libraries(ucentralsim PRIVATE yaml-cpp
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}

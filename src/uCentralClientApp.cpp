@@ -141,6 +141,7 @@ int uCentralClientApp::main(const ArgVec &args) {
         waitForTerminationRequest();
 
         StatsReporting.Stop();
+        Display.join();
 
         StopSimulators();
         logger.information("Simulation done...");

@@ -14,6 +14,16 @@
 
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/OptionSet.h"
+#include "Poco/ErrorHandler.h"
+
+class MyErrorHandler : public Poco::ErrorHandler {
+public:
+    void exception(const Poco::Exception & E) override;
+    void exception(const std::exception & E) override;
+    void exception() override;
+private:
+
+};
 
 class uCentralClientApp : public Poco::Util::ServerApplication {
 
@@ -78,6 +88,7 @@ private:
     uint64_t                    KeepAliveInterval_=0;
     uint64_t                    ConfigChangePendingInterval_=0;
     uint64_t                    MaxThreads_=3;
+    MyErrorHandler              AppErrorHandler_;
 };
 
 uCentralClientApp * App();

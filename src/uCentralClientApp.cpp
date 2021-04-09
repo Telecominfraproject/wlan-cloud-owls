@@ -15,6 +15,21 @@
 
 uCentralClientApp * App() { return dynamic_cast<uCentralClientApp *>(&uCentralClientApp::instance()); } ;
 
+void MyErrorHandler::exception(const Poco::Exception & E) {
+    Poco::Thread * CurrentThread = Poco::Thread::current();
+    App()->logger().warning(Poco::format("generic Poco exception on %s",CurrentThread->getName()));
+}
+
+void MyErrorHandler::exception(const std::exception & E) {
+    Poco::Thread * CurrentThread = Poco::Thread::current();
+    App()->logger().warning(Poco::format("std::exception on %s",CurrentThread->getName()));
+}
+
+void MyErrorHandler::exception() {
+    Poco::Thread * CurrentThread = Poco::Thread::current();
+    App()->logger().warning(Poco::format("exception on %s",CurrentThread->getName()));
+}
+
 void uCentralClientApp::defineOptions(Poco::Util::OptionSet &options) {
 
     ServerApplication::defineOptions(options);
@@ -100,6 +115,8 @@ void uCentralClientApp::StopSimulators() {
 }
 
 int uCentralClientApp::main(const ArgVec &args) {
+
+    Poco::ErrorHandler::set(&AppErrorHandler_);
 
     if (!helpRequested_) {
 

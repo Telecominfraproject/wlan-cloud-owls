@@ -25,102 +25,126 @@ bool uCentralEvent::SendObject(Poco::JSON::Object &Obj) {
 }
 
 bool ConnectEvent::Send() {
-    Poco::JSON::Object  O;
+    try {
+        Poco::JSON::Object O;
 
-    SetHeader(O,"connect");
+        SetHeader(O, "connect");
 
-    Poco::JSON::Object  Params;
-    Params.set("serial",Client_->Serial());
-    Params.set("uuid",Client_->UUID());
-    Params.set("firmware",Client_->Firmware());
+        Poco::JSON::Object Params;
+        Params.set("serial", Client_->Serial());
+        Params.set("uuid", Client_->UUID());
+        Params.set("firmware", Client_->Firmware());
 
-    Poco::JSON::Parser Parser;
-    auto CapabilitiesObj = Parser.parse(Client_->DefaultCapabilities()).extract<Poco::JSON::Object::Ptr>();
-    Params.set("capabilities",CapabilitiesObj);
+        Poco::JSON::Parser Parser;
+        auto CapabilitiesObj = Parser.parse(Client_->DefaultCapabilities()).extract<Poco::JSON::Object::Ptr>();
+        Params.set("capabilities", CapabilitiesObj);
 
-    O.set("params",Params);
-    Client_->AddEvent(ev_keepalive,App()->GetKeepAliveInterval());
-    Client_->AddEvent(ev_state,App()->GetStateInterval());
-    Client_->AddEvent(ev_healthcheck,App()->GetHealthCheckInterval());
-    Client_->AddEvent(ev_log,120 + (rand() % 200));
+        O.set("params", Params);
+        Client_->AddEvent(ev_keepalive, App()->GetKeepAliveInterval());
+        Client_->AddEvent(ev_state, App()->GetStateInterval());
+        Client_->AddEvent(ev_healthcheck, App()->GetHealthCheckInterval());
+        Client_->AddEvent(ev_log, 120 + (rand() % 200));
 
-    return SendObject(O);
+        return SendObject(O);
+    }
+    catch(...) {
+        Client_->Disconnect(true);
+    }
+    return false;
 }
 
 bool StateEvent::Send() {
-    Poco::JSON::Object  O;
+    try {
+        Poco::JSON::Object O;
 
-    SetHeader(O,"state");
-    Poco::JSON::Object  Params;
+        SetHeader(O, "state");
+        Poco::JSON::Object Params;
 
-    Params.set("serial",Client_->Serial());
-    Params.set("uuid",Client_->UUID());
+        Params.set("serial", Client_->Serial());
+        Params.set("uuid", Client_->UUID());
 
-    Poco::JSON::Parser  Parser;
+        Poco::JSON::Parser Parser;
 
-    std::string State{ Client_->DefaultState() };
-    auto StateObj = Parser.parse(State).extract<Poco::JSON::Object::Ptr>();
-    Params.set("state", StateObj);
+        std::string State{Client_->DefaultState()};
+        auto StateObj = Parser.parse(State).extract<Poco::JSON::Object::Ptr>();
+        Params.set("state", StateObj);
 
-    if(State.size()>3000) {
-        // compress
-        std::stringstream  OS;
-        Poco::JSON::Stringifier::stringify(Params,OS);
+        if (State.size() > 3000) {
+            // compress
+            std::stringstream OS;
+            Poco::JSON::Stringifier::stringify(Params, OS);
 
-        unsigned long BufSize = OS.str().size()+2000;
-        std::vector<Bytef>   Buffer(BufSize);
+            unsigned long BufSize = OS.str().size() + 2000;
+            std::vector<Bytef> Buffer(BufSize);
 
-        compress( &Buffer[0], &BufSize, (Bytef*)OS.str().c_str(), OS.str().size());
-        auto Compressed = base64::encode(&Buffer[0],BufSize);
-        Poco::JSON::Object CompressedPayload;
+            compress(&Buffer[0], &BufSize, (Bytef *) OS.str().c_str(), OS.str().size());
+            auto Compressed = base64::encode(&Buffer[0], BufSize);
+            Poco::JSON::Object CompressedPayload;
 
-        CompressedPayload.set("compress_64",Compressed);
-        O.set("params",CompressedPayload);
+            CompressedPayload.set("compress_64", Compressed);
+            O.set("params", CompressedPayload);
 
-    } else {
-        O.set("params", Params);
+        } else {
+            O.set("params", Params);
+        }
+
+        Client_->AddEvent(ev_state, App()->GetStateInterval());
+
+        return SendObject(O);
     }
-
-    Client_->AddEvent(ev_state, App()->GetStateInterval());
-
-    return SendObject(O);
+    catch(...) {
+        Client_->Disconnect(true);
+    }
+    return false;
 }
 
 bool HealthCheckEvent::Send() {
-    Poco::JSON::Object  O;
+    try {
+        Poco::JSON::Object O;
 
-    SetHeader(O,"healthcheck");
-    Poco::JSON::Object  Params;
+        SetHeader(O, "healthcheck");
+        Poco::JSON::Object Params;
 
-    Params.set("serial",Client_->Serial());
-    Params.set("uuid",Client_->UUID());
-    Params.set("sanity",100);
+        Params.set("serial", Client_->Serial());
+        Params.set("uuid", Client_->UUID());
+        Params.set("sanity", 100);
 
-    Poco::JSON::Parser  Parser;
+        Poco::JSON::Parser Parser;
 
-    auto StateObj = Parser.parse(std::string("{}")).extract<Poco::JSON::Object::Ptr>();
-    Params.set("data",StateObj);
-    O.set("params",Params);
+        auto StateObj = Parser.parse(std::string("{}")).extract<Poco::JSON::Object::Ptr>();
+        Params.set("data", StateObj);
+        O.set("params", Params);
 
-    Client_->AddEvent(ev_healthcheck, App()->GetHealthCheckInterval());
+        Client_->AddEvent(ev_healthcheck, App()->GetHealthCheckInterval());
 
-    return SendObject(O);
-};
+        return SendObject(O);
+    }
+    catch(...) {
+        Client_->Disconnect(true);
+    }
+    return false;
+}
 
 bool LogEvent::Send() {
-    Poco::JSON::Object  O;
+    try {
+        Poco::JSON::Object O;
 
-    SetHeader(O,"log");
+        SetHeader(O, "log");
 
-    Poco::JSON::Object  Params;
-    Params.set("serial", Client_->Serial());
-    Params.set("severity",Severity_);
-    Params.set("log",LogLine_);
+        Poco::JSON::Object Params;
+        Params.set("serial", Client_->Serial());
+        Params.set("severity", Severity_);
+        Params.set("log", LogLine_);
 
-    O.set("params",Params);
-    Client_->AddEvent(ev_log,120 + (rand() % 200));
+        O.set("params", Params);
+        Client_->AddEvent(ev_log, 120 + (rand() % 200));
 
-    return SendObject(O);
+        return SendObject(O);
+    }
+    catch(...) {
+        Client_->Disconnect(true);
+    }
+    return false;
 };
 
 bool CrashLogEvent::Send() {
@@ -148,19 +172,25 @@ bool ConfigChangePendingEvent::Send() {
 }
 
 bool KeepAliveEvent::Send() {
-    Poco::JSON::Object  O;
+    try {
+        Poco::JSON::Object O;
 
-    SetHeader(O,"ping");
-    Poco::JSON::Object  Params;
+        SetHeader(O, "ping");
+        Poco::JSON::Object Params;
 
-    Params.set("serial",Client_->Serial());
-    Params.set("uuid",Client_->UUID());
+        Params.set("serial", Client_->Serial());
+        Params.set("uuid", Client_->UUID());
 
-    O.set("params",Params);
+        O.set("params", Params);
 
-    Client_->AddEvent(ev_keepalive, App()->GetKeepAliveInterval());
+        Client_->AddEvent(ev_keepalive, App()->GetKeepAliveInterval());
 
-    return SendObject(O);
+        return SendObject(O);
+    }
+    catch(...) {
+        Client_->Disconnect(true);
+    }
+    return false;
 };
 
 // This is just a fake event, reboot is handled somewhere else.

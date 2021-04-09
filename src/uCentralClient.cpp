@@ -574,9 +574,9 @@ void uCentralClient::EstablishConnection() {
 
     Logger_.information(Poco::format("connecting(%s): host=%s port=%Lu",SerialNumber_,uri.getHost(),(uint64_t )uri.getPort()));
 
-    try {
-        my_guard guard(Mutex_);
+    my_guard guard(Mutex_);
 
+    try {
         WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);
         Reactor_.addEventHandler(*WS_, Poco::NObserver<uCentralClient,
                                  Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));

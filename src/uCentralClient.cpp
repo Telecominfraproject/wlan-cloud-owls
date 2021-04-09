@@ -578,9 +578,6 @@ void uCentralClient::EstablishConnection() {
         my_guard guard(Mutex_);
 
         WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);
-
-        Stats()->Connect();
-
         Reactor_.addEventHandler(*WS_, Poco::NObserver<uCentralClient,
                                  Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
         Connected_ = true ;
@@ -588,11 +585,22 @@ void uCentralClient::EstablishConnection() {
         //  Add all the first commands...
         Commands_.erase( Commands_.begin(), Commands_.end());
         AddEvent(ev_connect,1);
+        Stats()->Connect();
     }
     catch ( const Poco::Exception & E )
     {
         Logger_.warning(Poco::format("connecting(%s): exception. %s",SerialNumber_,E.displayText()));
-        AddEvent(ev_reconnect,App()->GetReconnectInterval());
+        AddEvent(ev_reconnect,App()->GetReconnectInterval()+(rand()%15));
+    }
+    catch ( const std::exception & E )
+    {
+        Logger_.warning(Poco::format("connecting(%s): std::exception. %s",SerialNumber_,E.what()));
+        AddEvent(ev_reconnect,App()->GetReconnectInterval()+(rand()%15));
+    }
+    catch ( ... )
+    {
+        Logger_.warning(Poco::format("connecting(%s): unknown exception. %s",SerialNumber_));
+        AddEvent(ev_reconnect,App()->GetReconnectInterval()+(rand()%15));
     }
 }
 

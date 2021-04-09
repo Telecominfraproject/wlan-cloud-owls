@@ -158,7 +158,7 @@ void uCentralClient::Disconnect( bool Reconnect ) {
     Commands_.clear();
 
     if(Reconnect)
-        AddEvent(ev_reconnect,App()->GetReconnectInterval());
+        AddEvent(ev_reconnect,App()->GetReconnectInterval() + (rand() % 15) );
 
     Stats()->Disconnect();
 }

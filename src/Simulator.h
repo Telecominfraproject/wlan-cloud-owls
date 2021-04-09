@@ -29,7 +29,7 @@ public:
 
 private:
     static Simulator * instance_;
-    std::mutex mutex_;
+    my_mutex                                                Mutex_;
     Poco::Net::SocketReactor                                Reactor_;
     std::map<std::string,std::shared_ptr<uCentralClient>>   Clients_;
     Poco::Thread                                            SocketReactorThread_;
@@ -37,6 +37,7 @@ private:
     uint64_t                                                Index_;
     std::string                                             SerialStart_;
     uint64_t                                                NumClients_;
+    CensusReport                                            CensusReport_;
 };
 
 

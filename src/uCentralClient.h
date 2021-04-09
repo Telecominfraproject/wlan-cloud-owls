@@ -17,8 +17,26 @@
 
 #include "uCentralEventTypes.h"
 
-typedef std::recursive_mutex        my_mutex;
-typedef std::lock_guard<my_mutex>   my_guard;
+struct CensusReport {
+    uint32_t ev_none,
+    ev_reconnect,
+    ev_connect,
+    ev_state,
+    ev_healthcheck,
+    ev_log,
+    ev_crashlog,
+    ev_configpendingchange,
+    ev_keepalive,
+    ev_reboot,
+    ev_disconnect,
+    ev_wsping;
+
+    void Reset() {
+        ev_none = ev_reconnect = ev_connect = ev_state =
+        ev_healthcheck = ev_log = ev_crashlog = ev_configpendingchange =
+        ev_keepalive = ev_reboot = ev_disconnect = ev_wsping = 0 ;
+    }
+};
 
 class uCentralClient {
 public:
@@ -51,7 +69,6 @@ public:
     bool SendWSPing();
     bool SendObject(Poco::JSON::Object O);
     void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf);
-    void OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification>& pNf);
 
     void EstablishConnection();
     void Terminate();
@@ -77,6 +94,8 @@ public:
     void  DoBlink(uint64_t Id, Poco::DynamicStruct Params);
     void  DoPerform(uint64_t Id, Poco::DynamicStruct Params);
     void  DoTrace(uint64_t Id, Poco::DynamicStruct Params);
+
+    void DoCensus( CensusReport & Census );
 
 private:
     my_mutex                    Mutex_;

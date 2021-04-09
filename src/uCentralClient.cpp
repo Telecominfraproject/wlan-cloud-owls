@@ -163,6 +163,27 @@ void uCentralClient::Disconnect( bool Reconnect ) {
     Stats()->Disconnect();
 }
 
+void uCentralClient::DoCensus( CensusReport & Census ) {
+    my_guard    lock(Mutex_);
+
+    for(const auto i:Commands_)
+        switch(i.second)
+        {
+            case ev_none: Census.ev_none++; break;
+            case ev_reconnect: Census.ev_reconnect++; break;
+            case ev_connect: Census.ev_connect++; break;
+            case ev_state: Census.ev_state++; break;
+            case ev_healthcheck: Census.ev_healthcheck++; break;
+            case ev_log: Census.ev_log++; break;
+            case ev_crashlog: Census.ev_crashlog++; break;
+            case ev_configpendingchange: Census.ev_configpendingchange++; break;
+            case ev_keepalive: Census.ev_keepalive++; break;
+            case ev_reboot: Census.ev_reboot++; break;
+            case ev_disconnect: Census.ev_disconnect++; break;
+            case ev_wsping: Census.ev_wsping++; break;
+        }
+}
+
 void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf) {
     my_guard guard(Mutex_);
 
@@ -582,8 +603,6 @@ void uCentralClient::EstablishConnection() {
                                  Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
         Connected_ = true ;
 
-        //  Add all the first commands...
-        Commands_.erase( Commands_.begin(), Commands_.end());
         AddEvent(ev_connect,1);
         Stats()->Connect();
     }
@@ -607,30 +626,47 @@ void uCentralClient::EstablishConnection() {
 bool uCentralClient::Send(const std::string & Cmd) {
     my_guard guard(Mutex_);
 
-    Stats()->AddTX(Cmd.size());
-    Stats()->AddOutMsg();
-    WS_->sendFrame(Cmd.c_str(),Cmd.size());
+    try {
+        if (WS_->sendFrame(Cmd.c_str(), Cmd.size()) == Cmd.size()) {
+            Stats()->AddTX(Cmd.size());
+            Stats()->AddOutMsg();
+            return true;
+        }
+    } catch(...) {
 
-    return true;
+    }
+    return false;
 }
 
 bool uCentralClient::SendWSPing() {
     my_guard guard(Mutex_);
 
-    WS_->sendFrame("", 0,Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
-    return true;
+    try {
+        WS_->sendFrame("", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
+        return true;
+    }
+    catch(...) {
+
+    }
+    return false;
 }
 
 bool uCentralClient::SendObject(Poco::JSON::Object O) {
     my_guard guard(Mutex_);
 
-    std::stringstream OS;
-    Poco::JSON::Stringifier::stringify( O, OS );
-    auto BytesSent = WS_->sendFrame(OS.str().c_str(),OS.str().size());
-    Stats()->AddTX(BytesSent);
-    Stats()->AddOutMsg();
+    try {
+        std::stringstream OS;
+        Poco::JSON::Stringifier::stringify(O, OS);
+        auto BytesSent = WS_->sendFrame(OS.str().c_str(), OS.str().size());
+        if (BytesSent == OS.str().size()) {
+            Stats()->AddTX(BytesSent);
+            Stats()->AddOutMsg();
+            return true;
+        }
+    } catch (...) {
 
-    return BytesSent == OS.str().size();
+    }
+    return false;
 }
 
 static const uint64_t million = 1000000;

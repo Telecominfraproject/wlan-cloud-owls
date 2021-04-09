@@ -21,6 +21,8 @@ void Simulator::Initialize() {
 
     Poco::Logger    & Logger_ = App()->logger();
 
+    my_guard Lock(Mutex_);
+
     for(auto i=0;i<NumClients_;i++)
     {
         char Buffer[32];
@@ -40,6 +42,8 @@ void Simulator::Initialize() {
     Stats()->AddClients(NumClients_);
 }
 
+
+
 void Simulator::run() {
 
     Poco::Logger    & Logger_ = App()->logger();
@@ -53,7 +57,12 @@ void Simulator::run() {
     {
         //  wake up every quarter second
         Poco::Thread::sleep(1000);
-        auto Now = time(nullptr);
+
+        my_guard Lock(Mutex_);
+
+        CensusReport_.Reset();
+        for(const auto &i:Clients_)
+            i.second->DoCensus(CensusReport_);
 
         for(const auto & i:Clients_)
         {

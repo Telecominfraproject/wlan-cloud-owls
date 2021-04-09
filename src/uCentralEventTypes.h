@@ -5,6 +5,8 @@
 #ifndef UCENTRAL_CLNT_UCENTRALEVENTTYPES_H
 #define UCENTRAL_CLNT_UCENTRALEVENTTYPES_H
 
+#include <mutex>
+
 enum uCentralEventType {
     ev_none,
     ev_reconnect,
@@ -19,5 +21,8 @@ enum uCentralEventType {
     ev_disconnect,
     ev_wsping
 };
+
+using my_mutex = std::recursive_mutex;
+using my_guard = std::lock_guard<my_mutex>;
 
 #endif //UCENTRAL_CLNT_UCENTRALEVENTTYPES_H

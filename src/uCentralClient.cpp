@@ -599,6 +599,10 @@ void uCentralClient::EstablishConnection() {
 
     try {
         WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);
+        (*WS_).setKeepAlive(true);
+        (*WS_).setReceiveTimeout(Poco::Timespan());
+        (*WS_).setSendTimeout(Poco::Timespan(20,0));
+        (*WS_).setNoDelay(true);
         Reactor_.addEventHandler(*WS_, Poco::NObserver<uCentralClient,
                                  Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
         Connected_ = true ;

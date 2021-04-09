@@ -28,7 +28,6 @@ public:
     void Initialize();
 
 private:
-    static Simulator * instance_;
     my_mutex                                                Mutex_;
     Poco::Net::SocketReactor                                Reactor_;
     std::map<std::string,std::shared_ptr<uCentralClient>>   Clients_;

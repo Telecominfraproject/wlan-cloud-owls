@@ -59,22 +59,26 @@ bool StateEvent::Send() {
     Poco::JSON::Parser  Parser;
 
     std::string State{ Client_->DefaultState() };
+    auto StateObj = Parser.parse(State).extract<Poco::JSON::Object::Ptr>();
+    Params.set("state", StateObj);
 
     if(State.size()>3000) {
         // compress
-        unsigned long BufSize = State.size()+2000;
+        std::stringstream  OS;
+        Poco::JSON::Stringifier::stringify(Params,OS);
+
+        unsigned long BufSize = OS.str().size()+2000;
         std::vector<Bytef>   Buffer(BufSize);
 
-        compress( &Buffer[0], &BufSize, (Bytef*)State.c_str(), State.size());
+        compress( &Buffer[0], &BufSize, (Bytef*)OS.str().c_str(), OS.str().size());
         auto Compressed = base64::encode(&Buffer[0],BufSize);
-        O.set("compress_64",Compressed);
+        Poco::JSON::Object CompressedPayload;
+
+        CompressedPayload.set("compress_64",Compressed);
+        O.set("params",CompressedPayload);
 
     } else {
-
-        auto StateObj = Parser.parse(State).extract<Poco::JSON::Object::Ptr>();
-        Params.set("state", StateObj);
         O.set("params", Params);
-
     }
 
     Client_->AddEvent(ev_state, App()->GetStateInterval());

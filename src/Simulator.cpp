@@ -5,6 +5,7 @@
 #include <random>
 
 #include "Poco/Logger.h"
+#include "Poco/Message.h"
 
 #include "Simulator.h"
 #include "uCentralClientApp.h"
@@ -24,12 +25,14 @@ void Simulator::Initialize() {
     {
         char Buffer[32];
         snprintf(Buffer,sizeof(Buffer),"%s%02x%04x",SerialStart_.c_str(),(unsigned int)Index_,i);
+        Poco::Logger & ClientLogger = uCentralClientApp::instance().logger();
+        ClientLogger.setLevel(Poco::Message::PRIO_WARNING);
         auto Client = std::make_shared<uCentralClient>( Reactor_,
                                                         Buffer,
                                                         App()->GetURI(),
                                                         App()->GetKeyFileName(),
                                                         App()->GetCertFileName(),
-                                                        uCentralClientApp::instance().logger());
+                                                        ClientLogger);
         Client->AddEvent(ev_reconnect, distrib(gen) );
         Clients_[Buffer] = std::move(Client);
     }
@@ -43,13 +46,14 @@ void Simulator::run() {
 
     SocketReactorThread_.start(Reactor_);
 
+    Logger_.setLevel(Poco::Message::PRIO_NOTICE);
+    Logger_.notice(Poco::format("Starting reactor %Lu...",Index_));
+
     while(!Stop_)
     {
         //  wake up every quarter second
         Poco::Thread::sleep(1000);
         auto Now = time(nullptr);
-
-        // Logger_.information("Looking for new events...");
 
         for(const auto & i:Clients_)
         {
@@ -170,5 +174,5 @@ void Simulator::run() {
 
     Reactor_.stop();
     SocketReactorThread_.join();
-    Logger_.information(Poco::format("Stopped reactor %Lu...",Index_));
+    Logger_.notice(Poco::format("Stopped reactor %Lu...",Index_));
 }

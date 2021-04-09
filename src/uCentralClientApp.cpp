@@ -86,13 +86,13 @@ void uCentralClientApp::displayHelp() {
 
 void uCentralClientApp::StartSimulators() {
 
-    logger().information("Starting simulation threads...");
+    logger().notice("Starting simulation threads...");
     for(const auto &i:SimThreads_)
         i->Thread.start(i->Sim);
 }
 
 void uCentralClientApp::StopSimulators() {
-    logger().information("Stopping simulation threads...");
+    logger().notice("Stopping simulation threads...");
     for(const auto &i:SimThreads_) {
         i->Sim.stop();
         i->Thread.join();
@@ -106,7 +106,7 @@ int uCentralClientApp::main(const ArgVec &args) {
         Poco::Logger &logger = Poco::Logger::get("uCentral");
 
         //  How many reactors do we need??
-        auto NumThreads = 1;
+        uint64_t NumThreads = 1;
         auto ClientCount = NumClients_;
         auto NumClientsPerThread = NumClients_;
 
@@ -144,7 +144,7 @@ int uCentralClientApp::main(const ArgVec &args) {
         Display.join();
 
         StopSimulators();
-        logger.information("Simulation done...");
+        logger.notice("Simulation done...");
     }
 
     return Application::EXIT_OK;

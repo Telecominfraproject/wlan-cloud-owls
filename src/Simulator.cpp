@@ -65,128 +65,140 @@ void Simulator::run() {
 
             for (const auto &i:Clients_) {
                 auto Client = i.second;
-                auto Event = Client->NextEvent();
+                auto Event = Client->NextEvent(false);
 
                 switch (Event) {
                     case ev_none: {
                         // nothing to do
-                    }
+                        }
                         break;
 
                     case ev_reconnect: {
                         Logger_.information(Poco::format("reconnect(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             Client->EstablishConnection();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_connect: {
                         Logger_.information(Poco::format("connect(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             ConnectEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_healthcheck: {
                         Logger_.information(Poco::format("healthcheck(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             HealthCheckEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_state: {
                         Logger_.information(Poco::format("state(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             StateEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_log: {
                         Logger_.information(Poco::format("log(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             LogEvent E(Client, std::string("log"), 2);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_crashlog: {
                         Logger_.information(Poco::format("crash-log(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             CrashLogEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_configpendingchange: {
                         Logger_.information(Poco::format("pendingchange(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             ConfigChangePendingEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_keepalive: {
                         Logger_.information(Poco::format("keepalive(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             KeepAliveEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_reboot: {
                         Logger_.information(Poco::format("reboot(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             RebootEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_disconnect: {
                         Logger_.information(Poco::format("disconnect(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             DisconnectEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
 
                     case ev_wsping: {
                         Logger_.information(Poco::format("wp-ping(%s): ", Client->Serial()));
                         std::thread T([Client]() {
+                            Client->NextEvent(true);
                             WSPingEvent E(Client);
                             E.Send();
                         });
                         T.detach();
-                    }
+                        }
                         break;
                 }
             }
         } catch ( const Poco::Exception & E) {
             Logger_.warning(Poco::format("SIMULATOR(%Lu): Crashed. Poco exception:%s",Index_,E.displayText()));
         } catch ( const std::exception & E ) {
-            Logger_.warning(Poco::format("SIMULATOR(%Lu): Crashed. std::exception:%s",Index_,E.what()));
+            std::string S = E.what();
+            Logger_.warning(Poco::format("SIMULATOR(%Lu): Crashed. std::exception:%s",Index_,S));
         }
     }
 

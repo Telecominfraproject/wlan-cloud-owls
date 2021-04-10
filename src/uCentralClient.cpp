@@ -694,7 +694,7 @@ void uCentralClient::AddEvent(uCentralEventType E, uint64_t InSeconds) {
     Commands_[NextCommand] = E;
 }
 
-uCentralEventType uCentralClient::NextEvent() {
+uCentralEventType uCentralClient::NextEvent(bool Remove) {
     my_guard guard(Mutex_);
 
     if(Commands_.empty())
@@ -707,7 +707,8 @@ uCentralEventType uCentralClient::NextEvent() {
 
     if(EventTime<Now) {
         uCentralEventType E = Commands_.begin()->second;
-        Commands_.erase(Commands_.begin());
+        if(Remove)
+            Commands_.erase(Commands_.begin());
         return E;
     }
 

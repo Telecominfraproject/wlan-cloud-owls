@@ -85,7 +85,7 @@ public:
     [[nodiscard]] bool Connected() const { return Connected_; }
 
     void AddEvent(uCentralEventType E, uint64_t InSeconds);
-    uCentralEventType NextEvent();
+    uCentralEventType NextEvent(bool Remove);
 
     void  DoConfigure(uint64_t Id, Poco::DynamicStruct Params);
     void  DoReboot(uint64_t Id, Poco::DynamicStruct Params);

@@ -25,7 +25,7 @@ public:
 
     void run() override;
     void stop() { Stop_ = true; }
-    void Initialize();
+    void Initialize( Poco::Logger & ClientLogger);
 
 private:
     my_mutex                                                Mutex_;

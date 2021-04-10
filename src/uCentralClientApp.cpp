@@ -139,11 +139,13 @@ int uCentralClientApp::main(const ArgVec &args) {
             }
         }
 
+        Poco::Logger    & ClientLogger = Poco::Logger::get("WS-CLIENT");
+        ClientLogger.setLevel(Poco::Message::PRIO_WARNING);
         for(auto i=0;ClientCount;i++)
         {
             auto Clients = std::min(ClientCount,NumClientsPerThread);
             auto NewSimThread = std::make_unique<SimThread>(i,SerialNumberBase_,Clients);
-            NewSimThread->Sim.Initialize();
+            NewSimThread->Sim.Initialize(ClientLogger);
             SimThreads_.push_back(std::move(NewSimThread));
             ClientCount -= Clients;
         }

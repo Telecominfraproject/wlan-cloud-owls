@@ -582,15 +582,15 @@ void uCentralClient::Terminate() {
 }
 
 void uCentralClient::EstablishConnection() {
-    Poco::URI   uri(URI_);
+    Poco::URI   uri(App()->GetURI());
 
     Poco::Net::HTTPSClientSession Session(  uri.getHost(),
                                             uri.getPort(),
                                             new Poco::Net::Context( Poco::Net::Context::CLIENT_USE,
-                                            CertFileName_,
+                                            App()->GetCertFileName(),
                                             Poco::Net::Context::VERIFY_NONE));
     Poco::Net::HTTPRequest Request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text",Poco::Net::HTTPMessage::HTTP_1_1);
-    // Request.set("origin", "http://www.websocket.org");
+    Request.set("origin", "http://www.websocket.org");
     Poco::Net::HTTPResponse Response;
 
     Logger_.information(Poco::format("connecting(%s): host=%s port=%Lu",SerialNumber_,uri.getHost(),(uint64_t )uri.getPort()));

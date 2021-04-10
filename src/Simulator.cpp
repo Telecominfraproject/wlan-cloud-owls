@@ -12,12 +12,10 @@
 #include "uCentralEvent.h"
 #include "SimStats.h"
 
-void Simulator::Initialize() {
+void Simulator::Initialize(Poco::Logger &ClientLogger) {
     std::random_device  rd;
     std::mt19937        gen(rd());
     std::uniform_int_distribution<> distrib(1, 15);
-
-    Poco::Logger    & Logger_ = App()->logger();
 
     my_guard Lock(Mutex_);
 
@@ -25,13 +23,8 @@ void Simulator::Initialize() {
     {
         char Buffer[32];
         snprintf(Buffer,sizeof(Buffer),"%s%02x%04x",SerialStart_.c_str(),(unsigned int)Index_,i);
-        Poco::Logger & ClientLogger = uCentralClientApp::instance().logger();
-        ClientLogger.setLevel(Poco::Message::PRIO_WARNING);
         auto Client = std::make_shared<uCentralClient>( Reactor_,
                                                         Buffer,
-                                                        App()->GetURI(),
-                                                        App()->GetKeyFileName(),
-                                                        App()->GetCertFileName(),
                                                         ClientLogger);
         Client->AddEvent(ev_reconnect, distrib(gen) );
         Clients_[Buffer] = std::move(Client);

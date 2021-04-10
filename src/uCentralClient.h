@@ -44,16 +44,10 @@ public:
     uCentralClient(
               Poco::Net::SocketReactor  & Reactor,
               std::string SerialNumber,
-              std::string URI,
-              std::string KeyFileName,
-              std::string CertFileName,
               Poco::Logger & Logger):
                     Logger_(Logger),
                     Reactor_(Reactor),
-                    SerialNumber_(std::move(SerialNumber)),
-                    URI_(std::move(URI)),
-                    KeyFileName_(std::move(KeyFileName)),
-                    CertFileName_(std::move(CertFileName))
+                    SerialNumber_(std::move(SerialNumber))
     {
         SetFirmware();
         CurrentConfig_ = DefaultConfiguration();
@@ -103,9 +97,6 @@ private:
     Poco::Logger                & Logger_;
     std::string                 CurrentConfig_;
     std::string                 SerialNumber_;
-    std::string                 URI_;
-    std::string                 KeyFileName_;
-    std::string                 CertFileName_;
     std::string                 Firmware_;
     std::unique_ptr<Poco::Net::WebSocket>   WS_;
     uint64_t                    Active_=0;

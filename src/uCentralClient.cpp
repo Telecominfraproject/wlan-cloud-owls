@@ -272,8 +272,8 @@ void uCentralClient::ProcessCommand(Poco::DynamicStruct Vars) {
         DoUpgrade(Id,Params);
     } else if(Method == "factory") {
         DoFactory(Id,Params);
-    } else if(Method == "blink") {
-        DoBlink(Id,Params);
+    } else if(Method == "leds") {
+        DoLEDs(Id,Params);
     } else if(Method == "perform") {
         DoPerform(Id,Params);
     } else if(Method == "trace") {
@@ -450,15 +450,16 @@ void  uCentralClient::DoFactory(uint64_t Id, Poco::DynamicStruct Params) {
     }
 }
 
-void  uCentralClient::DoBlink(uint64_t Id, Poco::DynamicStruct Params) {
+void  uCentralClient::DoLEDs(uint64_t Id, Poco::DynamicStruct Params) {
     my_guard guard(Mutex_);
     try {
         if (Params.contains("serial") &&
-            Params.contains("duration")) {
+            Params.contains("pattern")) {
 
             uint64_t    When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
             auto        Serial = Params["serial"].toString();
-            uint64_t    Duration = Params["durarion"];
+            auto        Pattern = Params["pattern"].toString();
+            uint64_t    Duration = Params.contains("duration") ? (uint64_t )Params["durarion"] : 10;
 
             //  prepare response...
             Poco::JSON::Object Answer;
@@ -477,13 +478,13 @@ void  uCentralClient::DoBlink(uint64_t Id, Poco::DynamicStruct Params) {
             Result.set("status", Status);
             Answer.set("result", Result);
             SendObject(Answer);
-            Logger_.information(Poco::format("blink(%s): for %Lu ms.",SerialNumber_,Duration));
+            Logger_.information(Poco::format("LEDs(%s): pattern set to: %s for %Lu ms.",SerialNumber_,Duration,Pattern));
         } else {
-            Logger_.warning(Poco::format("blink(%s): Illegal command.",SerialNumber_));
+            Logger_.warning(Poco::format("LEDs(%s): Illegal command.",SerialNumber_));
         }
     } catch( const Poco::Exception &E )
     {
-        Logger_.warning(Poco::format("blink(%s): Exception. %s",SerialNumber_,E.displayText()));
+        Logger_.warning(Poco::format("LEDs(%s): Exception. %s",SerialNumber_,E.displayText()));
     }
 }
 

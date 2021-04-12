@@ -85,7 +85,7 @@ public:
     void  DoReboot(uint64_t Id, Poco::DynamicStruct Params);
     void  DoUpgrade(uint64_t Id, Poco::DynamicStruct Params);
     void  DoFactory(uint64_t Id, Poco::DynamicStruct Params);
-    void  DoBlink(uint64_t Id, Poco::DynamicStruct Params);
+    void  DoLEDs(uint64_t Id, Poco::DynamicStruct Params);
     void  DoPerform(uint64_t Id, Poco::DynamicStruct Params);
     void  DoTrace(uint64_t Id, Poco::DynamicStruct Params);
 

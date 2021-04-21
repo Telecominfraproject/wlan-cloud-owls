@@ -21,7 +21,7 @@ then
   exit 1
 fi
 
-if [[ ! -f ucentral-clnt.properties ]]
+if [[ ! -f ucentralsim.properties ]]
 then
   echo "Configuration file ucentral.properties is missing in the current directory"
   exit 2

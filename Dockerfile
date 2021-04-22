@@ -41,6 +41,10 @@ RUN mkdir /ucentralsim-data
 RUN rm -rf /poco
 RUN rm -rf /ucentralsim
 
+EXPOSE 15002
+EXPOSE 16001
+EXPOSE 16003
+
 ENTRYPOINT /ucentral/ucentralsim
 
 

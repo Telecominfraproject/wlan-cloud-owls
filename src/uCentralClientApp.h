@@ -57,6 +57,7 @@ public:
     [[nodiscard]] const std::string & GetURI() { return URI_; }
     [[nodiscard]] const std::string & GetCertFileName() { return CertFileName_; }
     [[nodiscard]] const std::string & GetKeyFileName() { return KeyFileName_; }
+    [[nodiscard]] const std::string & GetCA() { return CAFileName_; }
     [[nodiscard]] const std::string & GetSerialNumberBase() { return SerialNumberBase_; }
 
     [[nodiscard]] uint64_t GetNumClients() const { return NumClients_; }
@@ -78,6 +79,7 @@ private:
     std::string                 URI_;
     std::string                 CertFileName_;
     std::string                 KeyFileName_;
+    std::string                 CAFileName_;
     std::string                 SerialNumberBase_;
     std::string                 ConfigFileName_;
     std::string                 LogDir_;

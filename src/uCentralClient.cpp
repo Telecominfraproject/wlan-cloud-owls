@@ -585,11 +585,20 @@ void uCentralClient::Terminate() {
 void uCentralClient::EstablishConnection() {
     Poco::URI   uri(App()->GetURI());
 
-    Poco::Net::HTTPSClientSession Session(  uri.getHost(),
-                                            uri.getPort(),
-                                            new Poco::Net::Context( Poco::Net::Context::CLIENT_USE,
-                                            App()->GetCertFileName(),
-                                            Poco::Net::Context::VERIFY_NONE));
+    Poco::Net::Context::Params  P;
+
+    P.verificationMode = Poco::Net::Context::VERIFY_NONE;
+    P.verificationDepth = 9;
+    P.loadDefaultCAs = true;
+    P.certificateFile = App()->GetCertFileName();
+    P.cipherList = "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH";
+    P.dhUse2048Bits = true;
+    P.caLocation = App()->GetCA();
+
+    auto Context = new Poco::Net::Context( Poco::Net::Context::CLIENT_USE,P);
+    Context->disableStatelessSessionResumption();
+
+    Poco::Net::HTTPSClientSession Session(  uri.getHost(), uri.getPort(), Context);
     Poco::Net::HTTPRequest Request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text",Poco::Net::HTTPMessage::HTTP_1_1);
     Request.set("origin", "http://www.websocket.org");
     Poco::Net::HTTPResponse Response;

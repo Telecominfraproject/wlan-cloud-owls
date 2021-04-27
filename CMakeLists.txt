@@ -21,7 +21,6 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost REQUIRED system)
 find_package(OpenSSL REQUIRED)
-find_package(yaml-cpp REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(MySQL REQUIRED)
 find_package(ODBC REQUIRED)
@@ -34,6 +33,6 @@ add_executable( ucentralsim src/main.cpp src/uCentralClient.cpp src/uCentralClie
                 src/uCentralClientApp.h src/Simulator.cpp src/Simulator.h src/uCentralEvent.cpp src/uCentralEvent.h
                 src/uCentralEventTypes.h src/base64util.cpp src/base64util.h src/SimStats.cpp src/SimStats.h src/StatsDisplay.cpp src/StatsDisplay.h)
 
-target_link_libraries(ucentralsim PRIVATE yaml-cpp
+target_link_libraries(ucentralsim PRIVATE
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
         ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${ZLIB_LIBRARIES})

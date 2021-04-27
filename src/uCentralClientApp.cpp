@@ -197,7 +197,8 @@ void uCentralClientApp::initialize(Application &self) {
     logger().information("Starting...");
 
     CertFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.certfile"));
-    KeyFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.keyfile"));
+    KeyFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.keyfile",""));
+    CAFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.cafile",""));
     URI_ = App()->config().getString("ucentral.simulation.uri");
     if(NumClients_==0)
         NumClients_ = App()->config().getInt64("ucentral.simulation.maxclients");

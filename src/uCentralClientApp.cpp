@@ -184,12 +184,12 @@ static Poco::Net::Context::VerificationMode ConvertStringToLevel(const std::stri
 }
 
 void uCentralClientApp::initialize(Application &self) {
-    std::string ConfigFileName = Poco::Path::expand( "$UCENTRAL_CLIENT_ROOT/ucentralsim.properties");
+    std::string ConfigFileName = Poco::Path::expand( "$UCENTRAL_CLIENT_ROOT/owls.properties");
     Poco::Path ConfigFile = ConfigFileName_.empty() ? ConfigFileName : ConfigFileName_;
 
     if(!ConfigFile.isFile())
     {
-        std::cout << "Configuration " << ConfigFile.toString() << " does not seem to exist. Please set $UCENTRAL_CLIENT_ROOT env variable the path of the ucentralsim.properties file." << std::endl;
+        std::cout << "Configuration " << ConfigFile.toString() << " does not seem to exist. Please set $UCENTRAL_CLIENT_ROOT env variable the path of the owls.properties file." << std::endl;
         std::exit(EXIT_CONFIG);
     }
 

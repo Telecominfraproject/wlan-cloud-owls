@@ -587,16 +587,62 @@ void uCentralClient::EstablishConnection() {
 
     Poco::Net::Context::Params  P;
 
-    P.verificationMode = Poco::Net::Context::VERIFY_NONE;
+    P.verificationMode = Poco::Net::Context::VERIFY_STRICT;
     P.verificationDepth = 9;
-    P.loadDefaultCAs = true;
+    P.caLocation = App()->GetCASLocation();
+    P.loadDefaultCAs = false;
     P.certificateFile = App()->GetCertFileName();
+    P.privateKeyFile = App()->GetKeyFileName();
     P.cipherList = "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH";
     P.dhUse2048Bits = true;
-    P.caLocation = App()->GetCA();
 
     auto Context = new Poco::Net::Context( Poco::Net::Context::CLIENT_USE,P);
+/*    Poco::Crypto::X509Certificate   Cert(App()->GetCertFileName());
+    Poco::Crypto::RSAKey            Key("",App()->GetKeyFileName(),"");
+
+    std::cout << "Name: " << Key.name() << "Size: " << Key.size() << std::endl;
+    std::cout << " Issuer:" << Cert.issuerName() << std::endl;
+    Context->useCertificate(Cert);
+    Context->usePrivateKey(Key);
     Context->disableStatelessSessionResumption();
+    Context->enableExtendedCertificateVerification();
+*/
+
+    Poco::Crypto::X509Certificate Cert(App()->GetCertFileName());
+    Poco::Crypto::X509Certificate Root(App()->GetRootCAFileName());
+
+    Context->useCertificate(Cert);
+    Context->addChainCertificate(Root);
+
+    Context->addCertificateAuthority(Root);
+
+    if (App()->GetLevel() == Poco::Net::Context::VERIFY_STRICT) {
+//        Poco::Crypto::X509Certificate Issuing(App()->GetIssuerFileName());
+//        Context->addChainCertificate(Issuing);
+//        Context->addCertificateAuthority(Issuing);
+    }
+
+    Poco::Crypto::RSAKey Key("", App()->GetKeyFileName(), "");
+    Context->usePrivateKey(Key);
+
+    SSL_CTX *SSLCtx = Context->sslContext();
+    if (!SSL_CTX_check_private_key(SSLCtx)) {
+        std::cout << "Wrong Certificate: " << App()->GetCertFileName() << " for " << App()->GetKeyFileName() << std::endl;
+    }
+
+//    SSL_CTX_set_verify(SSLCtx, SSL_VERIFY_PEER, NULL);
+
+    if(App()->GetLevel()==Poco::Net::Context::VERIFY_STRICT) {
+        // SSL_CTX_set_client_CA_list(SSLCtx, SSL_load_client_CA_file(App()->GetClientCASFileName().c_str()));
+    }
+//    SSL_CTX_enable_ct(SSLCtx, SSL_CT_VALIDATION_STRICT);
+//    SSL_CTX_dane_enable(SSLCtx);
+
+//    Context->enableSessionCache();
+//    Context->setSessionCacheSize(0);
+//    Context->setSessionTimeout(10);
+//    Context->enableExtendedCertificateVerification(true);
+//    Context->disableStatelessSessionResumption();
 
     Poco::Net::HTTPSClientSession Session(  uri.getHost(), uri.getPort(), Context);
     Poco::Net::HTTPRequest Request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text",Poco::Net::HTTPMessage::HTTP_1_1);

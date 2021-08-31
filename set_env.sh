@@ -1,4 +1,4 @@
 #!/bin/bash
 
-export UCENTRAL_CLIENT_CONFIG=`pwd`
-export UCENTRAL_CLIENT_ROOT=`pwd`
+export OWLS_CONFIG=`pwd`
+export OWLS_ROOT=`pwd`

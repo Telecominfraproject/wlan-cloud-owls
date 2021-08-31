@@ -34,3 +34,5 @@ git_rsa
 *.app
 /certs/
 /logs/
+/cmake-build/
+/cmake-build-debug/

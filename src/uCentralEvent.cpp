@@ -6,7 +6,7 @@
 #include "Poco/JSON/Parser.h"
 #include "Poco/JSON/Stringifier.h"
 #include "Poco/zlib.h"
-#include "base64util.h"
+#include "Utils.h"
 
 #include "uCentralEvent.h"
 #include "uCentralClientApp.h"
@@ -87,7 +87,7 @@ bool StateEvent::Send() {
             std::vector<Bytef> Buffer(BufSize);
 
             compress(&Buffer[0], &BufSize, (Bytef *) OS.str().c_str(), OS.str().size());
-            auto Compressed = base64::encode(&Buffer[0], BufSize);
+            auto Compressed = OpenWifi::Utils::base64encode(&Buffer[0], BufSize);
             Poco::JSON::Object CompressedPayload;
 
             CompressedPayload.set("compress_64", Compressed);

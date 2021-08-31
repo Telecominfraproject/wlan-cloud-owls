@@ -9,6 +9,7 @@
 #include "Poco/Util/Option.h"
 #include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
+#include "Poco/Net/Context.h"
 
 #include "SimStats.h"
 #include "StatsDisplay.h"
@@ -169,6 +170,19 @@ int uCentralClientApp::main(const ArgVec &args) {
     return Application::EXIT_OK;
 }
 
+static Poco::Net::Context::VerificationMode ConvertStringToLevel(const std::string &L) {
+    if (L == "strict") {
+        return Poco::Net::Context::VERIFY_STRICT;
+    } else if (L == "none") {
+        return Poco::Net::Context::VERIFY_NONE;
+    } else if (L == "relaxed") {
+        return Poco::Net::Context::VERIFY_RELAXED;
+    } else if (L == "once")
+        return Poco::Net::Context::VERIFY_ONCE;
+
+    return Poco::Net::Context::VERIFY_STRICT;
+}
+
 void uCentralClientApp::initialize(Application &self) {
     std::string ConfigFileName = Poco::Path::expand( "$UCENTRAL_CLIENT_ROOT/ucentralsim.properties");
     Poco::Path ConfigFile = ConfigFileName_.empty() ? ConfigFileName : ConfigFileName_;
@@ -196,9 +210,20 @@ void uCentralClientApp::initialize(Application &self) {
     ServerApplication::initialize(self);
     logger().information("Starting...");
 
-    CertFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.certfile"));
-    KeyFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.keyfile",""));
-    CAFileName_ = Poco::Path::expand(App()->config().getString("ucentral.simulation.cafile",""));
+    /*
+    ucentral.websocket.clientcas = $UCENTRAL_ROOT/certs/clientcas.pem
+    ucentral.websocket.key.password = mypassword
+    */
+
+    RootCAFileName_ = Poco::Path::expand(App()->config().getString("ucentral.websocket.rootca"));
+    CertFileName_ = Poco::Path::expand(App()->config().getString("ucentral.websocket.cert"));
+    KeyFileName_ = Poco::Path::expand(App()->config().getString("ucentral.websocket.key"));
+    CASLocation_ = Poco::Path::expand(App()->config().getString("ucentral.websocket.cas"));
+    ClientCASFileName_ = Poco::Path::expand(App()->config().getString("ucentral.websocket.clientcas"));
+    IssuerFileName_ = Poco::Path::expand(App()->config().getString("ucentral.websocket.issuer"));
+    std::string LevelS = Poco::Path::expand(App()->config().getString("ucentral.websocket.issuer"));
+    Level_ = ConvertStringToLevel(LevelS);
+
     URI_ = App()->config().getString("ucentral.simulation.uri");
     if(NumClients_==0)
         NumClients_ = App()->config().getInt64("ucentral.simulation.maxclients");

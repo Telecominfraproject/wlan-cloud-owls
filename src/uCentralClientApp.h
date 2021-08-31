@@ -15,6 +15,7 @@
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/OptionSet.h"
 #include "Poco/ErrorHandler.h"
+#include "Poco/Net/Context.h"
 
 class MyErrorHandler : public Poco::ErrorHandler {
 public:
@@ -57,7 +58,12 @@ public:
     [[nodiscard]] const std::string & GetURI() { return URI_; }
     [[nodiscard]] const std::string & GetCertFileName() { return CertFileName_; }
     [[nodiscard]] const std::string & GetKeyFileName() { return KeyFileName_; }
-    [[nodiscard]] const std::string & GetCA() { return CAFileName_; }
+    [[nodiscard]] const std::string & GetCASLocation() { return CASLocation_; }
+    [[nodiscard]] const std::string & GetRootCAFileName() { return RootCAFileName_; }
+    [[nodiscard]] const std::string & GetIssuerFileName() { return IssuerFileName_; }
+    [[nodiscard]] const std::string & GetClientCASFileName() { return ClientCASFileName_; }
+    [[nodiscard]] Poco::Net::Context::VerificationMode GetLevel() { return Level_; }
+
     [[nodiscard]] const std::string & GetSerialNumberBase() { return SerialNumberBase_; }
 
     [[nodiscard]] uint64_t GetNumClients() const { return NumClients_; }
@@ -79,9 +85,12 @@ private:
     std::string                 URI_;
     std::string                 CertFileName_;
     std::string                 KeyFileName_;
-    std::string                 CAFileName_;
+    std::string                 CASLocation_;
     std::string                 SerialNumberBase_;
     std::string                 ConfigFileName_;
+    std::string                 RootCAFileName_;
+    std::string                 IssuerFileName_;
+    std::string                 ClientCASFileName_;
     std::string                 LogDir_;
     uint64_t                    NumClients_=0;
     uint64_t                    HealthCheckInterval_=0;
@@ -91,6 +100,7 @@ private:
     uint64_t                    ConfigChangePendingInterval_=0;
     uint64_t                    MaxThreads_=3;
     MyErrorHandler              AppErrorHandler_;
+    Poco::Net::Context::VerificationMode    Level_;
 };
 
 uCentralClientApp * App();

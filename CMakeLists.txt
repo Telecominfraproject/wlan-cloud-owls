@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(ucentralsim VERSION 2.1.0)
+project(owls VERSION 2.1.0)
 
 # cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 -DMYSQL_ROOT_DIR=/usr/local/opt/mysql-client
 
@@ -43,7 +43,7 @@ find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite Dat
 
 include_directories(/usr/local/include  /usr/local/opt/openssl/include src)
 
-add_executable( ucentralsim
+add_executable( owls
                 build
                 src/Daemon.cpp src/Daemon.h
                 src/Dashboard.cpp src/Dashboard.h
@@ -71,7 +71,7 @@ add_executable( ucentralsim
                 src/ALBHealthCheckServer.h
                 )
 
-target_link_libraries(ucentralsim PRIVATE
+target_link_libraries(owls PRIVATE
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
         ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${ZLIB_LIBRARIES}
         CppKafka::cppkafka)

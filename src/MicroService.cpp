@@ -187,7 +187,7 @@ namespace OpenWifi {
 		} else {
 			config().setString(LogFilePathKey, LogDir_);
 		}
-		Poco::File	DataDir(ConfigPath("ucentral.system.data"));
+		Poco::File	DataDir(ConfigPath("openwifi.system.data"));
 		DataDir_ = DataDir.path();
 		if(!DataDir.exists()) {
 			try {
@@ -196,16 +196,16 @@ namespace OpenWifi {
 				logger().log(E);
 			}
 		}
-		std::string KeyFile = ConfigPath("ucentral.service.key");
-		std::string KeyFilePassword = ConfigPath("ucentral.service.key.password" , "" );
+		std::string KeyFile = ConfigPath("openwifi.service.key");
+		std::string KeyFilePassword = ConfigPath("openwifi.service.key.password" , "" );
 		AppKey_ = Poco::SharedPtr<Poco::Crypto::RSAKey>(new Poco::Crypto::RSAKey("", KeyFile, KeyFilePassword));
 		Cipher_ = CipherFactory_.createCipher(*AppKey_);
 		ID_ = Utils::GetSystemId();
 		if(!DebugMode_)
-			DebugMode_ = ConfigGetBool("ucentral.system.debug",false);
-		MyPrivateEndPoint_ = ConfigGetString("ucentral.system.uri.private");
-		MyPublicEndPoint_ = ConfigGetString("ucentral.system.uri.public");
-		UIURI_ = ConfigGetString("ucentral.system.uri.ui");
+			DebugMode_ = ConfigGetBool("openwifi.system.debug",false);
+		MyPrivateEndPoint_ = ConfigGetString("openwifi.system.uri.private");
+		MyPublicEndPoint_ = ConfigGetString("openwifi.system.uri.public");
+		UIURI_ = ConfigGetString("openwifi.system.uri.ui");
 		MyHash_ = CreateHash(MyPublicEndPoint_);
 		InitializeSubSystemServers();
 		ServerApplication::initialize(self);

@@ -33,9 +33,9 @@
 
 namespace OpenWifi {
 
-	static const std::string uSERVICE_SECURITY{"ucentralsec"};
-	static const std::string uSERVICE_GATEWAY{"ucentralgw"};
-	static const std::string uSERVICE_FIRMWARE{ "ucentralfms"};
+	static const std::string uSERVICE_SECURITY{"owsec"};
+	static const std::string uSERVICE_GATEWAY{"owgw"};
+	static const std::string uSERVICE_FIRMWARE{ "owfms"};
     static const std::string uSERVICE_TOPOLOGY{ "owtopo"};
     static const std::string uSERVICE_PROVISIONING{ "owprov"};
     static const std::string uSERVICE_OWLS{ "owls"};

@@ -36,3 +36,4 @@ git_rsa
 /logs/
 /cmake-build/
 /cmake-build-debug/
+/data/

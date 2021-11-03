@@ -16,6 +16,7 @@ namespace OpenWifi::OWLSObjects {
         std::string     gateway;
         std::string     certificate;
         std::string     key;
+        std::string     macPrefix;
         uint64_t        devices;
         uint64_t        healthCheckInterval;
         uint64_t        stateInterval;
@@ -35,6 +36,7 @@ namespace OpenWifi::OWLSObjects {
         void to_json(Poco::JSON::Object &Obj) const;
         bool from_json(const Poco::JSON::Object::Ptr &Obj);
     };
+
 
     struct SimulationResults {
         std::string         id;

@@ -148,7 +148,7 @@ const char * uCentralClient::DefaultState() {
 }
 
 void uCentralClient::Disconnect( bool Reconnect ) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     if(Connected_) {
         Reactor_.removeEventHandler(*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
         (*WS_).close();
@@ -164,7 +164,7 @@ void uCentralClient::Disconnect( bool Reconnect ) {
 }
 
 void uCentralClient::DoCensus( CensusReport & Census ) {
-    my_guard    lock(Mutex_);
+    std::lock_guard G(Mutex_);
 
     for(const auto i:Commands_)
         switch(i.second)
@@ -185,7 +185,7 @@ void uCentralClient::DoCensus( CensusReport & Census ) {
 }
 
 void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
 
     try {
         char        Message[16000];
@@ -284,7 +284,7 @@ void uCentralClient::ProcessCommand(Poco::DynamicStruct Vars) {
 }
 
 void  uCentralClient::DoConfigure(uint64_t Id, Poco::DynamicStruct Params) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
 
     try {
         if (Params.contains("serial") &&
@@ -333,7 +333,7 @@ void  uCentralClient::DoConfigure(uint64_t Id, Poco::DynamicStruct Params) {
 }
 
 void  uCentralClient::DoReboot(uint64_t Id, Poco::DynamicStruct Params) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     try {
         if (Params.contains("serial")) {
             uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
@@ -368,7 +368,7 @@ void  uCentralClient::DoReboot(uint64_t Id, Poco::DynamicStruct Params) {
 }
 
 void  uCentralClient::DoUpgrade(uint64_t Id, Poco::DynamicStruct Params) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     try {
         if (Params.contains("serial") &&
             Params.contains("uri")) {
@@ -409,7 +409,7 @@ void  uCentralClient::DoUpgrade(uint64_t Id, Poco::DynamicStruct Params) {
 }
 
 void  uCentralClient::DoFactory(uint64_t Id, Poco::DynamicStruct Params) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     try {
         if (Params.contains("serial") &&
             Params.contains("keep_redirector")) {
@@ -451,7 +451,7 @@ void  uCentralClient::DoFactory(uint64_t Id, Poco::DynamicStruct Params) {
 }
 
 void  uCentralClient::DoLEDs(uint64_t Id, Poco::DynamicStruct Params) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     try {
         if (Params.contains("serial") &&
             Params.contains("pattern")) {
@@ -489,7 +489,7 @@ void  uCentralClient::DoLEDs(uint64_t Id, Poco::DynamicStruct Params) {
 }
 
 void  uCentralClient::DoPerform(uint64_t Id, Poco::DynamicStruct Params) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     try {
         if (Params.contains("serial") &&
             Params.contains("command") &&
@@ -530,7 +530,7 @@ void  uCentralClient::DoPerform(uint64_t Id, Poco::DynamicStruct Params) {
 }
 
 void  uCentralClient::DoTrace(uint64_t Id, Poco::DynamicStruct Params) {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     try {
         if (Params.contains("serial") &&
             Params.contains("duration") &&
@@ -578,7 +578,7 @@ void  uCentralClient::DoTrace(uint64_t Id, Poco::DynamicStruct Params) {
 }
 
 void uCentralClient::Terminate() {
-    my_guard guard(Mutex_);
+    std::lock_guard G(Mutex_);
     Disconnect(false);
 }
 

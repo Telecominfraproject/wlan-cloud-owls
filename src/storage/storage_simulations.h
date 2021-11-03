@@ -16,6 +16,7 @@ namespace OpenWifi {
             std::string,
             std::string,
             std::string,
+            std::string,
             uint64_t,
             uint64_t,
             uint64_t,

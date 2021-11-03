@@ -18,6 +18,7 @@ namespace OpenWifi::OWLSObjects {
         field_to_json(Obj,"gateway", gateway);
         field_to_json(Obj,"certificate", certificate);
         field_to_json(Obj,"key", key);
+        field_to_json(Obj,"macPrefix", macPrefix);
         field_to_json(Obj,"devices", devices);
         field_to_json(Obj,"healthCheckInterval", healthCheckInterval);
         field_to_json(Obj,"stateInterval", stateInterval);
@@ -35,6 +36,7 @@ namespace OpenWifi::OWLSObjects {
             field_from_json(Obj,"gateway", gateway);
             field_from_json(Obj,"certificate", certificate);
             field_from_json(Obj,"key", key);
+            field_from_json(Obj,"macPrefix", macPrefix);
             field_from_json(Obj,"devices", devices);
             field_from_json(Obj,"healthCheckInterval", healthCheckInterval);
             field_from_json(Obj,"stateInterval", stateInterval);

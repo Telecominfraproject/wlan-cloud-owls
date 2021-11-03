@@ -11,6 +11,7 @@ namespace OpenWifi {
         ORM::Field{"gateway",ORM::FieldType::FT_TEXT},
         ORM::Field{"certificate",ORM::FieldType::FT_TEXT},
         ORM::Field{"key",ORM::FieldType::FT_TEXT},
+        ORM::Field{"macPrefix",ORM::FieldType::FT_TEXT},
         ORM::Field{"devices",ORM::FieldType::FT_BIGINT},
         ORM::Field{"healthCheckInterval",ORM::FieldType::FT_BIGINT},
         ORM::Field{"stateInterval",ORM::FieldType::FT_BIGINT},
@@ -35,14 +36,15 @@ template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects:
     Out.gateway = In.get<2>();
     Out.certificate = In.get<3>();
     Out.key = In.get<4>();
-    Out.devices = In.get<5>();
-    Out.healthCheckInterval = In.get<6>();
-    Out.stateInterval = In.get<7>();
-    Out.minAssociations = In.get<8>();
-    Out.maxAssociations = In.get<9>();
-    Out.minClients = In.get<10>();
-    Out.maxClients = In.get<11>();
-    Out.simulationLength = In.get<12>();
+    Out.macPrefix = In.get<5>();
+    Out.devices = In.get<6>();
+    Out.healthCheckInterval = In.get<7>();
+    Out.stateInterval = In.get<8>();
+    Out.minAssociations = In.get<9>();
+    Out.maxAssociations = In.get<10>();
+    Out.minClients = In.get<11>();
+    Out.maxClients = In.get<12>();
+    Out.simulationLength = In.get<13>();
 }
 
 template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects::SimulationDetails>::Convert(OpenWifi::OWLSObjects::SimulationDetails &In, OpenWifi::SimulationDBRecordType &Out) {
@@ -51,14 +53,15 @@ template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects:
     Out.set<2>(In.gateway);
     Out.set<3>(In.certificate);
     Out.set<4>(In.key);
-    Out.set<5>(In.devices);
-    Out.set<6>(In.healthCheckInterval);
-    Out.set<7>(In.stateInterval);
-    Out.set<8>(In.minAssociations);
-    Out.set<9>(In.maxAssociations);
-    Out.set<10>(In.minClients);
-    Out.set<11>(In.maxClients);
-    Out.set<12>(In.simulationLength);
+    Out.set<5>(In.macPrefix);
+    Out.set<6>(In.devices);
+    Out.set<7>(In.healthCheckInterval);
+    Out.set<8>(In.stateInterval);
+    Out.set<9>(In.minAssociations);
+    Out.set<10>(In.maxAssociations);
+    Out.set<11>(In.minClients);
+    Out.set<12>(In.maxClients);
+    Out.set<13>(In.simulationLength);
 }
 
 

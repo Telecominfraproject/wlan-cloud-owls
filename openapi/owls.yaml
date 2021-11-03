@@ -273,20 +273,37 @@ components:
           type: string
         key:
           type: string
+        macPrefix:
+          type: string
+          minLength: 6
+          maxLength: 6
         devices:
           type: integer
+          minimum: 1
         healthCheckInterval:
           type: integer
+          minimum: 30
+          maximum: 600
         stateInterval:
           type: integer
+          minimum: 30
+          maximum: 600
         minAssociations:
           type: integer
+          minimum: 0
+          maximum: 4
         maxAssociations:
           type: integer
+          minimum: 0
+          maximum: 32
         minClients:
           type: integer
+          minimum: 0
+          maximum: 4
         maxClients:
           type: integer
+          minimum: 0
+          maximum: 32
         simulationLength:
           type: integer
 

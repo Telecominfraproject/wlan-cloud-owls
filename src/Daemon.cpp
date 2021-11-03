@@ -7,6 +7,7 @@
 //
 
 #include "Daemon.h"
+#include "Simulation.h"
 
 namespace OpenWifi {
 	class Daemon *Daemon::instance_ = nullptr;
@@ -18,7 +19,9 @@ namespace OpenWifi {
 								   vDAEMON_CONFIG_ENV_VAR,
 								   vDAEMON_APP_NAME,
 								   vDAEMON_BUS_TIMER,
-								   SubSystemVec{});
+								   SubSystemVec{
+			                            SimulationCoordinator()
+			});
 		}
 		return instance_;
 	}

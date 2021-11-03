@@ -48,7 +48,6 @@ namespace OpenWifi {
 
         if(!StorageService()->SimulationDB().DeleteRecord("id",id))
             return NotFound();
-
         return OK();
     }
 
@@ -57,12 +56,12 @@ namespace OpenWifi {
         auto Raw = ParseStream();
 
         if(!D.from_json(Raw) ||
-        D.id.empty() ||
-        D.name.empty() ||
-        D.gateway.empty() ||
-        D.macPrefix.size()!=6 ||
-        D.key.empty() ||
-        D.certificate.empty()) {
+            D.id.empty() ||
+            D.name.empty() ||
+            D.gateway.empty() ||
+            D.macPrefix.size()!=6 ||
+            D.key.empty() ||
+            D.certificate.empty()) {
             return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
         }
 

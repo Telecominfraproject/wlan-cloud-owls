@@ -113,6 +113,7 @@ namespace OpenWifi::OWLSObjects {
     void SimulationStatus::to_json(Poco::JSON::Object &Obj) const {
         field_to_json(Obj,"id", id);
         field_to_json(Obj,"simulationId", simulationId);
+        field_to_json(Obj,"state", state);
         field_to_json(Obj,"tx", tx);
         field_to_json(Obj,"rx", rx);
         field_to_json(Obj,"liveDevices", liveDevices);

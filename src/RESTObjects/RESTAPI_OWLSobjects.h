@@ -63,6 +63,7 @@ namespace OpenWifi::OWLSObjects {
     struct SimulationStatus {
         std::string     id;
         std::string     simulationId;
+        std::string     state;
         uint64_t        tx;
         uint64_t        rx;
         uint64_t        liveDevices;

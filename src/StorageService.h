@@ -25,7 +25,8 @@ namespace OpenWifi {
                 return instance_;
             }
 
-
+            SimulationDB & SimulationDB() { return *SimulationDB_; }
+            SimulationResultsDB & SimulationResultsDB() { return *SimulationResultsDB_; }
 
             int Start() override;
             void Stop() override;

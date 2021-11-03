@@ -43,7 +43,7 @@ find_package(nlohmann_json  REQUIRED)
 find_package(nlohmann_json_schema_validator REQUIRED)
 find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite DataPostgreSQL DataMySQL DataODBC)
 
-include_directories(/usr/local/include  /usr/local/opt/openssl/include src)
+include_directories(/usr/local/include  /usr/local/opt/openssl/include src include/kafka /usr/local/opt/mysql-client/include)
 
 add_executable( owls
         build
@@ -71,7 +71,7 @@ add_executable( owls
         src/RESTObjects/RESTAPI_OWLSobjects.cpp src/RESTObjects/RESTAPI_OWLSobjects.h
         src/RESTObjects/RESTAPI_SecurityObjects.cpp src/RESTObjects/RESTAPI_SecurityObjects.h
         src/RESTAPI/RESTAPI_deviceDashboardHandler.cpp src/RESTAPI/RESTAPI_deviceDashboardHandler.h
-        )
+        src/StorageService.cpp src/StorageService.h src/storage/storage_simulations.cpp src/storage/storage_simulations.h src/storage/storage_results.cpp src/storage/storage_results.h)
 
 target_link_libraries(owls PRIVATE
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}

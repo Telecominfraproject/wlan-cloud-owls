@@ -1,0 +1,559 @@
+openapi: 3.0.1
+info:
+  title: OpenWifi Load Simulator
+  description: An application to test load on an OpenWifi system.
+  version: 2.0.0
+  license:
+    name: BSD3
+    url: https://github.com/Telecominfraproject/wlan-cloud-ucentralgw/blob/master/LICENSE
+  contact:
+    name: Arilia Support
+    email: ucentralsupport@arilia.com
+    url: https://www.ucentral.info/support
+
+servers:
+  - url: 'https://localhost:16007/api/v1'
+
+security:
+  - bearerAuth: []
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    NotFound:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            properties:
+              ErrorCode:
+                type: integer
+              ErrorDetails:
+                type: string
+              ErrorDescription:
+                type: string
+
+    Unauthorized:
+      description: The requested does not have sufficient rights to perform the operation.
+      content:
+        application/json:
+          schema:
+            properties:
+              ErrorCode:
+                type: integer
+              ErrorDetails:
+                type: string
+              ErrorDescription:
+                type: string
+
+    Success:
+      description: The requested operation was performed.
+      content:
+        application/json:
+          schema:
+            properties:
+              Operation:
+                type: string
+              Details:
+                type: string
+              Code:
+                type: integer
+
+    BadRequest:
+      description: The requested operation was performed.
+      content:
+        application/json:
+          schema:
+            properties:
+              Operation:
+                type: string
+              Details:
+                type: string
+              Code:
+                type: integer
+
+  schemas:
+
+    #########################################################################################
+    ##
+    ## These are endpoints that all services in the uCentral stack must provide
+    ##
+    #########################################################################################
+    AnyPayload:
+      type: object
+      properties:
+        Document:
+          type: string
+
+    StringList:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            type: string
+
+    TagValuePair:
+      type: object
+      properties:
+        tag:
+          type: string
+        value:
+          type: string
+
+    TagValuePairList:
+      type: object
+      properties:
+        tagList:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagValuePair'
+
+    NoteInfo:
+      type: object
+      properties:
+        created:
+          type: integer
+          format: int64
+        createdBy:
+          type: string
+        note:
+          type: string
+
+    SystemCommandDetails:
+      type: object
+      properties:
+        command:
+          type: string
+          enum:
+            - setloglevels
+            - getloglevels
+            - getSubSystemNames
+            - getLogLevelNames
+            - stats
+        parameters:
+          oneOf:
+            - $ref: '#/components/schemas/StringList'
+            - $ref: '#/components/schemas/TagValuePairList'
+
+    SystemCommandResults:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/StringList'
+        - $ref: '#/components/schemas/TagValuePairList'
+
+    SystemInfoResults:
+      type: object
+      properties:
+        version:
+          type: string
+        uptime:
+          type: integer
+          format: integer64
+        start:
+          type: integer
+          format: integer64
+        os:
+          type: string
+        processors:
+          type: integer
+        hostname:
+          type: string
+        certificates:
+          type: array
+          items:
+            type: object
+            properties:
+              filename:
+                type: string
+              expires:
+                type: integer
+                format: int64
+
+    SystemCommandSetLogLevel:
+      type: object
+      properties:
+        command:
+          type: string
+          enum:
+            - setloglevel
+        subsystems:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagValuePair'
+
+    SystemCommandReload:
+      type: object
+      properties:
+        command:
+          type: string
+          enum:
+            - reload
+        subsystems:
+          type: array
+          items:
+            type: string
+            example: these are the SubSystems names retrieve with the GetSubSystemsNamesResult.
+
+    SystemCommandGetLogLevels:
+      type: object
+      properties:
+        command:
+          type: string
+          enum:
+            - getloglevels
+
+    SystemGetLogLevelsResult:
+      type: object
+      properties:
+        taglist:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagValuePair'
+
+    SystemCommandGetLogLevelNames:
+      type: object
+      properties:
+        command:
+          type: string
+          enum:
+            - getloglevelnames
+
+    SystemCommandGetSubsystemNames:
+      type: object
+      properties:
+        command:
+          type: string
+          enum:
+            - getsubsystemnames
+
+    SystemCommandGetLogLevelNamesResult:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            type: string
+
+    SystemGetSubSystemNemesResult:
+      type: object
+      properties:
+        taglist:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagValuePair'
+
+    #########################################################################################
+    ##
+    ## End of uCentral system wide values
+    ##
+    #########################################################################################
+    SimulationDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        gateway:
+          type: string
+          format: uri
+        certificate:
+          type: string
+        key:
+          type: string
+        devices:
+          type: integer
+        healthCheckInterval:
+          type: integer
+        stateInterval:
+          type: integer
+        minAssociations:
+          type: integer
+        maxAssociations:
+          type: integer
+        minClients:
+          type: integer
+        maxClients:
+          type: integer
+        simulationLength:
+          type: integer
+
+    SimulationDetailsList:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimulationDetails'
+
+    SimulationResults:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        simulationId:
+          type: string
+          format: uuid
+        startTime:
+          type: integer
+          format: int64
+        endTime:
+          type: integer
+          format: int64
+        numClientsSuccesses:
+          type: integer
+        numClientsErrors:
+          type: integer
+        timeToFullDevices:
+          type: integer
+          format: int64
+        tx:
+          type: integer
+        rx:
+          type: integer
+
+    SimulationResultsList:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimulationResults'
+
+    SimulationStatus:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        simulationId:
+          type: string
+          format: uuid
+        tx:
+          type: integer
+        rx:
+          type: integer
+        liveDevices:
+          type: integer
+        timeToFullDevices:
+          type: integer
+          format: int64
+        errorDevices:
+          type: integer
+
+paths:
+  /simulation:
+    get:
+      tags:
+        - Simulations
+      operationId: getSimulations
+      responses:
+        200:
+          $ref: '#/components/schemas/SimulationDetailsList'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+    post:
+      tags:
+        - Simulations
+      operationId: createSimulation
+      requestBody:
+        description: Simulation details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationDetails'
+      responses:
+        200:
+          $ref: '#/components/schemas/SimulationDetails'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+    put:
+      tags:
+        - Simulations
+      operationId: modifySimulation
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Simulation details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationDetails'
+      responses:
+        200:
+          $ref: '#/components/schemas/SimulationDetails'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+    delete:
+      tags:
+        - Simulations
+      operationId: deleteSimulation
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /results:
+    get:
+      tags:
+        - Results
+      operationId: getSimulationResults
+      responses:
+        200:
+          $ref: '#/components/schemas/SimulationResultsList'
+        400:
+          $ref: '#/components/responses/BadRequest'
+
+    delete:
+      tags:
+        - Results
+      operationId: deleteSimulationResults
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  /status:
+    get:
+      tags:
+        - Status
+      operationId: getStatusOfRunningSimulation
+      responses:
+        200:
+          $ref: '#/components/schemas/SimulationStatus'
+
+  /operation:
+    post:
+      tags:
+        - Operations
+      operationId: createARunningSimulation
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: operation
+          schema:
+            type: string
+            enum:
+              - start
+              - stop
+              - pause
+              - cancel
+
+      responses:
+        200:
+          $ref: '#/components/schemas/SimulationStatus'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+  #########################################################################################
+  ##  The following calls are restricted to the private system side APIs
+  #########################################################################################
+  /system:
+    post:
+      tags:
+        - System Commands
+      summary: Perform some system wide commands.
+      operationId: systemCommand
+      requestBody:
+        description: Command details
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/SystemCommandSetLogLevel'
+                - $ref: '#/components/schemas/SystemCommandReload'
+                - $ref: '#/components/schemas/SystemCommandGetLogLevels'
+                - $ref: '#/components/schemas/SystemCommandGetLogLevelNames'
+                - $ref: '#/components/schemas/SystemCommandGetSubsystemNames'
+      responses:
+        200:
+          description: Successful command execution
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SystemGetLogLevelsResult'
+                  - $ref: '#/components/schemas/SystemCommandGetLogLevelNamesResult'
+                  - $ref: '#/components/schemas/SystemGetSubSystemNemesResult'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+        - System Commands
+      summary: Retrieve different values from the running service.
+      operationId: getSystemCommand
+      parameters:
+        - in: query
+          description: Get a value
+          name: command
+          schema:
+            type: string
+            enum:
+              - info
+          required: true
+
+      responses:
+        200:
+          description: Successful command execution
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SystemInfoResults'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+
+
+#########################################################################################
+##
+## These are endpoints that all services in the uCentral stack must provide
+##
+#########################################################################################

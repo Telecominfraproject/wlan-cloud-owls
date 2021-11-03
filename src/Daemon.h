@@ -9,25 +9,8 @@
 #ifndef UCENTRAL_UCENTRAL_H
 #define UCENTRAL_UCENTRAL_H
 
-#include <array>
-#include <iostream>
-#include <cstdlib>
-#include <vector>
-#include <set>
-
-#include "Poco/Util/Application.h"
-#include "Poco/Util/ServerApplication.h"
-#include "Poco/Util/Option.h"
-#include "Poco/Util/OptionSet.h"
-#include "Poco/UUIDGenerator.h"
-#include "Poco/ErrorHandler.h"
-#include "Poco/Crypto/RSAKey.h"
-#include "Poco/Crypto/CipherFactory.h"
-#include "Poco/Crypto/Cipher.h"
-
 #include "Dashboard.h"
 #include "framework/MicroService.h"
-#include "framework/OpenWifiTypes.h"
 
 namespace OpenWifi {
 

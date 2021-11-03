@@ -370,6 +370,13 @@ components:
           format: int64
         errorDevices:
           type: integer
+        state:
+          type: string
+          enum:
+            - running
+            - paused
+            - none
+            - canceled
 
 paths:
   /simulation:

@@ -374,9 +374,11 @@ components:
           type: string
           enum:
             - running
+            - stopped
             - paused
             - none
             - canceled
+            - completed
 
 paths:
   /simulation:
@@ -496,6 +498,11 @@ paths:
             type: string
             format: uuid
         - in: query
+          name: simulationId
+          schema:
+            type: string
+            format: uuid
+        - in: query
           name: operation
           schema:
             type: string
@@ -504,6 +511,7 @@ paths:
               - stop
               - pause
               - cancel
+              - resume
 
       responses:
         200:

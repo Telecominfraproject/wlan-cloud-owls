@@ -8,6 +8,7 @@
 
 #include "Daemon.h"
 #include "Simulation.h"
+#include "StorageService.h"
 
 namespace OpenWifi {
 	class Daemon *Daemon::instance_ = nullptr;
@@ -20,6 +21,7 @@ namespace OpenWifi {
 								   vDAEMON_APP_NAME,
 								   vDAEMON_BUS_TIMER,
 								   SubSystemVec{
+			                            StorageService(),
 			                            SimulationCoordinator()
 			});
 		}

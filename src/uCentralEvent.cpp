@@ -6,7 +6,7 @@
 #include "Poco/JSON/Parser.h"
 #include "Poco/JSON/Stringifier.h"
 #include "Poco/zlib.h"
-#include "Utils.h"
+#include "framework/MicroService.h"
 
 #include "uCentralEvent.h"
 #include "uCentralClientApp.h"

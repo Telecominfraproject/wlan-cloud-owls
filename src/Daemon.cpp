@@ -6,18 +6,7 @@
 //	Arilia Wireless Inc.
 //
 
-#include <boost/algorithm/string.hpp>
-#include "Poco/Util/Application.h"
-#include "Poco/Util/Option.h"
-#include "Poco/Environment.h"
-#include "Poco/Net/HTTPStreamFactory.h"
-
 #include "Daemon.h"
-
-#include "RESTAPI_server.h"
-#include "RESTAPI_InternalServer.h"
-#include "Utils.h"
-#include "AuthClient.h"
 
 namespace OpenWifi {
 	class Daemon *Daemon::instance_ = nullptr;
@@ -29,18 +18,18 @@ namespace OpenWifi {
 								   vDAEMON_CONFIG_ENV_VAR,
 								   vDAEMON_APP_NAME,
 								   vDAEMON_BUS_TIMER,
-								   Types::SubSystemVec{
-									   AuthClient(),
-									   RESTAPI_server(),
-									   RESTAPI_InternalServer()
-								   });
+								   SubSystemVec{});
 		}
 		return instance_;
 	}
 
-	void Daemon::initialize(Poco::Util::Application &self) {
-		MicroService::initialize(*this);
+	void Daemon::initialize() {
     }
+
+    void MicroServicePostInitialization() {
+	    Daemon()->initialize();
+	}
+
 }
 
 int main(int argc, char **argv) {

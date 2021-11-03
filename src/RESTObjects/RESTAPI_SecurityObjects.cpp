@@ -9,8 +9,8 @@
 #include "Poco/JSON/Parser.h"
 #include "Poco/JSON/Stringifier.h"
 
+#include "framework/MicroService.h"
 #include "RESTAPI_SecurityObjects.h"
-#include "RESTAPI_utils.h"
 
 using OpenWifi::RESTAPI_utils::field_to_json;
 using OpenWifi::RESTAPI_utils::field_from_json;
@@ -58,21 +58,28 @@ namespace OpenWifi::SecurityObjects {
             return CSR;
         else if (!Poco::icompare(U, "system"))
             return SYSTEM;
-        else if (!Poco::icompare(U, "special"))
-            return SPECIAL;
+        else if (!Poco::icompare(U, "installer"))
+            return INSTALLER;
+        else if (!Poco::icompare(U, "noc"))
+            return NOC;
+        else if (!Poco::icompare(U, "accounting"))
+            return ACCOUNTING;
         return UNKNOWN;
     }
 
     std::string UserTypeToString(USER_ROLE U) {
         switch(U) {
-            case UNKNOWN: return "unknown";
             case ROOT: return "root";
+            case ADMIN: return "admin";
             case SUBSCRIBER: return "subscriber";
             case CSR: return "csr";
             case SYSTEM: return "system";
-            case SPECIAL: return "special";
-            case ADMIN: return "admin";
-            default: return "unknown";
+            case INSTALLER: return "installer";
+            case NOC: return "noc";
+            case ACCOUNTING: return "accounting";
+            case UNKNOWN:
+            default:
+                return "unknown";
         }
     }
 
@@ -124,6 +131,94 @@ namespace OpenWifi::SecurityObjects {
 		}
 		return false;
 	}
+
+	void MobilePhoneNumber::to_json(Poco::JSON::Object &Obj) const {
+	    field_to_json(Obj,"number", number);
+	    field_to_json(Obj,"verified", verified);
+	    field_to_json(Obj,"primary", primary);
+	}
+
+	bool MobilePhoneNumber::from_json(Poco::JSON::Object::Ptr Obj) {
+	    try {
+	        field_from_json(Obj,"number",number);
+	        field_from_json(Obj,"verified",verified);
+	        field_from_json(Obj,"primary",primary);
+	        return true;
+	    } catch (...) {
+
+	    }
+	    return false;
+	};
+
+	void MfaAuthInfo::to_json(Poco::JSON::Object &Obj) const {
+	    field_to_json(Obj,"enabled", enabled);
+	    field_to_json(Obj,"method", method);
+	}
+
+	bool MfaAuthInfo::from_json(Poco::JSON::Object::Ptr Obj) {
+	    try {
+	        field_from_json(Obj,"enabled",enabled);
+	        field_from_json(Obj,"method",method);
+	        return true;
+	    } catch (...) {
+
+	    }
+	    return false;
+	}
+
+	void UserLoginLoginExtensions::to_json(Poco::JSON::Object &Obj) const {
+	    field_to_json(Obj, "mobiles", mobiles);
+	    field_to_json(Obj, "mfa", mfa);
+	}
+
+	bool UserLoginLoginExtensions::from_json(Poco::JSON::Object::Ptr Obj) {
+	    try {
+	        field_from_json(Obj,"mobiles",mobiles);
+	        field_from_json(Obj,"mfa",mfa);
+	        return true;
+	    } catch (...) {
+
+	    }
+	    return false;
+	}
+
+    void MFAChallengeRequest::to_json(Poco::JSON::Object &Obj) const {
+        field_to_json(Obj, "uuid", uuid);
+        field_to_json(Obj, "question", question);
+        field_to_json(Obj, "created", created);
+        field_to_json(Obj, "method", method);
+    }
+
+    bool MFAChallengeRequest::from_json(Poco::JSON::Object::Ptr Obj) {
+	    try {
+	        field_from_json(Obj,"uuid",uuid);
+	        field_from_json(Obj,"question",question);
+	        field_from_json(Obj,"created",created);
+	        field_from_json(Obj,"method",method);
+	        return true;
+	    } catch (...) {
+
+	    }
+	    return false;
+	};
+
+    void MFAChallengeResponse::to_json(Poco::JSON::Object &Obj) const {
+        field_to_json(Obj, "uuid", uuid);
+        field_to_json(Obj, "answer", answer);
+
+    }
+
+    bool MFAChallengeResponse::from_json(Poco::JSON::Object::Ptr Obj) {
+        try {
+            field_from_json(Obj,"uuid",uuid);
+            field_from_json(Obj,"answer",answer);
+            return true;
+        } catch (...) {
+
+        }
+        return false;
+
+    }
 
     void UserInfo::to_json(Poco::JSON::Object &Obj) const {
 		field_to_json(Obj,"Id",Id);
@@ -303,18 +398,29 @@ namespace OpenWifi::SecurityObjects {
 		return false;
 	}
 
-    bool append_from_json(Poco::JSON::Object::Ptr Obj, const UserInfo &UInfo, NoteInfoVec & Notes) {
+    bool MergeNotes(Poco::JSON::Object::Ptr Obj, const UserInfo &UInfo, NoteInfoVec & Notes) {
 	    try {
-	        SecurityObjects::NoteInfoVec NIV;
-	        NIV = RESTAPI_utils::to_object_array<SecurityObjects::NoteInfo>(Obj->get("notes").toString());
-	        for(auto const &i:NIV) {
-	            SecurityObjects::NoteInfo   ii{.created=(uint64_t)std::time(nullptr), .createdBy=UInfo.email, .note=i.note};
-	            Notes.push_back(ii);
+	        if(Obj->has("notes") && Obj->isArray("notes")) {
+	            SecurityObjects::NoteInfoVec NIV;
+	            NIV = RESTAPI_utils::to_object_array<SecurityObjects::NoteInfo>(Obj->get("notes").toString());
+	            for(auto const &i:NIV) {
+	                SecurityObjects::NoteInfo   ii{.created=(uint64_t)std::time(nullptr), .createdBy=UInfo.email, .note=i.note};
+	                Notes.push_back(ii);
+	            }
 	        }
+	        return true;
 	    } catch(...) {
 
 	    }
 	    return false;
+	}
+
+	bool MergeNotes(const NoteInfoVec & NewNotes, const UserInfo &UInfo, NoteInfoVec & ExistingNotes) {
+	    for(auto const &i:NewNotes) {
+	        SecurityObjects::NoteInfo   ii{.created=(uint64_t)std::time(nullptr), .createdBy=UInfo.email, .note=i.note};
+	        ExistingNotes.push_back(ii);
+	    }
+        return true;
 	}
 
 	void ProfileAction::to_json(Poco::JSON::Object &Obj) const {

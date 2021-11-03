@@ -5,8 +5,8 @@
 #ifndef UCENTRALGW_DASHBOARD_H
 #define UCENTRALGW_DASHBOARD_H
 
-#include "OpenWifiTypes.h"
-#include "RESTAPI_OWLSobjects.h"
+#include "framework/OpenWifiTypes.h"
+#include "RESTObjects/RESTAPI_OWLSobjects.h"
 
 namespace OpenWifi {
 	class OWLSDashboard {

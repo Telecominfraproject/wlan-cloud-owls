@@ -26,8 +26,8 @@
 #include "Poco/Crypto/Cipher.h"
 
 #include "Dashboard.h"
-#include "MicroService.h"
-#include "OpenWifiTypes.h"
+#include "framework/MicroService.h"
+#include "framework/OpenWifiTypes.h"
 
 namespace OpenWifi {
 
@@ -44,10 +44,10 @@ namespace OpenWifi {
 							const std::string & ConfigEnv,
 							const std::string & AppName,
 						  	uint64_t 	BusTimer,
-							const Types::SubSystemVec & SubSystems) :
+							const SubSystemVec & SubSystems) :
 				MicroService( PropFile, RootEnv, ConfigEnv, AppName, BusTimer, SubSystems) {};
 
-			void initialize(Poco::Util::Application &self) override;
+			void initialize();
 			static Daemon *instance();
 			inline OWLSDashboard	& GetDashboard() { return DB_; }
 	  	private:
@@ -55,7 +55,6 @@ namespace OpenWifi {
 			bool                        AutoProvisioning_ = false;
 			Types::StringMapStringSet   DeviceTypeIdentifications_;
 			OWLSDashboard				DB_{};
-
     };
 
 	inline Daemon * Daemon() { return Daemon::instance(); }

@@ -10,7 +10,7 @@
 #define UCENTRAL_RESTAPI_SECURITYOBJECTS_H
 
 #include "Poco/JSON/Object.h"
-#include "OpenWifiTypes.h"
+#include "../framework/OpenWifiTypes.h"
 
 namespace OpenWifi::SecurityObjects {
 
@@ -42,7 +42,7 @@ namespace OpenWifi::SecurityObjects {
 	};
 
     enum USER_ROLE {
-        UNKNOWN, ROOT, ADMIN, SUBSCRIBER, CSR, SYSTEM, SPECIAL
+        UNKNOWN, ROOT, ADMIN, SUBSCRIBER, CSR, SYSTEM, INSTALLER, NOC, ACCOUNTING
     };
 
     USER_ROLE UserTypeFromString(const std::string &U);
@@ -56,6 +56,49 @@ namespace OpenWifi::SecurityObjects {
 		bool from_json(Poco::JSON::Object::Ptr Obj);
 	};
 	typedef std::vector<NoteInfo>	NoteInfoVec;
+
+	struct MobilePhoneNumber {
+	    std::string number;
+	    bool verified;
+	    bool primary;
+
+	    void to_json(Poco::JSON::Object &Obj) const;
+	    bool from_json(Poco::JSON::Object::Ptr Obj);
+	};
+
+	struct MfaAuthInfo {
+	    bool enabled;
+	    std::string method;
+
+	    void to_json(Poco::JSON::Object &Obj) const;
+	    bool from_json(Poco::JSON::Object::Ptr Obj);
+	};
+
+	struct UserLoginLoginExtensions {
+	    std::vector<MobilePhoneNumber>  mobiles;
+	    struct MfaAuthInfo mfa;
+
+	    void to_json(Poco::JSON::Object &Obj) const;
+	    bool from_json(Poco::JSON::Object::Ptr Obj);
+	};
+
+	struct MFAChallengeRequest {
+	    std::string uuid;
+	    std::string question;
+	    std::string method;
+	    uint64_t    created;
+
+	    void to_json(Poco::JSON::Object &Obj) const;
+	    bool from_json(Poco::JSON::Object::Ptr Obj);
+	};
+
+    struct MFAChallengeResponse {
+        std::string uuid;
+        std::string answer;
+
+        void to_json(Poco::JSON::Object &Obj) const;
+        bool from_json(Poco::JSON::Object::Ptr Obj);
+    };
 
 	struct UserInfo {
         std::string Id;
@@ -81,7 +124,7 @@ namespace OpenWifi::SecurityObjects {
 		bool suspended = false;
 		bool blackListed = false;
         USER_ROLE userRole;
-		std::string userTypeProprietaryInfo;
+        UserLoginLoginExtensions userTypeProprietaryInfo;
 		std::string securityPolicy;
 		uint64_t securityPolicyChange = 0 ;
 		std::string currentPassword;
@@ -94,7 +137,9 @@ namespace OpenWifi::SecurityObjects {
 	};
 	typedef std::vector<UserInfo>   UserInfoVec;
 
-	bool append_from_json(Poco::JSON::Object::Ptr Obj, const UserInfo &UInfo, NoteInfoVec & Notes);
+	// bool append_from_json(Poco::JSON::Object::Ptr Obj, const UserInfo &UInfo, NoteInfoVec & Notes);
+	bool MergeNotes(Poco::JSON::Object::Ptr Obj, const UserInfo &UInfo, NoteInfoVec & Notes);
+	bool MergeNotes(const NoteInfoVec & NewNotes, const UserInfo &UInfo, NoteInfoVec & ExistingNotes);
 
 	struct InternalServiceInfo {
 		std::string privateURI;

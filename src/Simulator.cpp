@@ -29,8 +29,6 @@ namespace OpenWifi {
             Client->AddEvent(ev_reconnect, distrib(gen) );
             Clients_[Buffer] = std::move(Client);
         }
-
-        Stats()->AddClients(NumClients_);
     }
 
 

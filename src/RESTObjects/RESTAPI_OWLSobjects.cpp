@@ -126,8 +126,12 @@ namespace OpenWifi::OWLSObjects {
         field_to_json(Obj,"state", state);
         field_to_json(Obj,"tx", tx);
         field_to_json(Obj,"rx", rx);
+        field_to_json(Obj,"msgsTx", msgsTx);
+        field_to_json(Obj,"msgsRx", msgsRx);
         field_to_json(Obj,"liveDevices", liveDevices);
         field_to_json(Obj,"timeToFullDevices", timeToFullDevices);
+        field_to_json(Obj,"startTime", startTime);
+        field_to_json(Obj,"endTime", endTime);
         field_to_json(Obj,"errorDevices", errorDevices);
     }
 

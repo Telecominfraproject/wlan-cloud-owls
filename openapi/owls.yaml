@@ -371,9 +371,19 @@ components:
           type: integer
         rx:
           type: integer
+        msgsTx:
+          type: integer
+        msgsRx:
+          type: integer
         liveDevices:
           type: integer
         timeToFullDevices:
+          type: integer
+          format: int64
+        startTime:
+          type: integer
+          format: int64
+        endTime:
           type: integer
           format: int64
         errorDevices:

@@ -161,7 +161,7 @@ namespace OpenWifi {
         if(Reconnect)
             AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + (rand() % 15) );
 
-        Stats()->Disconnect();
+        SimStats()->Disconnect();
     }
 
     void uCentralClient::DoCensus( CensusReport & Census ) {
@@ -215,8 +215,8 @@ namespace OpenWifi {
                     if (MessageSize > 0) {
                         Poco::JSON::Parser  Parser;
 
-                        Stats()->AddRX(MessageSize);
-                        Stats()->AddInMsg();
+                        SimStats()->AddRX(MessageSize);
+                        SimStats()->AddInMsg();
 
                         auto ParsedMessage = Parser.parse(Message);
                         auto Result = ParsedMessage.extract<Poco::JSON::Object::Ptr>();
@@ -665,7 +665,7 @@ namespace OpenWifi {
             Connected_ = true ;
 
             AddEvent(ev_connect,1);
-            Stats()->Connect();
+            SimStats()->Connect();
         }
         catch ( const Poco::Exception & E )
         {
@@ -690,8 +690,8 @@ namespace OpenWifi {
         try {
             uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
             if (BytesSent == Cmd.size()) {
-                Stats()->AddTX(Cmd.size());
-                Stats()->AddOutMsg();
+                SimStats()->AddTX(Cmd.size());
+                SimStats()->AddOutMsg();
                 return true;
             } else {
                 Logger_.warning(Poco::format("SEND(%s): incomplete send. Sent: %l", SerialNumber_, BytesSent));
@@ -723,8 +723,8 @@ namespace OpenWifi {
             Poco::JSON::Stringifier::stringify(O, OS);
             uint32_t BytesSent = WS_->sendFrame(OS.str().c_str(), OS.str().size());
             if (BytesSent == OS.str().size()) {
-                Stats()->AddTX(BytesSent);
-                Stats()->AddOutMsg();
+                SimStats()->AddTX(BytesSent);
+                SimStats()->AddOutMsg();
                 return true;
             } else {
                 Logger_.warning(Poco::format("SEND(%s): incomplete send object. Sent: %l", SerialNumber_, BytesSent));

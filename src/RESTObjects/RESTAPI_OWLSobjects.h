@@ -70,8 +70,12 @@ namespace OpenWifi::OWLSObjects {
         std::string     state;
         uint64_t        tx;
         uint64_t        rx;
+        uint64_t        msgsTx;
+        uint64_t        msgsRx;
         uint64_t        liveDevices;
         uint64_t        timeToFullDevices;
+        uint64_t        startTime;
+        uint64_t        endTime;
         uint64_t        errorDevices;
 
         void to_json(Poco::JSON::Object &Obj) const;

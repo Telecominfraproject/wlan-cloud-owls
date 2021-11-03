@@ -5,83 +5,109 @@
 #ifndef UCENTRALSIM_SIMSTATS_H
 #define UCENTRALSIM_SIMSTATS_H
 
-#include <mutex>
+#include "framework/MicroService.h"
+#include "RESTObjects/RESTAPI_OWLSobjects.h"
 
-struct StatsReport {
-    uint64_t Connected;
-    uint64_t Total;
-    uint64_t TX;
-    uint64_t RX;
-    uint64_t InMsgs;
-    uint64_t OutMsgs;
-};
+namespace OpenWifi {
 
-class SimStats {
-    typedef std::recursive_mutex        my_mutex;
-    typedef std::lock_guard<my_mutex>   my_guard;
+    class SimStats : public SubSystemServer {
 
-public:
-    void Connect() {
-        my_guard Lock(Mutex_);
-        Connected_++;
-    }
-    void Disconnect() {
-        my_guard Lock(Mutex_);
-        Connected_--;
-    }
-    void AddClients(uint64_t C) {
-        my_guard Lock(Mutex_);
-        NumDevices_ += C;
-    }
+    public:
+        inline void Connect() {
+            std::lock_guard G(Mutex_);
+            Status_.liveDevices++;
+        }
 
-    static SimStats * instance() {
-        if(instance_ == nullptr)
-            instance_ = new SimStats;
-        return instance_;
-    }
+        inline void Disconnect() {
+            std::lock_guard G(Mutex_);
+            Status_.liveDevices--;
+        }
 
-    void AddRX(uint64_t N) {
-        my_guard Lock(Mutex_);
-        RX_ += N;
-    }
+        static SimStats * instance() {
+            if(instance_ == nullptr)
+                instance_ = new SimStats;
+            return instance_;
+        }
 
-    void AddOutMsg() {
-        my_guard Lock(Mutex_);
-        OutMsgs_++;
-    }
+        inline void AddRX(uint64_t N) {
+            std::lock_guard G(Mutex_);
+            Status_.rx += N;
+        }
 
-    void AddInMsg() {
-        my_guard Lock(Mutex_);
-        InMsgs_++;
-    }
+        inline void AddOutMsg() {
+            std::lock_guard G(Mutex_);
+            Status_.msgsTx++;
+        }
 
-    void AddTX(uint64_t N) {
-        my_guard Lock(Mutex_);
-        TX_ += N;
-    }
+        inline void AddInMsg() {
+            std::lock_guard G(Mutex_);
+            Status_.msgsRx++;
+        }
 
-    void Report( StatsReport & Report ) {
-        my_guard Lock(Mutex_);
+        inline void AddTX(uint64_t N) {
+            std::lock_guard G(Mutex_);
+            Status_.tx += N;
+        }
 
-        Report.Connected = Connected_;
-        Report.Total = NumDevices_;
-        Report.RX = RX_;
-        Report.TX = TX_;
-        Report.InMsgs = InMsgs_;
-        Report.OutMsgs = OutMsgs_;
-    }
+        inline void GetCurrent( OWLSObjects::SimulationStatus & S) {
+            std::lock_guard G(Mutex_);
+            S = Status_;
+        }
 
-private:
-    static SimStats     * instance_;
-    my_mutex            Mutex_;
-    uint64_t            NumDevices_ = 0 ;
-    uint64_t            Connected_ = 0 ;
-    uint64_t            RX_ = 0;
-    uint64_t            TX_ = 0;
-    uint64_t            InMsgs_ = 0 ;
-    uint64_t            OutMsgs_ = 0;
-};
+        inline int Start() final {
+            Reset();
+            return 0;
+        }
 
-SimStats * Stats();
+        inline void Stop() {
+
+        }
+
+        inline void StartSim() {
+            std::lock_guard G(Mutex_);
+            Status_.state = "running";
+            Status_.startTime = std::time(nullptr);
+        }
+
+        inline void EndSim() {
+            std::lock_guard G(Mutex_);
+            Status_.state = "done";
+            Status_.endTime = std::time(nullptr);
+        }
+
+        inline void SetState(const std::string &S) {
+            std::lock_guard G(Mutex_);
+            Status_.state = S;
+        }
+
+        [[nodiscard]] const std::string & GetState() {
+            std::lock_guard G(Mutex_);
+            return Status_.state;
+        }
+
+        inline void Reset() {
+            Status_.liveDevices = Status_.tx = Status_.msgsRx = Status_.msgsTx = Status_.rx =
+                    Status_.endTime = Status_.errorDevices = Status_.startTime = Status_.timeToFullDevices = 0;
+            Status_.simulationId = Status_.id = Status_.state = "";
+        }
+
+        inline void SetId(const std::string &id , const std::string & simid) {
+            Status_.id = id;
+            Status_.simulationId = simid;
+        }
+
+    private:
+        static SimStats                 * instance_;
+        OWLSObjects::SimulationStatus   Status_;
+
+        SimStats() noexcept:
+        SubSystemServer("SimStats", "SIM-STATS", "stats")
+            {
+            }
+    };
+
+    inline SimStats * SimStats() { return SimStats::instance(); }
+    inline class SimStats * SimStats::instance_= nullptr;
+}
 
 #endif //UCENTRALSIM_SIMSTATS_H

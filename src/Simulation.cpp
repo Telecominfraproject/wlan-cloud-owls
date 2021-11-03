@@ -4,6 +4,7 @@
 
 #include "Simulation.h"
 #include "StorageService.h"
+#include "SimStats.h"
 
 namespace OpenWifi {
 
@@ -45,6 +46,7 @@ namespace OpenWifi {
 
     void SimulationCoordinator::StartSimulators() {
         Logger_.notice("Starting simulation threads...");
+        SimStats()->StartSim();
         for(const auto &i:SimThreads_)
             i->Thread.start(i->Sim);
     }
@@ -73,6 +75,7 @@ namespace OpenWifi {
             i->Sim.stop();
             i->Thread.join();
         }
+        SimStats()->EndSim();
     }
 
     bool SimulationCoordinator::StartSim(const std::string &SimId, std::string & Id, std::string &Error) {
@@ -116,11 +119,8 @@ namespace OpenWifi {
         }
 
         StartSimulators();
-
         SimRunning_ = true ;
-        Status_.id = MicroService::instance().CreateUUID();
-        Status_.simulationId = SimId;
-        Status_.state = "running";
+        SimStats()->SetId(MicroService::instance().CreateUUID(), SimId);
         return true;
     }
 
@@ -133,7 +133,7 @@ namespace OpenWifi {
         StopSimulators();
 
         SimRunning_ = false;
-        Status_.state = "stopped";
+        SimStats()->SetState("stopped");
         return true;
     }
 
@@ -143,7 +143,7 @@ namespace OpenWifi {
             return false;
         }
         PauseSimulators();
-        Status_.state = "paused";
+        SimStats()->SetState("paused");
         return true;
     }
 
@@ -157,10 +157,7 @@ namespace OpenWifi {
         StopSimulators();
 
         SimRunning_ = false;
-        Status_.id.clear();
-        Status_.simulationId.clear();
-        Status_.state = "none";
-
+        SimStats()->SetState("none");
         return true;
     }
 
@@ -170,14 +167,13 @@ namespace OpenWifi {
             return false;
         }
 
-        if(Status_.state!="paused") {
+        if(SimStats()->GetState()!="paused") {
             Error = "Simulation must be paused first.";
             return false;
         }
 
         ResumeSimulators();
-
-        Status_.state = "running";
+        SimStats()->SetState("running");
         return true;
     }
 

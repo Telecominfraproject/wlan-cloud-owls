@@ -4,6 +4,7 @@
 
 #include "RESTAPI_operation_handler.h"
 #include "Simulation.h"
+#include "SimStats.h"
 
 namespace OpenWifi {
     void RESTAPI_operation_handler::DoPost() {
@@ -40,7 +41,7 @@ namespace OpenWifi {
 
         if(Error.empty()) {
             OWLSObjects::SimulationStatus   S;
-            SimulationCoordinator()->GetStatus(S);
+            SimStats()->GetCurrent(S);
             Poco::JSON::Object  Answer;
             S.to_json(Answer);
             return ReturnObject(Answer);

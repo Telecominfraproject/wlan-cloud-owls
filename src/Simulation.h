@@ -36,12 +36,6 @@ namespace OpenWifi {
             bool CancelSim(const std::string &Id, std::string &Error);
             bool ResumeSim(const std::string &Id, std::string &Error);
 
-            inline bool GetStatus( OWLSObjects::SimulationStatus & S) {
-                std::lock_guard G(Mutex_);
-                S = Status_;
-                return true;
-            }
-
             [[nodiscard]] inline const OWLSObjects::SimulationDetails & GetSimulationInfo() {
                 return CurrentSim_;
             }
@@ -57,7 +51,6 @@ namespace OpenWifi {
             Poco::Thread                    Worker_;
             std::atomic_bool                Running_=false;
             std::atomic_bool                SimRunning_ = false;
-            OWLSObjects::SimulationStatus   Status_;
             std::vector<std::unique_ptr<SimThread>>   SimThreads_;
             OWLSObjects::SimulationDetails  CurrentSim_;
             std::string                     CASLocation_;

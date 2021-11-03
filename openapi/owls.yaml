@@ -310,6 +310,10 @@ components:
           type: integer
         clientInterval:
           type: integer
+        keepAlive:
+          type: integer
+        reconnectInterval:
+          type: integer
 
     SimulationDetailsList:
       type: object

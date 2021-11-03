@@ -73,6 +73,9 @@ namespace OpenWifi {
 
             void StartSimulators();
             void StopSimulators();
+            void PauseSimulators();
+            void ResumeSimulators();
+            void CancelSimulators();
     };
 
     inline SimulationCoordinator * SimulationCoordinator() { return SimulationCoordinator::instance(); }

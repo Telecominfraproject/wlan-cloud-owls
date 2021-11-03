@@ -29,6 +29,10 @@ namespace OpenWifi {
         void stop() { Stop_ = true; }
         void Initialize( Poco::Logger & ClientLogger);
 
+        void Cancel() { State_ = "cancel"; SocketReactorThread_.wakeUp(); }
+        void Resume() { State_ = "running"; SocketReactorThread_.wakeUp(); }
+        void Pause()  { State_ = "paused"; SocketReactorThread_.wakeUp(); }
+
     private:
         Poco::Logger                                            &Logger_;
         my_mutex                                                Mutex_;
@@ -40,6 +44,7 @@ namespace OpenWifi {
         std::string                                             SerialStart_;
         uint64_t                                                NumClients_;
         CensusReport                                            CensusReport_;
+        std::string                                             State_{"stopped"};
     };
 }
 

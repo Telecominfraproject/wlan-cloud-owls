@@ -47,6 +47,12 @@ namespace OpenWifi {
             //  wake up every quarter second
             Poco::Thread::sleep(1000);
 
+            if(State_=="paused")
+                continue;
+
+            if(State_=="cancel")
+                break;
+
             my_guard Lock(Mutex_);
 
             try {

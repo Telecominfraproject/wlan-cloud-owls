@@ -10,6 +10,8 @@ using OpenWifi::RESTAPI_utils::EmbedDocument;
 
 #include "RESTAPI_OWLSobjects.h"
 
+// SIM -> 0x53/0x073, 0x49/0x69, 0x4d/0x6d
+
 namespace OpenWifi::OWLSObjects {
 
     void SimulationDetails::to_json(Poco::JSON::Object &Obj) const {

@@ -49,6 +49,24 @@ namespace OpenWifi {
             i->Thread.start(i->Sim);
     }
 
+    void SimulationCoordinator::PauseSimulators() {
+        Logger_.notice("Starting simulation threads...");
+        for(const auto &i:SimThreads_)
+            i->Sim.Pause();
+    }
+
+    void SimulationCoordinator::ResumeSimulators() {
+        Logger_.notice("Starting simulation threads...");
+        for(const auto &i:SimThreads_)
+            i->Sim.Resume();
+    }
+
+    void SimulationCoordinator::CancelSimulators() {
+        Logger_.notice("Starting simulation threads...");
+        for(const auto &i:SimThreads_)
+            i->Sim.Cancel();
+    }
+
     void SimulationCoordinator::StopSimulators() {
         Logger_.notice("Stopping simulation threads...");
         for(const auto &i:SimThreads_) {
@@ -111,6 +129,9 @@ namespace OpenWifi {
             Error = "No simulation is running.";
             return false;
         }
+
+        StopSimulators();
+
         SimRunning_ = false;
         Status_.state = "stopped";
         return true;
@@ -121,6 +142,7 @@ namespace OpenWifi {
             Error = "No simulation is running.";
             return false;
         }
+        PauseSimulators();
         Status_.state = "paused";
         return true;
     }
@@ -130,6 +152,9 @@ namespace OpenWifi {
             Error = "No simulation is running.";
             return false;
         }
+
+        CancelSimulators();
+        StopSimulators();
 
         SimRunning_ = false;
         Status_.id.clear();
@@ -149,6 +174,8 @@ namespace OpenWifi {
             Error = "Simulation must be paused first.";
             return false;
         }
+
+        ResumeSimulators();
 
         Status_.state = "running";
         return true;

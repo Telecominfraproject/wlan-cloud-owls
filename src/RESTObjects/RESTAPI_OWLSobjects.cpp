@@ -27,6 +27,10 @@ namespace OpenWifi::OWLSObjects {
         field_to_json(Obj,"minClients", minClients);
         field_to_json(Obj,"maxClients", maxClients);
         field_to_json(Obj,"simulationLength", simulationLength);
+        field_to_json(Obj,"threads", threads);
+        field_to_json(Obj,"clientInterval", clientInterval);
+        field_to_json(Obj,"keepAlive", keepAlive);
+        field_to_json(Obj,"reconnectInterval", reconnectInterval);
     }
 
     bool SimulationDetails::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -45,6 +49,10 @@ namespace OpenWifi::OWLSObjects {
             field_from_json(Obj,"minClients", minClients);
             field_from_json(Obj,"maxClients", maxClients);
             field_from_json(Obj,"simulationLength", simulationLength);
+            field_from_json(Obj,"threads", threads);
+            field_from_json(Obj,"clientInterval", clientInterval);
+            field_from_json(Obj,"keepAlive", keepAlive);
+            field_from_json(Obj,"reconnectInterval", reconnectInterval);
             return true;
         } catch(...) {
 

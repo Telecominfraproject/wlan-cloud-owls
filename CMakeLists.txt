@@ -61,12 +61,13 @@ add_executable( owls
         src/APIServers.cpp
         src/Daemon.cpp src/Daemon.h
         src/Dashboard.cpp src/Dashboard.h
-#        src/uCentralClient.cpp src/uCentralClient.h
-#        src/Simulator.cpp src/Simulator.h
-#        src/uCentralEvent.cpp src/uCentralEvent.h
+        src/uCentralClient.cpp
+        src/uCentralClient.h
+        src/Simulator.cpp src/Simulator.h
+        src/uCentralEvent.cpp src/uCentralEvent.h
 #        src/uCentralEventTypes.h
-#        src/SimStats.cpp src/SimStats.h
-#        src/StatsDisplay.cpp src/StatsDisplay.h
+        src/SimStats.cpp src/SimStats.h
+        src/StatsDisplay.cpp src/StatsDisplay.h
         src/RESTObjects/RESTAPI_OWLSobjects.cpp src/RESTObjects/RESTAPI_OWLSobjects.h
         src/RESTObjects/RESTAPI_SecurityObjects.cpp src/RESTObjects/RESTAPI_SecurityObjects.h
         src/RESTAPI/RESTAPI_deviceDashboardHandler.cpp src/RESTAPI/RESTAPI_deviceDashboardHandler.h

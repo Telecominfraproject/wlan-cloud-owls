@@ -306,6 +306,10 @@ components:
           maximum: 32
         simulationLength:
           type: integer
+        threads:
+          type: integer
+        clientInterval:
+          type: integer
 
     SimulationDetailsList:
       type: object

@@ -19,7 +19,11 @@ namespace OpenWifi {
         ORM::Field{"maxAssociations",ORM::FieldType::FT_BIGINT},
         ORM::Field{"minClients",ORM::FieldType::FT_BIGINT},
         ORM::Field{"maxClients",ORM::FieldType::FT_BIGINT},
-        ORM::Field{"simulationLength",ORM::FieldType::FT_BIGINT}
+        ORM::Field{"simulationLength",ORM::FieldType::FT_BIGINT},
+        ORM::Field{"threads",ORM::FieldType::FT_BIGINT},
+        ORM::Field{"clientInterval",ORM::FieldType::FT_BIGINT},
+        ORM::Field{"keepAlive",ORM::FieldType::FT_BIGINT},
+        ORM::Field{"reconnectInterval",ORM::FieldType::FT_BIGINT}
     };
 
     static  ORM::IndexVec    SimulationDB_Indexes{
@@ -45,6 +49,10 @@ template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects:
     Out.minClients = In.get<11>();
     Out.maxClients = In.get<12>();
     Out.simulationLength = In.get<13>();
+    Out.threads = In.get<14>();
+    Out.clientInterval = In.get<15>();
+    Out.keepAlive = In.get<16>();
+    Out.reconnectInterval = In.get<17>();
 }
 
 template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects::SimulationDetails>::Convert(OpenWifi::OWLSObjects::SimulationDetails &In, OpenWifi::SimulationDBRecordType &Out) {
@@ -62,6 +70,10 @@ template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects:
     Out.set<11>(In.minClients);
     Out.set<12>(In.maxClients);
     Out.set<13>(In.simulationLength);
+    Out.set<14>(In.threads);
+    Out.set<15>(In.clientInterval);
+    Out.set<16>(In.keepAlive);
+    Out.set<17>(In.reconnectInterval);
 }
 
 

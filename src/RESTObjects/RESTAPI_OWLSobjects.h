@@ -25,6 +25,10 @@ namespace OpenWifi::OWLSObjects {
         uint64_t        minClients;
         uint64_t        maxClients;
         uint64_t        simulationLength;
+        uint64_t        threads;
+        uint64_t        clientInterval;
+        uint64_t        keepAlive;
+        uint64_t        reconnectInterval;
 
         void to_json(Poco::JSON::Object &Obj) const;
         bool from_json(const Poco::JSON::Object::Ptr &Obj);

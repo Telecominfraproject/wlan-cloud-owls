@@ -1,0 +1,22 @@
+[Unit]
+Description=OpenWiFi Load Simulator
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment="OWLS_ROOT=/home/admin/dev/ucentralsim"
+ExecStart=/home/admin/dev/ucentralsim/cmake-build/owls
+WorkingDirectory=/home/admin/dev/ucentralsim
+# ExecReload=/bin/kill -s HUP $MAINPID
+User=admin
+# TimeoutSec=0
+RestartSec=2
+Restart=always
+StartLimitBurst=3
+# KillMode=process
+LimitNOFILE=500000
+LimitNPROC=500000
+
+[Install]
+WantedBy=multi-user.target

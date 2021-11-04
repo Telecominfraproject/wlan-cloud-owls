@@ -81,11 +81,17 @@ namespace OpenWifi {
     void SimulationCoordinator::StopSimulators() {
         Logger_.notice("Stopping simulation threads...");
         SimStats()->EndSim();
+        std::cout << __func__ << ":" << __LINE__ << std::endl;
         for(const auto &i:SimThreads_) {
+            std::cout << __func__ << ":" << __LINE__ << std::endl
             i->Sim.stop();
+            std::cout << __func__ << ":" << __LINE__ << std::endl;
             i->Thread.join();
+            std::cout << __func__ << ":" << __LINE__ << std::endl;
         }
+        std::cout << __func__ << ":" << __LINE__ << std::endl;
         SimThreads_.clear();
+        std::cout << __func__ << ":" << __LINE__ << std::endl;
     }
 
     static const nlohmann::json DefaultCapabilities = R"(

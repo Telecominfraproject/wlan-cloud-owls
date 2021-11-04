@@ -135,8 +135,11 @@ namespace OpenWifi {
             auto Clients = std::min(ClientCount,NumClientsPerThread);
             std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto NewSimThread = std::make_unique<SimThread>(i,CurrentSim_.macPrefix,Clients, Logger_);
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             NewSimThread->Sim.Initialize(ClientLogger);
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             SimThreads_.push_back(std::move(NewSimThread));
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             ClientCount -= Clients;
             std::cout << __func__ << " : " << __LINE__ << std::endl;
         }

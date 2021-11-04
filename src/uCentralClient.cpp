@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <cstdlib>
+#include <sys/time.h>
 
 #include "Poco/Net/HTTPSClientSession.h"
 #include "Poco/Net/HTTPRequest.h"

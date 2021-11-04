@@ -123,21 +123,31 @@ namespace OpenWifi {
                 NumClientsPerThread = CurrentSim_.devices / (CurrentSim_.threads+1);
             }
         }
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         Poco::Logger    & ClientLogger = Poco::Logger::get("WS-CLIENT");
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         ClientLogger.setLevel(Poco::Message::PRIO_WARNING);
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         for(auto i=0;ClientCount;i++)
         {
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto Clients = std::min(ClientCount,NumClientsPerThread);
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto NewSimThread = std::make_unique<SimThread>(i,CurrentSim_.macPrefix,Clients, Logger_);
             NewSimThread->Sim.Initialize(ClientLogger);
             SimThreads_.push_back(std::move(NewSimThread));
             ClientCount -= Clients;
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
         }
 
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         StartSimulators();
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimRunning_ = true ;
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimStats()->SetId(MicroService::instance().CreateUUID(), SimId);
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         return true;
     }
 

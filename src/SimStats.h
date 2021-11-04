@@ -85,9 +85,13 @@ namespace OpenWifi {
             Status_.state = S;
         }
 
-        [[nodiscard]] const std::string & GetState() {
+        [[nodiscard]] inline const std::string & GetState() {
             std::lock_guard G(Mutex_);
             return Status_.state;
+        }
+
+        [[nodiscard]] inline const std::string & Id() const {
+            return Status_.id;
         }
 
         inline void Reset() {
@@ -95,6 +99,8 @@ namespace OpenWifi {
                     Status_.endTime = Status_.errorDevices = Status_.startTime = Status_.timeToFullDevices = 0;
             Status_.simulationId = Status_.id = Status_.state = "";
         }
+
+        [[nodiscard]] uint64_t GetStartTime() const { return Status_.startTime; }
 
     private:
         static SimStats                 * instance_;

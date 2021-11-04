@@ -9,7 +9,7 @@
 namespace OpenWifi {
 
     void RESTAPI_results_handler::DoGet() {
-        std::vector<OWLSObjects::SimulationResults>     Results;
+        std::vector<OWLSObjects::SimulationStatus>     Results;
         StorageService()->SimulationResultsDB().GetRecords(1,10000,Results);
         return ReturnObject("list",Results);
     }

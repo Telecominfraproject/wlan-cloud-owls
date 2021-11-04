@@ -348,41 +348,6 @@ components:
           items:
             $ref: '#/components/schemas/SimulationDetails'
 
-    SimulationResults:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        simulationId:
-          type: string
-          format: uuid
-        startTime:
-          type: integer
-          format: int64
-        endTime:
-          type: integer
-          format: int64
-        numClientsSuccesses:
-          type: integer
-        numClientsErrors:
-          type: integer
-        timeToFullDevices:
-          type: integer
-          format: int64
-        tx:
-          type: integer
-        rx:
-          type: integer
-
-    SimulationResultsList:
-      type: object
-      properties:
-        list:
-          type: array
-          items:
-            $ref: '#/components/schemas/SimulationResults'
-
     SimulationStatus:
       type: object
       properties:
@@ -422,6 +387,14 @@ components:
             - none
             - canceled
             - completed
+
+    SimulationStatusList:
+      type: object
+      properties:
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimulationStatus'
 
 paths:
   /simulation:
@@ -498,7 +471,7 @@ paths:
       operationId: getSimulationResults
       responses:
         200:
-          $ref: '#/components/schemas/SimulationResultsList'
+          $ref: '#/components/schemas/SimulationStatusList'
         400:
           $ref: '#/components/responses/BadRequest'
 

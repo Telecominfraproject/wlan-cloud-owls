@@ -12,6 +12,9 @@ namespace OpenWifi {
     typedef Poco::Tuple<
         std::string,
         std::string,
+        std::string,
+        uint64_t,
+        uint64_t,
         uint64_t,
         uint64_t,
         uint64_t,
@@ -21,7 +24,7 @@ namespace OpenWifi {
         uint64_t
     > SimulationResultsDBRecordType;
 
-    class SimulationResultsDB : public ORM::DB<SimulationResultsDBRecordType,OWLSObjects::SimulationResults> {
+    class SimulationResultsDB : public ORM::DB<SimulationResultsDBRecordType,OWLSObjects::SimulationStatus> {
     public:
         SimulationResultsDB( OpenWifi::DBType T, Poco::Data::SessionPool & P, Poco::Logger &L);
     private:

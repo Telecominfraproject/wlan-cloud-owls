@@ -82,50 +82,6 @@ namespace OpenWifi::OWLSObjects {
         return false;
     }
 
-    void SimulationResults::to_json(Poco::JSON::Object &Obj) const {
-        field_to_json(Obj,"id", id);
-        field_to_json(Obj,"simulationId", simulationId);
-        field_to_json(Obj,"startTime", startTime);
-        field_to_json(Obj,"endTime", endTime);
-        field_to_json(Obj,"numClientsSuccesses", numClientsSuccesses);
-        field_to_json(Obj,"numClientsErrors", numClientsErrors);
-        field_to_json(Obj,"timeToFullDevices", timeToFullDevices);
-        field_to_json(Obj,"tx", tx);
-        field_to_json(Obj,"rx", rx);
-    }
-
-    bool SimulationResults::from_json(const Poco::JSON::Object::Ptr &Obj) {
-        try {
-            field_from_json(Obj,"id", id);
-            field_from_json(Obj,"simulationId", simulationId);
-            field_from_json(Obj,"startTime", startTime);
-            field_from_json(Obj,"endTime", endTime);
-            field_from_json(Obj,"numClientsSuccesses", numClientsSuccesses);
-            field_from_json(Obj,"numClientsErrors", numClientsErrors);
-            field_from_json(Obj,"timeToFullDevices", timeToFullDevices);
-            field_from_json(Obj,"tx", tx);
-            field_from_json(Obj,"rx", rx);
-            return true;
-        } catch(...) {
-
-        }
-        return false;
-    }
-
-    void SimulationResultsList::to_json(Poco::JSON::Object &Obj) const {
-        field_to_json(Obj,"list", list);
-    }
-
-    bool SimulationResultsList::from_json(const Poco::JSON::Object::Ptr &Obj) {
-        try {
-            field_from_json(Obj,"list", list);
-            return true;
-        } catch(...) {
-
-        }
-        return false;
-    }
-
     void SimulationStatus::to_json(Poco::JSON::Object &Obj) const {
         field_to_json(Obj,"id", id);
         field_to_json(Obj,"simulationId", simulationId);

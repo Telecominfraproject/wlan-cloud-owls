@@ -41,6 +41,17 @@ namespace OpenWifi {
             Poco::Thread::trySleep(2000);
             if(!Running_)
                 break;
+
+            if(SimStats()->GetState()!="running") {
+                continue;
+            }
+
+            uint64_t    Now = std::time(nullptr);
+
+            if( (Now - SimStats()->GetStartTime()) > CurrentSim_.simulationLength ) {
+                std::string Error;
+                StopSim( SimStats()->Id(), Error );
+            }
         }
     }
 
@@ -142,6 +153,12 @@ namespace OpenWifi {
 
         SimRunning_ = false;
         SimStats()->SetState("stopped");
+        SimStats()->EndSim();
+
+        OWLSObjects::SimulationStatus   S;
+        SimStats()->GetCurrent(S);
+        StorageService()->SimulationResultsDB().CreateRecord(S);
+
         return true;
     }
 

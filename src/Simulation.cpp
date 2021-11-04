@@ -149,11 +149,11 @@ namespace OpenWifi {
             return false;
         }
 
-        StopSimulators();
-
-        SimRunning_ = false;
         SimStats()->SetState("stopped");
         SimStats()->EndSim();
+
+        StopSimulators();
+        SimRunning_ = false;
 
         OWLSObjects::SimulationStatus   S;
         SimStats()->GetCurrent(S);

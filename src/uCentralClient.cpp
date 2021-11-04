@@ -34,9 +34,13 @@ namespace OpenWifi {
             Reactor_(Reactor),
             SerialNumber_(std::move(SerialNumber))
             {
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
                 SetFirmware();
+                std::cout << __func__ << " : " << __LINE__ << std::endl;
                 Active_ = UUID_ = std::time(nullptr);
+                std::cout << __func__ << " : " << __LINE__ << std::endl;
                 CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(UUID_);
+                std::cout << __func__ << " : " << __LINE__ << std::endl;
             }
 
     void uCentralClient::Disconnect( bool Reconnect ) {

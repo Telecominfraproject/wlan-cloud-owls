@@ -469,11 +469,6 @@ namespace OpenWifi {
         }
     }
 
-    void uCentralClient::Terminate() {
-        std::lock_guard G(Mutex_);
-        Disconnect(false);
-    }
-
     void uCentralClient::EstablishConnection() {
         Poco::URI   uri(SimulationCoordinator()->GetSimulationInfo().gateway);
 
@@ -551,7 +546,7 @@ namespace OpenWifi {
     }
 
     bool uCentralClient::Send(const std::string & Cmd) {
-        my_guard guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         try {
             uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
@@ -569,7 +564,7 @@ namespace OpenWifi {
     }
 
     bool uCentralClient::SendWSPing() {
-        my_guard guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         try {
             WS_->sendFrame("", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
@@ -582,7 +577,7 @@ namespace OpenWifi {
     }
 
     bool uCentralClient::SendObject(Poco::JSON::Object O) {
-        my_guard guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         try {
             std::stringstream OS;
@@ -604,7 +599,7 @@ namespace OpenWifi {
     static const uint64_t million = 1000000;
 
     void uCentralClient::AddEvent(uCentralEventType E, uint64_t InSeconds) {
-        my_guard guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         timeval curTime{0};
         gettimeofday(&curTime, nullptr);
@@ -618,7 +613,7 @@ namespace OpenWifi {
     }
 
     uCentralEventType uCentralClient::NextEvent(bool Remove) {
-        my_guard guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         if(Commands_.empty())
             return ev_none;

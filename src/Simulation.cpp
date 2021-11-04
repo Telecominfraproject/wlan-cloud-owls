@@ -45,10 +45,14 @@ namespace OpenWifi {
     }
 
     void SimulationCoordinator::StartSimulators() {
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         Logger_.notice("Starting simulation threads...");
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimStats()->StartSim();
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         for(const auto &i:SimThreads_)
             i->Thread.start(i->Sim);
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
     }
 
     void SimulationCoordinator::PauseSimulators() {

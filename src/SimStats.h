@@ -25,7 +25,8 @@ namespace OpenWifi {
 
         inline void Disconnect() {
             std::lock_guard G(Mutex_);
-            Status_.liveDevices--;
+            if(Status_.liveDevices)
+                Status_.liveDevices--;
         }
 
         static SimStats * instance() {

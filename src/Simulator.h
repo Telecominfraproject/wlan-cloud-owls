@@ -26,7 +26,7 @@ namespace OpenWifi {
         }
 
         void run() override;
-        void stop() { Stop_ = true; }
+        void stop();
         void Initialize( Poco::Logger & ClientLogger);
 
         void Cancel() { State_ = "cancel"; SocketReactorThread_.wakeUp(); }
@@ -39,7 +39,7 @@ namespace OpenWifi {
         Poco::Net::SocketReactor                                Reactor_;
         std::map<std::string,std::shared_ptr<uCentralClient>>   Clients_;
         Poco::Thread                                            SocketReactorThread_;
-        volatile bool                                           Stop_ = false;
+        std::atomic_bool                                        Running_ = false;
         uint64_t                                                Index_;
         std::string                                             SerialStart_;
         uint64_t                                                NumClients_;

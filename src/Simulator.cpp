@@ -204,9 +204,7 @@ namespace OpenWifi {
         }
 
         for(auto &[Key,Client]:Clients_) {
-            std::cout << __func__ << ":" << __LINE__ << std::endl;
             Client->Disconnect(false);
-            std::cout << __func__ << ":" << __LINE__ << std::endl;
         }
 
         Clients_.clear();

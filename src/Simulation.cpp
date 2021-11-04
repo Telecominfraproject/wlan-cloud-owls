@@ -9,10 +9,10 @@
 namespace OpenWifi {
 
     int SimulationCoordinator::Start() {
-        CASLocation_ = MicroService::instance().ConfigGetString("ucentral.cas");
-        KeyFileName_ = MicroService::instance().ConfigGetString("ucentral.key");
-        CertFileName_ = MicroService::instance().ConfigGetString("ucentral.cert");
-        RootCAFileName_ = MicroService::instance().ConfigGetString("ucentral.rootca");
+        CASLocation_ = MicroService::instance().ConfigPath("ucentral.cas");
+        KeyFileName_ = MicroService::instance().ConfigPath("ucentral.key");
+        CertFileName_ = MicroService::instance().ConfigPath("ucentral.cert");
+        RootCAFileName_ = MicroService::instance().ConfigPath("ucentral.rootca");
         std::string L = MicroService::instance().ConfigGetString("ucentral.security");
         if (L == "strict") {
             Level_ = Poco::Net::Context::VERIFY_STRICT;

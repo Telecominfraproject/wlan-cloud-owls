@@ -134,12 +134,20 @@ deletesim() {
     jq < ${result_file}
 }
 
+startsim()  {
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation?simulationId=$1&operation=start" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
 shopt -s nocasematch
 case "$1" in
     "login") login; help  ; logout ;;
-    "createsim") login; createsim $2; logout;;
+    "createsim") login; createsim "$2" ; logout;;
     "listsim") login; listsim; logout;;
     "deletesim") login; deletesim $2; logout;;
+    "startsim") login; startsim "$2"; logout;;
     *) help ;;
 esac
 

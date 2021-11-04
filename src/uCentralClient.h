@@ -80,7 +80,7 @@ namespace OpenWifi {
         void DoCensus( CensusReport & Census );
 
     private:
-        std::mutex                  Mutex_;
+        std::recursive_mutex        Mutex_;
         Poco::Net::SocketReactor    &Reactor_;
         Poco::Logger                &Logger_;
         std::string                 CurrentConfig_;

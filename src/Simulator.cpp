@@ -40,18 +40,11 @@ namespace OpenWifi {
     }
 
     void Simulator::run() {
-
-        {
-            std::lock_guard    G(Mutex_);
-            if(Running_)
-                return;
-            Running_ = true;
-        }
-
-        SocketReactorThread_.start(Reactor_);
         Logger_.setLevel(Poco::Message::PRIO_NOTICE);
         Logger_.notice(Poco::format("Starting reactor %Lu...",Index_));
 
+        Running_ = true;
+        SocketReactorThread_.start(Reactor_);
 
         while(Running_)
         {
@@ -211,8 +204,11 @@ namespace OpenWifi {
         }
 
         for(auto &[Key,Client]:Clients_) {
+            std::cout << __func__ << ":" << __LINE__ << std::endl;
             Client->Disconnect(false);
+            std::cout << __func__ << ":" << __LINE__ << std::endl;
         }
+
         Clients_.clear();
         Logger_.notice(Poco::format("Stopped reactor %Lu...",Index_));
     }

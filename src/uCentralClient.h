@@ -45,20 +45,7 @@ namespace OpenWifi {
         uCentralClient(
                 Poco::Net::SocketReactor  & Reactor,
                 std::string SerialNumber,
-                Poco::Logger & Logger):
-                Logger_(Logger),
-                Reactor_(Reactor),
-                SerialNumber_(std::move(SerialNumber))
-                {
-            SetFirmware();
-            CurrentConfig_ = DefaultConfiguration();
-            Active_ = UUID_ = DefaultUUID();
-                }
-
-                static const char * DefaultCapabilities();
-        static const char * DefaultState();
-        static const char * DefaultConfiguration();
-        static uint64_t DefaultUUID();
+                Poco::Logger & Logger);
 
         bool Send(const std::string &Cmd);
         bool SendWSPing();
@@ -78,6 +65,7 @@ namespace OpenWifi {
         [[nodiscard]] uint64_t Active() const { return Active_;}
         [[nodiscard]] const std::string & Firmware() const { return Firmware_; }
         [[nodiscard]] bool Connected() const { return Connected_; }
+        [[nodiscard]] inline uint64_t GetStartTime() const { return StartTime_;}
 
         void AddEvent(uCentralEventType E, uint64_t InSeconds);
         uCentralEventType NextEvent(bool Remove);
@@ -105,6 +93,7 @@ namespace OpenWifi {
         bool                        Connected_=false;
         bool                        KeepRedirector_=false;
         uint64_t                    Version_=0;
+        uint64_t                    StartTime_ = std::time(nullptr);
 
         // outstanding commands are marked with a time and the event itself
         std::map< uint64_t , uCentralEventType >    Commands_;

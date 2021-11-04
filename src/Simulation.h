@@ -8,6 +8,7 @@
 #include "framework/MicroService.h"
 #include "RESTObjects/RESTAPI_OWLSobjects.h"
 #include "Simulator.h"
+#include "nlohmann/json-schema.hpp"
 
 namespace OpenWifi {
 
@@ -45,6 +46,9 @@ namespace OpenWifi {
             [[nodiscard]] inline const std::string & GetKeyFileName() { return KeyFileName_; }
             [[nodiscard]] inline const std::string & GetRootCAFileName() { return RootCAFileName_; }
             [[nodiscard]] inline const int GetLevel() { return Level_; }
+            [[nodiscard]] const std::string & GetSimCapabilities() { return DefaultCapabilities_; }
+            [[nodiscard]] const std::string GetSimDefaultState(uint64_t StartTime);
+            [[nodiscard]] std::string GetSimConfiguration( uint64_t uuid );
 
         private:
         static SimulationCoordinator 		*instance_;
@@ -57,6 +61,7 @@ namespace OpenWifi {
             std::string                     CertFileName_;
             std::string                     KeyFileName_;
             std::string                     RootCAFileName_;
+            std::string                     DefaultCapabilities_;
             int                             Level_;
 
             SimulationCoordinator() noexcept:

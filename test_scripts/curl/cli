@@ -111,7 +111,7 @@ logout() {
 }
 
 createsim() {
-    payload="{ \"name\" : \"$1\", \"gateway\" : \"https:://ucentral.arilia.com:15002\", \"certificate\" : \"cert\" , \"key\" : \"key\" , \"macPrefix\" : \"030000\", \"devices\" : 5  }";
+    payload="{ \"name\" : \"$1\", \"gateway\" : \"https://ucentral.arilia.com:15002\", \"certificate\" : \"cert\" , \"key\" : \"key\" , \"macPrefix\" : \"030000\", \"devices\" : 5  }";
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/simulation" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" \

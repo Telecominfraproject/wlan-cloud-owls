@@ -17,6 +17,7 @@ namespace OpenWifi::OWLSObjects {
         std::string     certificate;
         std::string     key;
         std::string     macPrefix;
+        std::string     deviceType;
         uint64_t        devices = 5;
         uint64_t        healthCheckInterval = 60;
         uint64_t        stateInterval = 60 ;
@@ -29,6 +30,7 @@ namespace OpenWifi::OWLSObjects {
         uint64_t        clientInterval = 1;
         uint64_t        keepAlive = 300;
         uint64_t        reconnectInterval = 30 ;
+        uint64_t        concurrentDevices = 5;
 
         void to_json(Poco::JSON::Object &Obj) const;
         bool from_json(const Poco::JSON::Object::Ptr &Obj);

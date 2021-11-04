@@ -314,6 +314,8 @@ components:
           type: integer
         reconnectInterval:
           type: integer
+        deviceType:
+          type: string
 
     SimulationDetailsList:
       type: object

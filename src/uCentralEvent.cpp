@@ -44,7 +44,7 @@ namespace OpenWifi {
             Params.set("firmware", Client_->Firmware());
 
             Poco::JSON::Parser Parser;
-            auto CapabilitiesObj = Parser.parse(Client_->DefaultCapabilities()).extract<Poco::JSON::Object::Ptr>();
+            auto CapabilitiesObj = Parser.parse(SimulationCoordinator()->GetSimCapabilities()).extract<Poco::JSON::Object::Ptr>();
             Params.set("capabilities", CapabilitiesObj);
 
             O.set("params", Params);
@@ -74,7 +74,7 @@ namespace OpenWifi {
 
             Poco::JSON::Parser Parser;
 
-            std::string State{Client_->DefaultState()};
+            std::string State{ SimulationCoordinator()->GetSimDefaultState(Client_->GetStartTime()) };
             auto StateObj = Parser.parse(State).extract<Poco::JSON::Object::Ptr>();
             Params.set("state", StateObj);
 

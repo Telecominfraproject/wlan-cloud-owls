@@ -8,6 +8,41 @@
 
 namespace OpenWifi {
 
+    static const std::vector<std::string> DefaultDeviceTypes{
+      "cig_wf160d",
+      "cig_wf188",
+      "cig_wf188n",
+      "cig_wf194c",
+      "cig_wf194c4",
+      "edgecore_eap101",
+      "edgecore_eap102",
+      "edgecore_ecs4100-12ph",
+      "edgecore_ecw5211",
+      "edgecore_ecw5410",
+      "edgecore_oap100",
+      "edgecore_spw2ac1200",
+      "edgecore_spw2ac1200-lan-poe",
+      "edgecore_ssw2ac2600",
+      "hfcl_ion4.yml",
+      "indio_um-305ac",
+      "linksys_e8450-ubi",
+      "linksys_ea6350",
+      "linksys_ea6350-v4",
+      "linksys_ea8300",
+      "mikrotik_nand",
+      "tp-link_ec420-g1",
+      "tplink_cpe210_v3",
+      "tplink_cpe510_v3",
+      "tplink_eap225_outdoor_v1",
+      "tplink_ec420",
+      "tplink_ex227",
+      "tplink_ex228",
+      "tplink_ex447",
+      "wallys_dr40x9"};
+
+    static bool GooDeviceType(const std::string &D) {
+        return (std::find_if(cbegin(DefaultDeviceTypes),end(DefaultDeviceTypes),D) != cend(DefaultDeviceTypes));
+    }
     void RESTAPI_simulation_handler::DoPost() {
 
         OWLSObjects::SimulationDetails  D;
@@ -17,6 +52,8 @@ namespace OpenWifi {
             D.gateway.empty() ||
             D.macPrefix.size()!=6 ||
             D.key.empty() ||
+            D.deviceType.empty() ||
+            !GooDeviceType(D.deviceType) ||
             D.certificate.empty()) {
             return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
         }
@@ -61,7 +98,8 @@ namespace OpenWifi {
             D.gateway.empty() ||
             D.macPrefix.size()!=6 ||
             D.key.empty() ||
-            D.certificate.empty()) {
+            D.certificate.empty() ||
+            D.deviceType.empty()) {
             return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
         }
 

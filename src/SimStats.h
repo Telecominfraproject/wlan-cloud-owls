@@ -76,7 +76,7 @@ namespace OpenWifi {
 
         inline void EndSim() {
             std::lock_guard G(Mutex_);
-            Status_.state = "done";
+            Status_.state = "completed";
             Status_.endTime = std::time(nullptr);
         }
 

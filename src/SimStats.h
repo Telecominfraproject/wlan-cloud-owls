@@ -16,6 +16,11 @@ namespace OpenWifi {
         inline void Connect() {
             std::lock_guard G(Mutex_);
             Status_.liveDevices++;
+
+            if( (Status_.timeToFullDevices == 0) && (Status_.liveDevices == ExpectedDevices_) ) {
+                uint64_t Now = std::time(nullptr);
+                Status_.timeToFullDevices = Now - Status_.startTime;
+            }
         }
 
         inline void Disconnect() {
@@ -63,8 +68,9 @@ namespace OpenWifi {
 
         }
 
-        inline void StartSim(const std::string &id , const std::string & simid) {
+        inline void StartSim(const std::string &id , const std::string & simid, uint64_t Devices) {
             std::lock_guard G(Mutex_);
+            ExpectedDevices_ = Devices;
             Status_.id = id;
             Status_.simulationId = simid;
             Status_.state = "running";
@@ -95,16 +101,19 @@ namespace OpenWifi {
         }
 
         inline void Reset() {
-            Status_.liveDevices = Status_.tx = Status_.msgsRx = Status_.msgsTx = Status_.rx =
+            ExpectedDevices_ = Status_.liveDevices = Status_.tx = Status_.msgsRx = Status_.msgsTx = Status_.rx =
                     Status_.endTime = Status_.errorDevices = Status_.startTime = Status_.timeToFullDevices = 0;
             Status_.simulationId = Status_.id = Status_.state = "";
         }
 
-        [[nodiscard]] uint64_t GetStartTime() const { return Status_.startTime; }
+        [[nodiscard]] inline uint64_t GetStartTime() const { return Status_.startTime; }
+
+        [[nodiscard]] inline uint64_t GetLiveDevices() const { return Status_.liveDevices; }
 
     private:
         static SimStats                 * instance_;
         OWLSObjects::SimulationStatus   Status_;
+        uint64_t                        ExpectedDevices_=0;
 
         SimStats() noexcept:
         SubSystemServer("SimStats", "SIM-STATS", "stats")

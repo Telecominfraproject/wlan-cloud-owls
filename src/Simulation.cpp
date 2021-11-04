@@ -81,11 +81,11 @@ namespace OpenWifi {
 
     void SimulationCoordinator::StopSimulators() {
         Logger_.notice("Stopping simulation threads...");
+        SimStats()->EndSim();
         for(const auto &i:SimThreads_) {
             i->Sim.stop();
             i->Thread.join();
         }
-        SimStats()->EndSim();
     }
 
     static const nlohmann::json DefaultCapabilities = R"(
@@ -139,7 +139,7 @@ namespace OpenWifi {
 
         StartSimulators();
         SimRunning_ = true ;
-        SimStats()->StartSim(MicroService::instance().CreateUUID(), SimId);
+        SimStats()->StartSim(MicroService::instance().CreateUUID(), SimId, CurrentSim_.devices);
         return true;
     }
 

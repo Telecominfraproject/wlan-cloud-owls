@@ -111,7 +111,7 @@ logout() {
 }
 
 createsim() {
-    payload="{ \"name\" : \"$1\", \"gateway\" : \"https://ucentral.arilia.com:15002\", \"certificate\" : \"cert\" , \"key\" : \"key\" , \"macPrefix\" : \"030000\", \"devices\" : 5  }";
+    payload="{ \"name\" : \"$1\", \"gateway\" : \"https://ucentral.arilia.com:15002\", \"certificate\" : \"cert\" , \"key\" : \"key\" , \"macPrefix\" : \"030000\", \"devices\" : 5 , \"deviceType\" :  \"edgecore_ecw5410\" }";
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/simulation" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" \
@@ -176,6 +176,13 @@ getsimstats() {
     jq < ${result_file}
 }
 
+results() {
+    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/results" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
 shopt -s nocasematch
 case "$1" in
     "login") login; help  ; logout ;;
@@ -188,6 +195,7 @@ case "$1" in
     "resumesim") login; resumesim "$2" ; logout;;
     "cancelsim") login; cancelsim "$2" ; logout;;
     "getsimstats") login; getsimstats ; logout;;
+    "results") login; results ; logout;;
     *) help ;;
 esac
 

@@ -280,42 +280,65 @@ components:
         devices:
           type: integer
           minimum: 1
+          default: 5
         healthCheckInterval:
           type: integer
           minimum: 30
           maximum: 600
+          default: 60
         stateInterval:
           type: integer
           minimum: 30
           maximum: 600
+          default: 60
         minAssociations:
           type: integer
           minimum: 0
           maximum: 4
+          default: 1
         maxAssociations:
           type: integer
           minimum: 0
           maximum: 32
+          default: 3
         minClients:
           type: integer
           minimum: 0
           maximum: 4
+          default: 1
         maxClients:
           type: integer
           minimum: 0
           maximum: 32
+          default: 3
         simulationLength:
           type: integer
+          minimum: 120
+          default: 3600
         threads:
           type: integer
+          minimum: 4
+          default: 16
         clientInterval:
           type: integer
+          default: 1
         keepAlive:
           type: integer
+          minimum: 120
+          maximum: 3000
+          default: 300
         reconnectInterval:
           type: integer
+          minimum: 10
+          maximum: 300
+          default: 30
         deviceType:
           type: string
+        concurrentDevices:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 5
 
     SimulationDetailsList:
       type: object

@@ -85,6 +85,7 @@ namespace OpenWifi {
             i->Sim.stop();
             i->Thread.join();
         }
+        SimThreads_.clear();
     }
 
     static const nlohmann::json DefaultCapabilities = R"(
@@ -179,9 +180,9 @@ namespace OpenWifi {
 
         CancelSimulators();
         StopSimulators();
-
         SimRunning_ = false;
         SimStats()->SetState("none");
+
         return true;
     }
 

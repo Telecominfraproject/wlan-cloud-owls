@@ -11,7 +11,7 @@ namespace OpenWifi {
 
         std::string Op;
         if(!HasParameter("operation", Op) ||
-            ( Op != "start" && Op!= "stop" && Op != "cancel" && Op != "pause" && Op != "resume")) {
+            ( Op != "start" && Op!= "stop" && Op != "cancel")) {
             return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
         }
 
@@ -30,12 +30,8 @@ namespace OpenWifi {
             SimulationCoordinator()->StartSim(SimId,Id,Error);
         } else if(Op=="stop") {
             SimulationCoordinator()->StopSim(Id,Error);
-        } else if(Op=="pause") {
-            SimulationCoordinator()->PauseSim(Id,Error);
         } else if(Op=="cancel") {
             SimulationCoordinator()->CancelSim(Id,Error);
-        } else if(Op=="resume") {
-            SimulationCoordinator()->ResumeSim(Id,Error);
         }
 
         if(Error.empty()) {

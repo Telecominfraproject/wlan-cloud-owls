@@ -60,22 +60,14 @@ namespace OpenWifi {
             i->Thread.start(i->Sim);
     }
 
-    void SimulationCoordinator::PauseSimulators() {
-        Logger_.notice("Starting simulation threads...");
-        for(const auto &i:SimThreads_)
-            i->Sim.Pause();
-    }
-
-    void SimulationCoordinator::ResumeSimulators() {
-        Logger_.notice("Starting simulation threads...");
-        for(const auto &i:SimThreads_)
-            i->Sim.Resume();
-    }
-
     void SimulationCoordinator::CancelSimulators() {
-        Logger_.notice("Starting simulation threads...");
-        for(const auto &i:SimThreads_)
-            i->Sim.Cancel();
+        Logger_.notice("Cancel simulation threads...");
+        SimStats()->EndSim();
+        for(const auto &i:SimThreads_) {
+            i->Sim.stop();
+            i->Thread.join();
+        }
+        SimThreads_.clear();
     }
 
     void SimulationCoordinator::StopSimulators() {
@@ -159,16 +151,6 @@ namespace OpenWifi {
         return true;
     }
 
-    bool SimulationCoordinator::PauseSim(const std::string &Id, std::string &Error) {
-        if(!SimRunning_) {
-            Error = "No simulation is running.";
-            return false;
-        }
-        PauseSimulators();
-        SimStats()->SetState("paused");
-        return true;
-    }
-
     bool SimulationCoordinator::CancelSim(const std::string &Id, std::string &Error) {
         if(!SimRunning_) {
             Error = "No simulation is running.";
@@ -180,22 +162,6 @@ namespace OpenWifi {
         SimRunning_ = false;
         SimStats()->SetState("none");
 
-        return true;
-    }
-
-    bool SimulationCoordinator::ResumeSim(const std::string &Id, std::string &Error) {
-        if(!SimRunning_) {
-            Error = "No simulation is running.";
-            return false;
-        }
-
-        if(SimStats()->GetState()!="paused") {
-            Error = "Simulation must be paused first.";
-            return false;
-        }
-
-        ResumeSimulators();
-        SimStats()->SetState("running");
         return true;
     }
 

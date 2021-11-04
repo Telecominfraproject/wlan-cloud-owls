@@ -383,8 +383,6 @@ components:
           enum:
             - running
             - stopped
-            - paused
-            - none
             - canceled
             - completed
 
@@ -525,9 +523,7 @@ paths:
             enum:
               - start
               - stop
-              - pause
               - cancel
-              - resume
 
       responses:
         200:

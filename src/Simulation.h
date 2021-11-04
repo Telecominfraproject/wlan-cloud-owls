@@ -33,9 +33,7 @@ namespace OpenWifi {
 
             bool StartSim(const std::string &SimId, std::string & Id, std::string &Error);
             bool StopSim(const std::string &Id, std::string &Error);
-            bool PauseSim(const std::string &Id, std::string &Error);
             bool CancelSim(const std::string &Id, std::string &Error);
-            bool ResumeSim(const std::string &Id, std::string &Error);
 
             [[nodiscard]] inline const OWLSObjects::SimulationDetails & GetSimulationInfo() {
                 return CurrentSim_;

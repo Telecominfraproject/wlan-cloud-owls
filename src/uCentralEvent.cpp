@@ -45,7 +45,8 @@ namespace OpenWifi {
 
             Poco::JSON::Parser Parser;
             auto CapabilitiesObj = Parser.parse(SimulationCoordinator()->GetSimCapabilities()).extract<Poco::JSON::Object::Ptr>();
-            Params.set("capabilities", CapabilitiesObj);
+            auto CapabilitiesContent = CapabilitiesObj->getObject("capabilities");
+            Params.set("capabilities", CapabilitiesContent);
 
             O.set("params", Params);
             if(SendObject(O)) {

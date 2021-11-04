@@ -45,14 +45,10 @@ namespace OpenWifi {
     }
 
     void SimulationCoordinator::StartSimulators() {
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         Logger_.notice("Starting simulation threads...");
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimStats()->StartSim();
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         for(const auto &i:SimThreads_)
             i->Thread.start(i->Sim);
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
     }
 
     void SimulationCoordinator::PauseSimulators() {
@@ -97,14 +93,10 @@ namespace OpenWifi {
             return false;
         }
 
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         nlohmann::json Temp = DefaultCapabilities;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         Temp["capabilities"]["compatible"] = CurrentSim_.deviceType;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         DefaultCapabilities_ = to_string(Temp);
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         auto ClientCount = CurrentSim_.devices;
         auto NumClientsPerThread = CurrentSim_.devices;
@@ -123,34 +115,21 @@ namespace OpenWifi {
                 NumClientsPerThread = CurrentSim_.devices / (CurrentSim_.threads+1);
             }
         }
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         Poco::Logger    & ClientLogger = Poco::Logger::get("WS-CLIENT");
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         ClientLogger.setLevel(Poco::Message::PRIO_WARNING);
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         for(auto i=0;ClientCount;i++)
         {
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto Clients = std::min(ClientCount,NumClientsPerThread);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto NewSimThread = std::make_unique<SimThread>(i,CurrentSim_.macPrefix,Clients, Logger_);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             NewSimThread->Sim.Initialize(ClientLogger);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             SimThreads_.push_back(std::move(NewSimThread));
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             ClientCount -= Clients;
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
         }
 
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         StartSimulators();
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimRunning_ = true ;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimStats()->SetId(MicroService::instance().CreateUUID(), SimId);
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         return true;
     }
 
@@ -635,9 +614,7 @@ namespace OpenWifi {
 
     std::string SimulationCoordinator::GetSimConfiguration( uint64_t uuid ) {
         nlohmann::json Temp = DefaultConfiguration;
-        std::cout << __func__ << " : " << __LINE__ << " : " << Temp["uuid"] << std::endl;
-        Temp["uuid"] = (int)uuid;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
+        Temp["uuid"] = uuid;
         return to_string(Temp);
     }
 

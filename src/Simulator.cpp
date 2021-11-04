@@ -16,29 +16,20 @@ namespace OpenWifi {
         std::random_device  rd;
         std::mt19937        gen(rd());
         std::uniform_int_distribution<> distrib(1, 15);
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         std::lock_guard Lock(Mutex_);
 
         for(auto i=0;i<NumClients_;i++)
         {
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             char Buffer[32];
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             snprintf(Buffer,sizeof(Buffer),"%s%02x%04x",SerialStart_.c_str(),(unsigned int)Index_,i);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto Client = std::make_shared<uCentralClient>( Reactor_,
                                                             Buffer,
                                                             ClientLogger);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             Client->AddEvent(ev_reconnect, distrib(gen) );
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             Clients_[Buffer] = std::move(Client);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
         }
     }
-
-
 
     void Simulator::run() {
 

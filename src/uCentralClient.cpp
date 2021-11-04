@@ -34,13 +34,9 @@ namespace OpenWifi {
             Reactor_(Reactor),
             SerialNumber_(std::move(SerialNumber))
             {
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
                 SetFirmware();
-                std::cout << __func__ << " : " << __LINE__ << std::endl;
                 Active_ = UUID_ = std::time(nullptr);
-                std::cout << __func__ << " : " << __LINE__ << std::endl;
                 CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(UUID_);
-                std::cout << __func__ << " : " << __LINE__ << std::endl;
             }
 
     void uCentralClient::Disconnect( bool Reconnect ) {
@@ -493,17 +489,6 @@ namespace OpenWifi {
         P.dhUse2048Bits = true;
 
         auto Context = new Poco::Net::Context( Poco::Net::Context::CLIENT_USE,P);
-        /*    Poco::Crypto::X509Certificate   Cert(App()->GetCertFileName());
-            Poco::Crypto::RSAKey            Key("",App()->GetKeyFileName(),"");
-
-            std::cout << "Name: " << Key.name() << "Size: " << Key.size() << std::endl;
-            std::cout << " Issuer:" << Cert.issuerName() << std::endl;
-            Context->useCertificate(Cert);
-            Context->usePrivateKey(Key);
-            Context->disableStatelessSessionResumption();
-            Context->enableExtendedCertificateVerification();
-        */
-
         Poco::Crypto::X509Certificate Cert(SimulationCoordinator()->GetCertFileName());
         Poco::Crypto::X509Certificate Root(SimulationCoordinator()->GetRootCAFileName());
 
@@ -513,9 +498,6 @@ namespace OpenWifi {
         Context->addCertificateAuthority(Root);
 
         if (SimulationCoordinator()->GetLevel() == Poco::Net::Context::VERIFY_STRICT) {
-            //        Poco::Crypto::X509Certificate Issuing(App()->GetIssuerFileName());
-            //        Context->addChainCertificate(Issuing);
-            //        Context->addCertificateAuthority(Issuing);
         }
 
         Poco::Crypto::RSAKey Key("", SimulationCoordinator()->GetKeyFileName(), "");
@@ -526,22 +508,8 @@ namespace OpenWifi {
             std::cout << "Wrong Certificate: " << SimulationCoordinator()->GetCertFileName() << " for " << SimulationCoordinator()->GetKeyFileName() << std::endl;
         }
 
-        //    SSL_CTX_set_verify(SSLCtx, SSL_VERIFY_PEER, NULL);
-
         if(SimulationCoordinator()->GetLevel()==Poco::Net::Context::VERIFY_STRICT) {
-            // SSL_CTX_set_client_CA_list(SSLCtx, SSL_load_client_CA_file(App()->GetClientCASFileName().c_str()));
         }
-        //    SSL_CTX_enable_ct(SSLCtx, SSL_CT_VALIDATION_STRICT);
-        //    SSL_CTX_dane_enable(SSLCtx);
-
-        //    Context->enableSessionCache();
-        //    Context->setSessionCacheSize(0);
-        //    Context->setSessionTimeout(10);
-        //    Context->enableExtendedCertificateVerification(true);
-        //    Context->disableStatelessSessionResumption();
-
-        std::cout << "URI: " << SimulationCoordinator()->GetSimulationInfo().gateway << std::endl;
-        std::cout << "Host: " << uri.getHost() << " : " << uri.getPort() << std::endl;
 
         Poco::Net::HTTPSClientSession Session(  uri.getHost(), uri.getPort(), Context);
         Poco::Net::HTTPRequest Request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text",Poco::Net::HTTPMessage::HTTP_1_1);
@@ -550,7 +518,7 @@ namespace OpenWifi {
 
         Logger_.information(Poco::format("connecting(%s): host=%s port=%Lu",SerialNumber_,uri.getHost(),(uint64_t )uri.getPort()));
 
-        my_guard guard(Mutex_);
+        std::lock_guard guard(Mutex_);
 
         try {
             WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);

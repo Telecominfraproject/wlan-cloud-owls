@@ -645,6 +645,9 @@ namespace OpenWifi {
         //    Context->enableExtendedCertificateVerification(true);
         //    Context->disableStatelessSessionResumption();
 
+        std::cout << "URI: " << SimulationCoordinator()->GetSimulationInfo().gateway << std::endl;
+        std::cout << "Host: " << uri.getHost() << " : " << uri.getPort() << std::endl;
+
         Poco::Net::HTTPSClientSession Session(  uri.getHost(), uri.getPort(), Context);
         Poco::Net::HTTPRequest Request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text",Poco::Net::HTTPMessage::HTTP_1_1);
         Request.set("origin", "http://www.websocket.org");

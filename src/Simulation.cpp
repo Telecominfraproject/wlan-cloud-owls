@@ -149,9 +149,6 @@ namespace OpenWifi {
             return false;
         }
 
-        SimStats()->SetState("stopped");
-        SimStats()->EndSim();
-
         StopSimulators();
         SimRunning_ = false;
 

@@ -24,9 +24,11 @@ namespace OpenWifi {
         }
 
         inline void Disconnect() {
-            std::lock_guard G(Mutex_);
-            if(Status_.liveDevices)
-                Status_.liveDevices--;
+            if(CollectInfo_) {
+                std::lock_guard G(Mutex_);
+                if(Status_.liveDevices)
+                    Status_.liveDevices--;
+            }
         }
 
         static SimStats * instance() {
@@ -36,23 +38,31 @@ namespace OpenWifi {
         }
 
         inline void AddRX(uint64_t N) {
-            std::lock_guard G(Mutex_);
-            Status_.rx += N;
+            if(CollectInfo_) {
+                std::lock_guard G(Mutex_);
+                Status_.rx += N;
+            }
         }
 
         inline void AddOutMsg() {
-            std::lock_guard G(Mutex_);
-            Status_.msgsTx++;
+            if(CollectInfo_) {
+                std::lock_guard G(Mutex_);
+                Status_.msgsTx++;
+            }
         }
 
         inline void AddInMsg() {
-            std::lock_guard G(Mutex_);
-            Status_.msgsRx++;
+            if(CollectInfo_) {
+                std::lock_guard G(Mutex_);
+                Status_.msgsRx++;
+            }
         }
 
         inline void AddTX(uint64_t N) {
-            std::lock_guard G(Mutex_);
-            Status_.tx += N;
+            if(CollectInfo_) {
+                std::lock_guard G(Mutex_);
+                Status_.tx += N;
+            }
         }
 
         inline void GetCurrent( OWLSObjects::SimulationStatus & S) {
@@ -71,6 +81,7 @@ namespace OpenWifi {
 
         inline void StartSim(const std::string &id , const std::string & simid, uint64_t Devices) {
             std::lock_guard G(Mutex_);
+            CollectInfo_ = true;
             ExpectedDevices_ = Devices;
             Status_.id = id;
             Status_.simulationId = simid;
@@ -83,6 +94,7 @@ namespace OpenWifi {
 
         inline void EndSim() {
             std::lock_guard G(Mutex_);
+            CollectInfo_ = false;
             Status_.state = "completed";
             Status_.endTime = std::time(nullptr);
         }
@@ -115,6 +127,7 @@ namespace OpenWifi {
         static SimStats                 * instance_;
         OWLSObjects::SimulationStatus   Status_;
         uint64_t                        ExpectedDevices_=0;
+        std::atomic_bool                CollectInfo_=false;
 
         SimStats() noexcept:
         SubSystemServer("SimStats", "SIM-STATS", "stats")

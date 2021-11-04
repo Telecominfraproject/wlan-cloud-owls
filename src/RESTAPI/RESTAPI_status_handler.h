@@ -13,7 +13,7 @@ namespace OpenWifi {
         RESTAPI_status_handler(const RESTAPIHandler::BindingMap &bindings, Poco::Logger &L, RESTAPI_GenericServer & Server, bool Internal)
         : RESTAPIHandler(bindings, L,
                          std::vector<std::string>{
-            Poco::Net::HTTPRequest::HTTP_POST,
+            Poco::Net::HTTPRequest::HTTP_GET,
             Poco::Net::HTTPRequest::HTTP_OPTIONS},
             Server,
             Internal) {}

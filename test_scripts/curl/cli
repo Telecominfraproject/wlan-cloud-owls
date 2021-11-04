@@ -141,6 +141,13 @@ startsim()  {
     jq < ${result_file}
 }
 
+getsimstats() {
+    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/status" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
 shopt -s nocasematch
 case "$1" in
     "login") login; help  ; logout ;;
@@ -148,6 +155,7 @@ case "$1" in
     "listsim") login; listsim; logout;;
     "deletesim") login; deletesim $2; logout;;
     "startsim") login; startsim "$2"; logout;;
+    "getsimstats") login; getsimstats ; logout;;
     *) help ;;
 esac
 

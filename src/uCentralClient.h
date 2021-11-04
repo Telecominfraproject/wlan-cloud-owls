@@ -53,7 +53,6 @@ namespace OpenWifi {
         void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf);
 
         void EstablishConnection();
-        void Terminate();
         void Disconnect(bool Reconnect);
 
         void ProcessCommand(Poco::DynamicStruct Vars);
@@ -81,9 +80,9 @@ namespace OpenWifi {
         void DoCensus( CensusReport & Census );
 
     private:
-        my_mutex                    Mutex_;
-        Poco::Net::SocketReactor    & Reactor_;
-        Poco::Logger                & Logger_;
+        std::mutex                  Mutex_;
+        Poco::Net::SocketReactor    &Reactor_;
+        Poco::Logger                &Logger_;
         std::string                 CurrentConfig_;
         std::string                 SerialNumber_;
         std::string                 Firmware_;

@@ -210,8 +210,9 @@ namespace OpenWifi {
             }
         }
 
-        for(auto &[Key,Client]:Clients_)
-            Client->Terminate();
+        for(auto &[Key,Client]:Clients_) {
+            Client->Disconnect(false);
+        }
         Clients_.clear();
         Logger_.notice(Poco::format("Stopped reactor %Lu...",Index_));
     }

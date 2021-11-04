@@ -97,10 +97,14 @@ namespace OpenWifi {
             return false;
         }
 
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         nlohmann::json Temp = DefaultCapabilities;
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         Temp["capabilities"]["compatible"] = CurrentSim_.deviceType;
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         DefaultCapabilities_ = to_string(Temp);
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         auto ClientCount = CurrentSim_.devices;
         auto NumClientsPerThread = CurrentSim_.devices;

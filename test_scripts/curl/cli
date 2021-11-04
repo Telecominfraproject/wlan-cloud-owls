@@ -141,6 +141,34 @@ startsim()  {
     jq < ${result_file}
 }
 
+stopsim()  {
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation?id=$1&operation=stop" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
+pausesim()  {
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation?id=$1&operation=pause" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
+resumesim()  {
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation?id=$1&operation=resume" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
+cancelsim()  {
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation?id=$1&operation=cancel" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
 getsimstats() {
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/status" \
     -H "Content-Type: application/json" \
@@ -155,6 +183,10 @@ case "$1" in
     "listsim") login; listsim; logout;;
     "deletesim") login; deletesim $2; logout;;
     "startsim") login; startsim "$2"; logout;;
+    "stopsim") login; stopsim "$2" ; logout;;
+    "pausesim") login; pausesim "$2" ; logout;;
+    "resumesim") login; resumesim "$2" ; logout;;
+    "cancelsim") login; cancelsim "$2" ; logout;;
     "getsimstats") login; getsimstats ; logout;;
     *) help ;;
 esac

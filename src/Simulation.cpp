@@ -46,7 +46,6 @@ namespace OpenWifi {
 
     void SimulationCoordinator::StartSimulators() {
         Logger_.notice("Starting simulation threads...");
-        SimStats()->StartSim();
         for(const auto &i:SimThreads_)
             i->Thread.start(i->Sim);
     }
@@ -129,7 +128,7 @@ namespace OpenWifi {
 
         StartSimulators();
         SimRunning_ = true ;
-        SimStats()->SetId(MicroService::instance().CreateUUID(), SimId);
+        SimStats()->StartSim(MicroService::instance().CreateUUID(), SimId);
         return true;
     }
 

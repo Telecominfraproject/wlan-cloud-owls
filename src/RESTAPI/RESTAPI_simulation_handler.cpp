@@ -41,8 +41,13 @@ namespace OpenWifi {
       "wallys_dr40x9"};
 
     static bool GooDeviceType(const std::string &D) {
-        return (std::find_if(cbegin(DefaultDeviceTypes),end(DefaultDeviceTypes),D) != cend(DefaultDeviceTypes));
+        for(const auto &i:DefaultDeviceTypes) {
+            if(i==D)
+                return true;
+        }
+        return false;
     }
+
     void RESTAPI_simulation_handler::DoPost() {
 
         OWLSObjects::SimulationDetails  D;

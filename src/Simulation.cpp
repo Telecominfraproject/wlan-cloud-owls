@@ -631,7 +631,7 @@ namespace OpenWifi {
             },
             "uuid": 1635660963
         }
-    )~~~";
+    )~~~"_json;
 
     std::string SimulationCoordinator::GetSimConfiguration( uint64_t uuid ) {
         nlohmann::json Temp = DefaultConfiguration;

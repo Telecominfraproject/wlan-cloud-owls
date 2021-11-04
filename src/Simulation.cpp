@@ -454,7 +454,7 @@ namespace OpenWifi {
         return to_string(Temp);
     }
 
-    static const nlohmann::json DefaultConfiguration = R"(
+    static const nlohmann::json DefaultConfiguration = R"~~~(
         {
             "interfaces": [
                 {
@@ -631,12 +631,13 @@ namespace OpenWifi {
             },
             "uuid": 1635660963
         }
-    )";
+    )~~~";
 
     std::string SimulationCoordinator::GetSimConfiguration( uint64_t uuid ) {
         nlohmann::json Temp = DefaultConfiguration;
-
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         Temp["uuid"] = uuid;
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         return to_string(Temp);
     }
 

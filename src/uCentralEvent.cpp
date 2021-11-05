@@ -53,7 +53,7 @@ namespace OpenWifi {
 
                 C["params"]["serial"] = Client_->Serial();
                 C["params"]["uuid"] = Client_->UUID();
-                C["params"]["state"] = StateStr;
+                C["params"]["state"] = State;
 
                 StateStr = to_string(C);
 

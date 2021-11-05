@@ -45,8 +45,8 @@ namespace OpenWifi {
             [[nodiscard]] inline const std::string & GetRootCAFileName() { return RootCAFileName_; }
             [[nodiscard]] inline const int GetLevel() { return Level_; }
             [[nodiscard]] const nlohmann::json & GetSimCapabilities() { return DefaultCapabilities_; }
-            [[nodiscard]] const std::string GetSimDefaultState(uint64_t StartTime);
-            [[nodiscard]] std::string GetSimConfiguration( uint64_t uuid );
+            [[nodiscard]] nlohmann::json GetSimDefaultState(uint64_t StartTime);
+            [[nodiscard]] nlohmann::json GetSimConfiguration( uint64_t uuid );
 
         private:
         static SimulationCoordinator 		*instance_;

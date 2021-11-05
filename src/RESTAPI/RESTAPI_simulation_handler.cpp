@@ -59,7 +59,9 @@ namespace OpenWifi {
             D.key.empty() ||
             D.deviceType.empty() ||
             !GooDeviceType(D.deviceType) ||
-            D.certificate.empty()) {
+            D.certificate.empty() ||
+            (D.maxClients<D.minClients) ||
+            (D.maxAssociations<D.minAssociations)) {
             return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
         }
 
@@ -104,7 +106,10 @@ namespace OpenWifi {
             D.macPrefix.size()!=6 ||
             D.key.empty() ||
             D.certificate.empty() ||
-            D.deviceType.empty()) {
+            D.deviceType.empty() ||
+            !GooDeviceType(D.deviceType) ||
+            (D.maxClients<D.minClients) ||
+            (D.maxAssociations<D.minAssociations)) {
             return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
         }
 

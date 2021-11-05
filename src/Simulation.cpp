@@ -568,14 +568,14 @@ namespace OpenWifi {
         }
     )"_json;
 
-    const std::string SimulationCoordinator::GetSimDefaultState(uint64_t StartTime) {
+    nlohmann::json SimulationCoordinator::GetSimDefaultState(uint64_t StartTime) {
         nlohmann::json Temp = DefaultState;
 
         uint64_t Now = std::time(nullptr);
         Temp["unit"]["localtime"] = Now;
         Temp["unit"]["uptime"] = Now - StartTime;
 
-        return to_string(Temp);
+        return Temp;
     }
 
     static const nlohmann::json DefaultConfiguration = R"~~~(
@@ -757,10 +757,10 @@ namespace OpenWifi {
         }
     )~~~"_json;
 
-    std::string SimulationCoordinator::GetSimConfiguration( uint64_t uuid ) {
+    nlohmann::json SimulationCoordinator::GetSimConfiguration( uint64_t uuid ) {
         nlohmann::json Temp = DefaultConfiguration;
         Temp["uuid"] = uuid;
-        return to_string(Temp);
+        return Temp;
     }
 
 }

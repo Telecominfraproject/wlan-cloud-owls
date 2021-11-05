@@ -22,7 +22,7 @@ namespace OpenWifi {
         for(auto i=0;i<NumClients_;i++)
         {
             char Buffer[32];
-            snprintf(Buffer,sizeof(Buffer),"%s%02x%04x",SerialStart_.c_str(),(unsigned int)Index_,i);
+            snprintf(Buffer,sizeof(Buffer),"%s%02x%03x0",SerialStart_.c_str(),(unsigned int)Index_,i);
             auto Client = std::make_shared<uCentralClient>( Reactor_,
                                                             Buffer,
                                                             ClientLogger);

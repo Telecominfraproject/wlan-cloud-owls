@@ -17,10 +17,10 @@ namespace OpenWifi {
     public:
 
         Simulator(uint64_t Index,std::string SerialStart, uint64_t NumClients, Poco::Logger &L) :
-        Index_(Index),
-        SerialStart_(std::move(SerialStart)),
-        NumClients_(NumClients),
-        Logger_(L)
+            Index_(Index),
+            SerialStart_(std::move(SerialStart)),
+            NumClients_(NumClients),
+            Logger_(L)
         {
 
         }
@@ -30,8 +30,6 @@ namespace OpenWifi {
         void Initialize( Poco::Logger & ClientLogger);
 
         void Cancel() { State_ = "cancel"; SocketReactorThread_.wakeUp(); }
-        void Resume() { State_ = "running"; SocketReactorThread_.wakeUp(); }
-        void Pause()  { State_ = "paused"; SocketReactorThread_.wakeUp(); }
 
     private:
         Poco::Logger                                            &Logger_;

@@ -16,6 +16,7 @@
 #include "Poco/JSON/Object.h"
 
 #include "uCentralEventTypes.h"
+#include "nlohmann/json.hpp"
 
 namespace OpenWifi {
     struct CensusReport {
@@ -34,13 +35,20 @@ namespace OpenWifi {
 
         void Reset() {
             ev_none = ev_reconnect = ev_connect = ev_state =
-                    ev_healthcheck = ev_log = ev_crashlog = ev_configpendingchange =
-                            ev_keepalive = ev_reboot = ev_disconnect = ev_wsping = 0 ;
+            ev_healthcheck = ev_log = ev_crashlog = ev_configpendingchange =
+            ev_keepalive = ev_reboot = ev_disconnect = ev_wsping = 0 ;
         }
     };
 
     class uCentralClient {
     public:
+
+        struct ClientInfo {
+            std::string     mac;
+            std::string     ipv4;
+            std::string     ipv6;
+        };
+        typedef std::vector<ClientInfo>   Clients;
 
         uCentralClient(
                 Poco::Net::SocketReactor  & Reactor,
@@ -49,15 +57,13 @@ namespace OpenWifi {
 
         bool Send(const std::string &Cmd);
         bool SendWSPing();
-        bool SendObject(Poco::JSON::Object O);
+        bool SendObject(nlohmann::json &O);
         void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf);
-
         void EstablishConnection();
         void Disconnect(bool Reconnect);
+        void ProcessCommand(nlohmann::json & Vars);
 
-        void ProcessCommand(Poco::DynamicStruct Vars);
-
-        void SetFirmware() { Firmware_ = "sim-firmware-1." + std::to_string(Version_); }
+        void SetFirmware( const std::string & S = "sim-firmware-1" ) { Firmware_ = S; }
 
         [[nodiscard]] const std::string & Serial() const { return SerialNumber_; }
         [[nodiscard]] uint64_t UUID() const { return UUID_; }
@@ -69,20 +75,24 @@ namespace OpenWifi {
         void AddEvent(uCentralEventType E, uint64_t InSeconds);
         uCentralEventType NextEvent(bool Remove);
 
-        void  DoConfigure(uint64_t Id, Poco::DynamicStruct Params);
-        void  DoReboot(uint64_t Id, Poco::DynamicStruct Params);
-        void  DoUpgrade(uint64_t Id, Poco::DynamicStruct Params);
-        void  DoFactory(uint64_t Id, Poco::DynamicStruct Params);
-        void  DoLEDs(uint64_t Id, Poco::DynamicStruct Params);
-        void  DoPerform(uint64_t Id, Poco::DynamicStruct Params);
-        void  DoTrace(uint64_t Id, Poco::DynamicStruct Params);
+        void  DoConfigure(uint64_t Id, nlohmann::json & Params);
+        void  DoReboot(uint64_t Id, nlohmann::json & Params);
+        void  DoUpgrade(uint64_t Id, nlohmann::json & Params);
+        void  DoFactory(uint64_t Id, nlohmann::json & Params);
+        void  DoLEDs(uint64_t Id, nlohmann::json & Params);
+        void  DoPerform(uint64_t Id, nlohmann::json & Params);
+        void  DoTrace(uint64_t Id, nlohmann::json & Params);
         void  DoCensus( CensusReport & Census );
+
+        static void CreateClients( Clients & C, uint64_t min, uint64_t max);
+
+        nlohmann::json CreateState();
 
     private:
         std::recursive_mutex        Mutex_;
         Poco::Net::SocketReactor    &Reactor_;
         Poco::Logger                &Logger_;
-        std::string                 CurrentConfig_;
+        nlohmann::json              CurrentConfig_;
         std::string                 SerialNumber_;
         std::string                 Firmware_;
         std::unique_ptr<Poco::Net::WebSocket>   WS_;
@@ -94,6 +104,8 @@ namespace OpenWifi {
         uint64_t                    StartTime_ = std::time(nullptr);
         uint64_t                    NumClients_=0;
         uint64_t                    NumAssociations_=0;
+        Clients                     clients_lan, clients_2g, clients_5g;
+        std::string                 mac_lan, mac_2g, mac_5g;
 
         // outstanding commands are marked with a time and the event itself
         std::map< uint64_t , uCentralEventType >    Commands_;

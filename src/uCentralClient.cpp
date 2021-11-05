@@ -14,8 +14,6 @@
 #include "Poco/Net/Context.h"
 #include "Poco/NObserver.h"
 #include "Poco/Net/SSLException.h"
-#include "Poco/JSON/Stringifier.h"
-#include "Poco/JSON/Parser.h"
 
 #include "uCentralClient.h"
 #include "SimStats.h"
@@ -25,6 +23,20 @@
 using namespace std::chrono_literals;
 
 namespace OpenWifi {
+
+    static std::string MakeMac( const char * S, int offset) {
+        char b[256];
+
+        int j=0,i=0;
+        for(int k=0;k<6;++k) {
+            b[j++] = S[i++];
+            b[j++] = S[i++];
+            b[j++] = ':';
+        }
+        b[--j] = 0;
+        b[--j] = '0'+offset;
+        return b;
+    }
 
     uCentralClient::uCentralClient(
             Poco::Net::SocketReactor  & Reactor,
@@ -36,12 +48,203 @@ namespace OpenWifi {
             {
                 SetFirmware();
                 Active_ = UUID_ = std::time(nullptr);
-                CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(UUID_);
-                uint64_t Delta1 = SimulationCoordinator()->GetSimulationInfo().maxClients - SimulationCoordinator()->GetSimulationInfo().minClients;
-                NumClients_ = SimulationCoordinator()->GetSimulationInfo().minClients + (rand() % Delta1);
-                uint64_t Delta2 = SimulationCoordinator()->GetSimulationInfo().maxAssociations - SimulationCoordinator()->GetSimulationInfo().minAssociations;
-                NumClients_ = SimulationCoordinator()->GetSimulationInfo().minAssociations + (rand() % Delta2);
+                srand(UUID_);
+                CreateClients( clients_lan, SimulationCoordinator()->GetSimulationInfo().minClients, SimulationCoordinator()->GetSimulationInfo().maxClients);
+                CreateClients( clients_2g, SimulationCoordinator()->GetSimulationInfo().minAssociations, SimulationCoordinator()->GetSimulationInfo().maxAssociations);
+                CreateClients( clients_5g, SimulationCoordinator()->GetSimulationInfo().minAssociations, SimulationCoordinator()->GetSimulationInfo().maxAssociations);
+
+                mac_lan = MakeMac(SerialNumber_.c_str(), 0 );
+                mac_2g = MakeMac(SerialNumber_.c_str(), 1 );
+                mac_5g = MakeMac(SerialNumber_.c_str(), 2 );
             }
+
+    static std::string RandomMAC() {
+        char b[64];
+        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x", rand() % 255, rand() % 255,rand() % 255,rand() % 255,rand() % 255,rand() % 255 );
+        return b;
+    }
+
+    static std::string RandomIPv4() {
+        char b[64];
+        sprintf(b,"%d.%d.%d.%d", rand() % 255, rand() % 255,rand() % 255,rand() % 255);
+        return b;
+    }
+
+    static std::string RandomIPv6() {
+        char b[128];
+        sprintf(b,"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff );
+        return b;
+    }
+
+    void uCentralClient::CreateClients(Clients &C, uint64_t min, uint64_t max) {
+        uint64_t Num = (rand() % (max-min)) + min;
+
+        for(auto i=0;i<Num;i++) {
+            ClientInfo  CI{ .mac = RandomMAC(), .ipv4 = RandomIPv4(), .ipv6 = RandomIPv6() };
+            C.push_back(CI);
+        }
+    }
+
+    static void AddClients( nlohmann::json & ClientArray , const uCentralClient::Clients & clients) {
+        for(const auto &i:clients) {
+            nlohmann::json c;
+            c["ipv6_addresses"].push_back(i.ipv6);
+            c["ipv4_addresses"].push_back(i.ipv4);
+            c["mac"] = i.mac;
+            c["ports"].push_back("eth1");
+            ClientArray.push_back(c);
+        }
+    }
+
+    static void AddCounters(nlohmann::json & d) {
+        d["counters"]["collisions"] = 0 ;
+        d["counters"]["multicast"] = 0 ;
+        d["counters"]["rx_bytes"] = 0 ;
+        d["counters"]["rx_dropped"] = 0 ;
+        d["counters"]["rx_errors"] = 0 ;
+        d["counters"]["rx_packets"] = 0 ;
+        d["counters"]["tx_bytes"] = 0 ;
+        d["counters"]["tx_dropped"] = 0 ;
+        d["counters"]["tx_errors"] = 0 ;
+        d["counters"]["tx_packets"] = 0 ;
+    }
+
+    static void AddAssociations(const uCentralClient::Clients & C, nlohmann::json & J) {
+        for(const auto &i:C) {
+            nlohmann::json a;
+
+            a["bssid"] = i.mac;
+            a["station"] = i.mac;
+            a["connected"] = 7437;
+            a["inactive"] = 19;
+            a["rssi"] = -60;
+            a["rx_bytes"] = 1544;
+            a["rx_packets"] = 4;
+            a["tx_bytes"] = 0;
+            a["tx_duration"] = 36;
+            a["tx_failed"] = 0;
+            a["tx_offset"] = 0;
+            a["tx_packets"] = 0;
+            a["tx_retries"] = 0;
+            a["rx_rate"]["bitrate"] = 162000;
+            a["rx_rate"]["chwidth"] = 40;
+            a["rx_rate"]["mcs"] = 8;
+            a["rx_rate"]["nss"] = 1;
+            a["rx_rate"]["sgi"] = true;
+            a["rx_rate"]["vht"] = true;
+            a["tx_rate"]["bitrate"] = 200000;
+            a["tx_rate"]["chwidth"] = 40;
+            a["tx_rate"]["mcs"] = 8;
+            a["tx_rate"]["nss"] = 1;
+            a["tx_rate"]["sgi"] = true;
+            a["tx_rate"]["vht"] = true;
+
+            J.push_back(a);
+        }
+    }
+
+    nlohmann::json uCentralClient::CreateState() {
+        nlohmann::json S;
+        uint64_t    total_mem = 973139968;
+
+        // unit
+        uint64_t    Now = std::time(nullptr);
+        S["unit"]["load"] = std::vector<int>{ rand() % 75, rand() % 50 , rand() % 25 };
+        S["unit"]["localtime"] = Now;
+        S["unit"]["uptime"] = Now - StartTime_;
+        S["unit"]["memory"]["total"] = 973139968;
+        S["unit"]["memory"]["buffered"] = 10129408;
+        S["unit"]["memory"]["cached"] = 29233152;
+        S["unit"]["memory"]["free"] = 760164352;
+
+        S["radios"] = {
+                {
+                    {"active_ms", 7440626},
+                    {"busy_ms", 179311},
+                    {"channel", 157},
+                    {"channel_width", "40"},
+                    {"noise", -104},
+                    {"phy", "platform/soc/c000000.wifi"},
+                    {"receive_ms", 965},
+                    {"temperature", 40},
+                    {"transmit_ms", 26540},
+                    {"tx_power", 25}
+                },
+                {
+                    {"active_ms", 7439624},
+                    {"busy_ms", 710792},
+                    {"channel", 6},
+                    {"channel_width", "20"},
+                    {"noise", -99},
+                    {"phy", "platform/soc/c000000.wifi+1"},
+                    {"receive_ms", 72},
+                    {"temperature", 40},
+                    {"transmit_ms", 23818},
+                    {"tx_power", 23}
+                }
+        };
+
+        S["link-state"]["lan"]["eth1"]["carrier"] = 0;
+        S["link-state"]["lan"]["eth2"]["carrier"] = 0;
+        S["link-state"]["wan"]["eth0"]["carrier"] = 1;
+        S["link-state"]["wan"]["eth0"]["duplex"] = "full";
+        S["link-state"]["wan"]["eth0"]["speed"] = 1000;
+
+        nlohmann::json interface0;
+
+        nlohmann::json RFClients;
+        AddClients(RFClients, clients_2g);
+        AddClients(RFClients, clients_5g);
+
+        interface0["clients"] = RFClients;
+        interface0["location"] = "/interfaces/0";
+        interface0["name"] = "up0v0";
+        interface0["ipv4"]["addresses"].push_back("192.168.1.1/24");
+        interface0["ipv4"]["leasetime"]= 43200;
+        interface0["uptime"] = Now - StartTime_;
+        AddCounters(interface0);
+        interface0["dns_servers"].push_back("192.168.88.1");
+        interface0["addresses"].push_back("192.168.88.91/24");
+
+        nlohmann::json ssid_5g;
+        ssid_5g["bssid"] = mac_5g;
+        AddCounters(ssid_5g);
+        ssid_5g["iface"] = "wlan0";
+        ssid_5g["mode"] = "ap";
+        ssid_5g["phy"] = "platform/soc/c000000.wifi";
+        ssid_5g["radio"]["$ref"] = "#/radios/0";
+        ssid_5g["ssid"] = "the5Gnetwork";
+        AddAssociations(clients_5g,ssid_5g);
+
+        nlohmann::json ssid_2g;
+        ssid_2g["bssid"] = mac_2g;
+        AddCounters(ssid_2g);
+        ssid_2g["iface"] = "wlan0";
+        ssid_2g["mode"] = "ap";
+        ssid_2g["phy"] = "platform/soc/c000000.wifi+1";
+        ssid_2g["radio"]["$ref"] = "#/radios/1";
+        ssid_2g["ssid"] = "the2Gnetwork";
+        AddAssociations(clients_2g,ssid_2g);
+
+        interface0["ssids"].push_back(ssid_5g);
+        interface0["ssids"].push_back(ssid_2g);
+
+        nlohmann::json interface1;
+        nlohmann::json LANClients;
+        AddClients(LANClients, clients_lan);
+        interface1["clients"] = LANClients;
+
+        AddCounters(interface1);
+        interface1["location"] = "/interfaces/1";
+        interface1["name"] = "down1v0";
+        interface1["uptime"] = Now - StartTime_;
+        interface1["ipv4"]["addresses"].push_back("192.168.1.1/24");
+
+        S["interfaces"].push_back(interface0);
+        S["interfaces"].push_back(interface1);
+
+        return S;
+    }
 
     void uCentralClient::Disconnect( bool Reconnect ) {
         std::lock_guard G(Mutex_);
@@ -108,18 +311,14 @@ namespace OpenWifi {
 
                 case Poco::Net::WebSocket::FRAME_OP_TEXT: {
                     if (MessageSize > 0) {
-                        Poco::JSON::Parser  Parser;
-
                         SimStats()->AddRX(MessageSize);
                         SimStats()->AddInMsg();
-
-                        auto ParsedMessage = Parser.parse(Message);
-                        auto Result = ParsedMessage.extract<Poco::JSON::Object::Ptr>();
-                        Poco::DynamicStruct Vars = *Result;
+                        auto Vars = nlohmann::json::parse(Message);
 
                         if( Vars.contains("jsonrpc") &&
-                        Vars.contains("id") &&
-                        Vars.contains("method"))
+                            Vars.contains("id") &&
+                            Vars.contains("method") &&
+                            Vars.contains("params"))
                         {
                             ProcessCommand(Vars);
                         } else {
@@ -145,20 +344,12 @@ namespace OpenWifi {
         Disconnect(true);
     }
 
-    void uCentralClient::ProcessCommand(Poco::DynamicStruct Vars) {
+    void uCentralClient::ProcessCommand(nlohmann::json & Vars) {
 
-        auto ParamsObj = Vars["params"];
-        auto Method = Vars["method"].toString();
-
-        if(!ParamsObj.isStruct())
-        {
-            Logger_.warning(Poco::format("COMMAND(%s): command '%s' does not have proper parameters",SerialNumber_,Method));
-            return;
-        }
-
-        const auto & Params = ParamsObj.extract<Poco::DynamicStruct>();
+        std::string Method = Vars["method"];
 
         auto Id = Vars["id"];
+        auto Params = Vars["params"];
 
         if(Method == "configure") {
             DoConfigure(Id,Params);
@@ -179,7 +370,7 @@ namespace OpenWifi {
         }
     }
 
-    void  uCentralClient::DoConfigure(uint64_t Id, Poco::DynamicStruct Params) {
+    void  uCentralClient::DoConfigure(uint64_t Id, nlohmann::json & Params) {
         std::lock_guard G(Mutex_);
 
         try {
@@ -187,35 +378,23 @@ namespace OpenWifi {
             Params.contains("uuid") &&
             Params.contains("config")) {
                 uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto Serial = Params["serial"].toString();
+                auto Serial = Params["serial"];
                 uint64_t UUID = Params["uuid"];
                 auto Configuration = Params["config"];
-
-                //  We need to store the configuration  in the object...
-                std::stringstream OS;
-                Poco::JSON::Stringifier::stringify(Configuration, OS);
-
-                CurrentConfig_ = OS.str();
-
+                CurrentConfig_ = Configuration;
                 UUID_ = Active_ = UUID ;
 
                 //  prepare response...
-                Poco::JSON::Object Answer;
+                nlohmann::json Answer;
 
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-
-                Poco::JSON::Object Result;
-
-                Result.set("serial", Serial);
-                Result.set("uuid", UUID);
-
-                Poco::JSON::Object Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("status", Status);
-                Answer.set("result", Result);
+                Answer["jsonrpc"] = "2.0";
+                Answer["id"] = Id;
+                Answer["result"]["serial"] = Serial;
+                Answer["result"]["uuid"] = UUID;
+                Answer["result"]["status"]["error"] = 0;
+                Answer["result"]["status"]["when"] = When;
+                Answer["result"]["status"]["text"] = "No errors were found";
+                Answer["result"]["status"]["error"] = 0;
 
                 Logger_.information(Poco::format("configure(%s): done.",SerialNumber_));
                 SendObject(Answer);
@@ -228,30 +407,25 @@ namespace OpenWifi {
         }
     }
 
-    void  uCentralClient::DoReboot(uint64_t Id, Poco::DynamicStruct Params) {
+    void  uCentralClient::DoReboot(uint64_t Id, nlohmann::json & Params) {
         std::lock_guard G(Mutex_);
         try {
             if (Params.contains("serial")) {
                 uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto Serial = Params["serial"].toString();
+                auto Serial = Params["serial"];
 
                 //  prepare response...
-                Poco::JSON::Object Answer;
+                nlohmann::json Answer;
 
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
+                Answer["jsonrpc"] = "2.0";
+                Answer["id"] = Id;
+                Answer["result"]["serial"] = Serial;
+                Answer["result"]["status"]["error"] = 0;
+                Answer["result"]["status"]["when"] = When;
+                Answer["result"]["status"]["text"] = "No errors were found";
 
-                Poco::JSON::Object Result;
-
-                Result.set("serial", Serial);
-
-                Poco::JSON::Object Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("status", Status);
-                Answer.set("result", Result);
                 SendObject(Answer);
+
                 Logger_.information(Poco::format("reboot(%s): done.",SerialNumber_));
                 Disconnect(true);
             } else {
@@ -263,35 +437,45 @@ namespace OpenWifi {
         }
     }
 
-    void  uCentralClient::DoUpgrade(uint64_t Id, Poco::DynamicStruct Params) {
+    std::string GetFirmware(const std::string & U) {
+        Poco::URI   uri(U);
+
+        auto p = uri.getPath();
+        auto tokens = Poco::StringTokenizer(p,"-");
+        if(tokens.count()>4 && (tokens[2]=="main" || tokens[2]=="next" || tokens[2]=="staging")) {
+            return "TIP-devel-" + tokens[3];
+        }
+
+        if(tokens.count()>5) {
+            return "TIP-" + tokens[2] + "-" + tokens[3] + "-" + tokens[4];
+        }
+
+        return p;
+    }
+
+    void  uCentralClient::DoUpgrade(uint64_t Id, nlohmann::json & Params) {
         std::lock_guard G(Mutex_);
         try {
             if (Params.contains("serial") &&
-            Params.contains("uri")) {
+                Params.contains("uri")) {
 
                 uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto Serial = Params["serial"].toString();
-                auto URI = Params["uri"].toString();
+                auto Serial = Params["serial"];
+                auto URI = Params["uri"];
 
                 //  prepare response...
-                Poco::JSON::Object Answer;
+                nlohmann::json Answer;
 
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
+                Answer["jsonrpc"] = "2.0";
+                Answer["id"] = Id;
+                Answer["result"]["serial"] = Serial;
+                Answer["result"]["status"]["error"] = 0;
+                Answer["result"]["status"]["when"] = When;
+                Answer["result"]["status"]["text"] = "No errors were found";
 
                 Version_++;
-                SetFirmware();
+                SetFirmware(GetFirmware(URI));
 
-                Poco::JSON::Object Result;
-
-                Result.set("serial", Serial);
-
-                Poco::JSON::Object Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("status", Status);
-                Answer.set("result", Result);
                 SendObject(Answer);
                 Logger_.information(Poco::format("upgrade(%s): from URI=%s.",SerialNumber_,URI));
                 Disconnect(true);
@@ -304,37 +488,30 @@ namespace OpenWifi {
         }
     }
 
-    void  uCentralClient::DoFactory(uint64_t Id, Poco::DynamicStruct Params) {
+    void  uCentralClient::DoFactory(uint64_t Id, nlohmann::json & Params) {
         std::lock_guard G(Mutex_);
         try {
             if (Params.contains("serial") &&
-            Params.contains("keep_redirector")) {
+                Params.contains("keep_redirector")) {
 
                 uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto Serial = Params["serial"].toString();
+                auto Serial = Params["serial"];
                 auto KeepRedirector = Params["uri"];
-
-                //  prepare response...
-                Poco::JSON::Object Answer;
-
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
 
                 Version_ = 1;
                 SetFirmware();
                 KeepRedirector_ = KeepRedirector;
 
-                Poco::JSON::Object Result;
+                nlohmann::json Answer;
 
-                Result.set("serial", Serial);
-
-                Poco::JSON::Object Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("status", Status);
-                Answer.set("result", Result);
+                Answer["jsonrpc"] = "2.0";
+                Answer["id"] = Id;
+                Answer["result"]["serial"] = Serial;
+                Answer["result"]["status"]["error"] = 0;
+                Answer["result"]["status"]["when"] = When;
+                Answer["result"]["status"]["text"] = "No errors were found";
                 SendObject(Answer);
+
                 Logger_.information(Poco::format("factory(%s): done.",SerialNumber_));
                 Disconnect(true);
             } else {
@@ -346,34 +523,28 @@ namespace OpenWifi {
         }
     }
 
-    void  uCentralClient::DoLEDs(uint64_t Id, Poco::DynamicStruct Params) {
+    void  uCentralClient::DoLEDs(uint64_t Id, nlohmann::json & Params) {
         std::lock_guard G(Mutex_);
         try {
             if (Params.contains("serial") &&
             Params.contains("pattern")) {
 
                 uint64_t    When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto        Serial = Params["serial"].toString();
-                auto        Pattern = Params["pattern"].toString();
+                auto        Serial = Params["serial"];
+                auto        Pattern = Params["pattern"];
                 uint64_t    Duration = Params.contains("duration") ? (uint64_t )Params["durarion"] : 10;
 
                 //  prepare response...
-                Poco::JSON::Object Answer;
+                nlohmann::json Answer;
 
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-
-                Poco::JSON::Object Result;
-
-                Result.set("serial", Serial);
-
-                Poco::JSON::Object Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("status", Status);
-                Answer.set("result", Result);
+                Answer["jsonrpc"] = "2.0";
+                Answer["id"] = Id;
+                Answer["result"]["serial"] = Serial;
+                Answer["result"]["status"]["error"] = 0;
+                Answer["result"]["status"]["when"] = When;
+                Answer["result"]["status"]["text"] = "No errors were found";
                 SendObject(Answer);
+
                 Logger_.information(Poco::format("LEDs(%s): pattern set to: %s for %Lu ms.",SerialNumber_,Duration,Pattern));
             } else {
                 Logger_.warning(Poco::format("LEDs(%s): Illegal command.",SerialNumber_));
@@ -384,7 +555,7 @@ namespace OpenWifi {
         }
     }
 
-    void  uCentralClient::DoPerform(uint64_t Id, Poco::DynamicStruct Params) {
+    void  uCentralClient::DoPerform(uint64_t Id, nlohmann::json & Params) {
         std::lock_guard G(Mutex_);
         try {
             if (Params.contains("serial") &&
@@ -392,28 +563,21 @@ namespace OpenWifi {
             Params.contains("payload")) {
 
                 uint64_t    When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto        Serial = Params["serial"].toString();
-                auto        Command = Params["command"].toString();
+                auto        Serial = Params["serial"];
+                auto        Command = Params["command"];
                 auto        Payload = Params["payload"];
 
                 //  prepare response...
-                Poco::JSON::Object Answer;
+                nlohmann::json Answer;
 
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-
-                Poco::JSON::Object Result;
-
-                Result.set("serial", Serial);
-
-                Poco::JSON::Object Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Status.set("resultCode",0);
-                Status.set("resultText","no return status");
-                Result.set("status", Status);
-                Answer.set("result", Result);
+                Answer["jsonrpc"] = "2.0";
+                Answer["id"] = Id;
+                Answer["result"]["serial"] = Serial;
+                Answer["result"]["status"]["error"] = 0;
+                Answer["result"]["status"]["when"] = When;
+                Answer["result"]["status"]["text"] = "No errors were found";
+                Answer["result"]["status"]["text"]["resultCode"] = 0 ;
+                Answer["result"]["status"]["text"]["resultText"] = "no return status" ;
                 SendObject(Answer);
                 Logger_.information(Poco::format("perform(%s): command=%s.",SerialNumber_,Command));
             } else {
@@ -425,7 +589,7 @@ namespace OpenWifi {
         }
     }
 
-    void  uCentralClient::DoTrace(uint64_t Id, Poco::DynamicStruct Params) {
+    void  uCentralClient::DoTrace(uint64_t Id, nlohmann::json & Params) {
         std::lock_guard G(Mutex_);
         try {
             if (Params.contains("serial") &&
@@ -436,32 +600,26 @@ namespace OpenWifi {
             Params.contains("uri")) {
 
                 uint64_t    When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto        Serial = Params["serial"].toString();
-                auto        Network = Params["network"].toString();
-                auto        Interface = Params["interface"].toString();
+                auto        Serial = Params["serial"];
+                auto        Network = Params["network"];
+                auto        Interface = Params["interface"];
                 uint64_t    Duration = Params["duration"];
                 uint64_t    Packets = Params["packets"];
-                auto        URI = Params["uri"].toString();
+                auto        URI = Params["uri"];
 
                 //  prepare response...
-                Poco::JSON::Object Answer;
+                nlohmann::json Answer;
 
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-
-                Poco::JSON::Object Result;
-
-                Result.set("serial", Serial);
-
-                Poco::JSON::Object Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Status.set("resultCode",0);
-                Status.set("resultText","no return status");
-                Result.set("status", Status);
-                Answer.set("result", Result);
+                Answer["jsonrpc"] = "2.0";
+                Answer["id"] = Id;
+                Answer["result"]["serial"] = Serial;
+                Answer["result"]["status"]["error"] = 0;
+                Answer["result"]["status"]["when"] = When;
+                Answer["result"]["status"]["text"] = "No errors were found";
+                Answer["result"]["status"]["text"]["resultCode"] = 0 ;
+                Answer["result"]["status"]["text"]["resultText"] = "no return status" ;
                 SendObject(Answer);
+
                 Logger_.information(Poco::format("trace(%s): network=%s interface=%s packets=%Lu duration=%Lu URI=%s.",SerialNumber_,Network,
                                                  Interface, Packets, Duration, URI));
             } else {
@@ -580,14 +738,13 @@ namespace OpenWifi {
         return false;
     }
 
-    bool uCentralClient::SendObject(Poco::JSON::Object O) {
+    bool uCentralClient::SendObject(nlohmann::json &O) {
         std::lock_guard guard(Mutex_);
 
         try {
-            std::stringstream OS;
-            Poco::JSON::Stringifier::stringify(O, OS);
-            uint32_t BytesSent = WS_->sendFrame(OS.str().c_str(), OS.str().size());
-            if (BytesSent == OS.str().size()) {
+            auto M = to_string(O);
+            uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
+            if (BytesSent == M.size()) {
                 SimStats()->AddTX(BytesSent);
                 SimStats()->AddOutMsg();
                 return true;

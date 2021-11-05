@@ -46,6 +46,8 @@ namespace OpenWifi {
             auto State = SimulationCoordinator()->GetSimDefaultState(Client_->GetStartTime());
             std::string StateStr = to_string(State);
 
+            std::cout << "State:" << StateStr << std::endl;
+
             if (StateStr.size() > 3000) {
                 nlohmann::json C;
 

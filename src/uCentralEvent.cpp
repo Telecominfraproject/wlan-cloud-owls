@@ -89,6 +89,8 @@ namespace OpenWifi {
         try {
             nlohmann::json  M,P;
 
+            P["memory"] = 23;
+
             M["jsonrpc"] = "2.0";
             M["method"] = "healthcheck";
             M["params"]["serial"] = Client_->Serial();

@@ -46,14 +46,14 @@ namespace OpenWifi {
             auto State = SimulationCoordinator()->GetSimDefaultState(Client_->GetStartTime());
             std::string StateStr = to_string(State);
 
-            std::cout << "State:" << StateStr << std::endl;
+            // std::cout << "State:" << StateStr << std::endl;
 
             if (StateStr.size() > 3000) {
                 nlohmann::json C;
 
                 C["params"]["serial"] = Client_->Serial();
                 C["params"]["uuid"] = Client_->UUID();
-                C["params"]["state"] = State;
+                C["params"]["state"] = StateStr;
 
                 StateStr = to_string(C);
 
@@ -69,6 +69,9 @@ namespace OpenWifi {
                 M["params"]["uuid"] = Client_->UUID();
                 M["params"]["state"] = State;
             }
+
+            std::cout << "M:" << to_string(M) << std::endl;
+
 
             if(Client_->Send(to_string(M))) {
                 Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);

@@ -11,6 +11,7 @@
 #include "framework/MicroService.h"
 #include "uCentralEvent.h"
 #include "Simulation.h"
+#include "nlohmann/json.hpp"
 
 namespace OpenWifi {
     static void SetHeader(Poco::JSON::Object & O, const char * Method)
@@ -33,6 +34,30 @@ namespace OpenWifi {
     }
 
     bool ConnectEvent::Send() {
+        try {
+            nlohmann::json  M;
+
+            M["jsonrpc"] = "2.0";
+            M["method"] = "connect";
+            M["params"]["serial"] = Client_->Serial();
+            M["params"]["uuid"] = Client_->UUID();
+            M["params"]["firmware"] = Client_->Firmware();
+            M["params"]["capabilities"] = SimulationCoordinator()->GetSimCapabilities();
+            if(Client_->Send(to_string(M))) {
+                Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
+                Client_->AddEvent(ev_healthcheck, SimulationCoordinator()->GetSimulationInfo().healthCheckInterval);
+                Client_->AddEvent(ev_log, 120 + (rand() % 200));
+                return true;
+            }
+            Client_->Disconnect(true);
+        }
+        catch(...) {
+            Client_->Disconnect(true);
+        }
+        return false;
+    }
+
+/*    bool ConnectEvent::Send_old() {
         try {
             Poco::JSON::Object O;
 
@@ -62,6 +87,7 @@ namespace OpenWifi {
         }
         return false;
     }
+*/
 
     bool StateEvent::Send() {
         try {

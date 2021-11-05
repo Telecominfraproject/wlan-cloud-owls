@@ -81,7 +81,7 @@ namespace OpenWifi {
     }
 
     static const nlohmann::json DefaultCapabilities = R"(
-    {"capabilities":{"compatible":"linksys_ea8300","model":"Linksys EA8300 (Dallas) ","network":{"lan":["eth0"],"wan":["eth1"]},"platform":"ap","switch":{"switch0":{"enable":true,"ports":[{"device":"eth0","need_tag":false,"num":0,"want_untag":true},{"num":1,"role":"lan"},{"num":2,"role":"lan"},{"num":3,"role":"lan"},{"num":4,"role":"lan"}],"reset":true,"roles":[{"device":"eth0","ports":"1 2 3 4 0","role":"lan"}]}},"wifi":{"platform/soc/a000000.wifi":{"band":["2G"],"channels":[1,2,3,4,5,6,7,8,9,10,11],"frequencies":[2412,2417,2422,2427,2432,2437,2442,2447,2452,2457,2462],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865687986},"platform/soc/a800000.wifi":{"band":["5G"],"channels":[36,40,44,48,52,56,60,64],"frequencies":[5180,5200,5220,5240,5260,5280,5300,5320],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865687986},"soc/40000000.pci/pci0000:00/0000:00:00.0/0000:01:00.0":{"band":["5G"],"channels":[100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],"frequencies":[5500,5520,5540,5560,5580,5600,5620,5640,5660,5680,5700,5720,5745,5765,5785,5805,5825],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865696178}}},"firstUpdate":1623935450,"lastUpdate":1635876628,"serialNumber":"24f5a207a130"}
+    {"compatible":"linksys_ea8300","model":"Linksys EA8300 (Dallas) ","network":{"lan":["eth0"],"wan":["eth1"]},"platform":"ap","switch":{"switch0":{"enable":true,"ports":[{"device":"eth0","need_tag":false,"num":0,"want_untag":true},{"num":1,"role":"lan"},{"num":2,"role":"lan"},{"num":3,"role":"lan"},{"num":4,"role":"lan"}],"reset":true,"roles":[{"device":"eth0","ports":"1 2 3 4 0","role":"lan"}]}},"wifi":{"platform/soc/a000000.wifi":{"band":["2G"],"channels":[1,2,3,4,5,6,7,8,9,10,11],"frequencies":[2412,2417,2422,2427,2432,2437,2442,2447,2452,2457,2462],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865687986},"platform/soc/a800000.wifi":{"band":["5G"],"channels":[36,40,44,48,52,56,60,64],"frequencies":[5180,5200,5220,5240,5260,5280,5300,5320],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865687986},"soc/40000000.pci/pci0000:00/0000:00:00.0/0000:01:00.0":{"band":["5G"],"channels":[100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],"frequencies":[5500,5520,5540,5560,5580,5600,5620,5640,5660,5680,5700,5720,5745,5765,5785,5805,5825],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865696178}}}
     )"_json;
 
     bool SimulationCoordinator::StartSim(const std::string &SimId, std::string & Id, std::string &Error) {
@@ -95,10 +95,8 @@ namespace OpenWifi {
             return false;
         }
 
-        nlohmann::json Temp = DefaultCapabilities;
-
-        Temp["capabilities"]["compatible"] = CurrentSim_.deviceType;
-        DefaultCapabilities_ = to_string(Temp);
+        DefaultCapabilities_ = DefaultCapabilities;
+        DefaultCapabilities_["compatible"] = CurrentSim_.deviceType;
 
         auto ClientCount = CurrentSim_.devices;
         auto NumClientsPerThread = CurrentSim_.devices;
@@ -166,240 +164,408 @@ namespace OpenWifi {
     }
 
     static const nlohmann::json DefaultState = R"(
+        {
+          "interfaces": [
+            {
+              "clients": [
                 {
-                  "interfaces": [
-                    {
-                      "clients": [
-                        {
-                          "ipv6_addresses": [
-                            "fe80:0:0:0:923c:b3ff:febb:1ef4"
-                          ],
-                          "mac": "90:3c:b3:bb:1e:f4",
-                          "ports": [
-                            "eth1"
-                          ]
-                        },
-                        {
-                          "ipv4_addresses": [
-                            "10.2.0.1"
-                          ],
-                          "ipv6_addresses": [
-                            "fe80:0:0:0:7053:96ff:fe8c:94fe",
-                            "2604:3d08:9680:bd00:0:0:0:1"
-                          ],
-                          "mac": "e2:63:da:86:64:8e",
-                          "ports": [
-                            "eth1"
-                          ]
-                        }
-                      ],
-                      "counters": {
-                        "collisions": 0,
-                        "multicast": 139,
-                        "rx_bytes": 47808,
-                        "rx_dropped": 0,
-                        "rx_errors": 0,
-                        "rx_packets": 238,
-                        "tx_bytes": 3800,
-                        "tx_dropped": 0,
-                        "tx_errors": 0,
-                        "tx_packets": 15
-                      },
-                      "location": "/interfaces/0",
-                      "name": "up0v0",
-                      "ssids": [
-                        {
-                          "associations": [
-                            {
-                              "bssid": "0e:f3:35:85:ce:eb",
-                              "connected": 4575,
-                              "inactive": 79,
-                              "rssi": -51,
-                              "rx_bytes": 0,
-                              "rx_packets": 0,
-                              "rx_rate": {
-                                "bitrate": 229400,
-                                "chwidth": 20
-                              },
-                              "station": "0e:f3:35:85:ce:eb",
-                              "tx_bytes": 0,
-                              "tx_duration": 4995,
-                              "tx_failed": 0,
-                              "tx_offset": 0,
-                              "tx_packets": 0,
-                              "tx_rate": {
-                                "bitrate": 6000,
-                                "chwidth": 20
-                              },
-                              "tx_retries": 0
-                            }
-                          ],
-                          "bssid": "90:3c:b3:bb:1e:f6",
-                          "counters": {
-                            "collisions": 0,
-                            "multicast": 0,
-                            "rx_bytes": 0,
-                            "rx_dropped": 0,
-                            "rx_errors": 0,
-                            "rx_packets": 0,
-                            "tx_bytes": 6922,
-                            "tx_dropped": 0,
-                            "tx_errors": 0,
-                            "tx_packets": 78
-                          },
-                          "iface": "wlan0",
-                          "mode": "ap",
-                          "phy": "platform/soc/c000000.wifi",
-                          "radio": {
-                            "$ref": "#/radios/0"
-                          },
-                          "ssid": "OpenWifi-test5"
-                        }
-                      ],
-                      "uptime": 127159
-                    },
-                    {
-                      "dns_servers": [
-                        "10.2.0.1"
-                      ],
-                      "ipv4": {
-                        "addresses": [
-                          "10.2.8.192/16"
-                        ],
-                        "leasetime": 86400
-                      },
-                      "location": "/interfaces/0",
-                      "name": "up0v0_4",
-                      "uptime": 127154
-                    },
-                    {
-                      "dns_servers": [
-                        "2604:3d08:9680:bd00::1"
-                      ],
-                      "ipv6": {
-                        "addresses": [
-                          {
-                            "address": "2604:3d08:9680:bd00::431/128",
-                            "preferred": 80692,
-                            "valid": 80692
-                          },
-                          {
-                            "address": "2604:3d08:9680:bd00:923c:b3ff:febb:1ef4/64",
-                            "preferred": 86018,
-                            "valid": 86018
-                          }
-                        ]
-                      },
-                      "location": "/interfaces/0",
-                      "name": "up0v0_6",
-                      "uptime": 127154
-                    },
-                    {
-                      "counters": {
-                        "collisions": 0,
-                        "multicast": 0,
-                        "rx_bytes": 0,
-                        "rx_dropped": 0,
-                        "rx_errors": 0,
-                        "rx_packets": 0,
-                        "tx_bytes": 1058,
-                        "tx_dropped": 0,
-                        "tx_errors": 0,
-                        "tx_packets": 5
-                      },
-                      "ipv4": {
-                        "addresses": [
-                          "192.168.1.1/24"
-                        ]
-                      },
-                      "location": "/interfaces/1",
-                      "name": "down1v0",
-                      "ssids": [
-                        {
-                          "bssid": "90:3c:b3:bb:1e:fe",
-                          "counters": {
-                            "collisions": 0,
-                            "multicast": 0,
-                            "rx_bytes": 0,
-                            "rx_dropped": 0,
-                            "rx_errors": 0,
-                            "rx_packets": 0,
-                            "tx_bytes": 1148,
-                            "tx_dropped": 0,
-                            "tx_errors": 0,
-                            "tx_packets": 5
-                          },
-                          "iface": "wlan1",
-                          "mode": "ap",
-                          "phy": "platform/soc/c000000.wifi+1",
-                          "radio": {
-                            "$ref": "#/radios/1"
-                          },
-                          "ssid": "OpenWifi-test2"
-                        }
-                      ],
-                      "uptime": 127163
-                    }
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:14a2:4348:a5bd:6842"
                   ],
-                  "link-state": {
-                    "lan": {
-                      "eth1": {
-                        "carrier": 0
-                      },
-                      "eth2": {
-                        "carrier": 0
-                      }
-                    },
-                    "wan": {
-                      "eth0": {
-                        "carrier": 1,
-                        "duplex": "full",
-                        "speed": 1000
-                      }
-                    }
-                  },
-                  "radios": [
-                    {
-                      "active_ms": 127043598,
-                      "busy_ms": 24099474,
-                      "channel": 100,
-                      "channel_width": "80",
-                      "noise": -104,
-                      "phy": "platform/soc/c000000.wifi",
-                      "receive_ms": 19544,
-                      "temperature": 42,
-                      "transmit_ms": 223073,
-                      "tx_power": 10
-                    },
-                    {
-                      "active_ms": 127112622,
-                      "busy_ms": 10388172,
-                      "channel": 11,
-                      "channel_width": "20",
-                      "noise": -98,
-                      "phy": "platform/soc/c000000.wifi+1",
-                      "receive_ms": 2015,
-                      "temperature": 39,
-                      "transmit_ms": 145093,
-                      "tx_power": 10
-                    }
+                  "mac": "0e:f9:d5:98:67:94",
+                  "ports": [
+                    "wlan0"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:304c:beff:fe83:c81d"
                   ],
-                  "unit": {
-                    "load": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "localtime": 1636032352,
-                    "memory": {
-                      "buffered": 9949184,
-                      "cached": 27176960,
-                      "free": 751276032,
-                      "total": 973139968
-                    },
-                    "uptime": 127196
-                  }
+                  "mac": "32:4c:be:83:c8:1d",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:3167:bcb9:8fca:85ae"
+                  ],
+                  "mac": "38:2c:4a:b3:87:88",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:640c:44ff:fe61:dc9b"
+                  ],
+                  "mac": "66:0c:44:61:dc:9b",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:5886:66fb:eea1:fd46"
+                  ],
+                  "mac": "70:85:c2:45:93:c9",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:fd10:eb6:9d8b:8c8d"
+                  ],
+                  "mac": "70:85:c2:7c:9b:8b",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:74d3:a238:802f:4cdb"
+                  ],
+                  "mac": "70:85:c2:f2:be:9a",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:923c:b3ff:fe6a:e55c"
+                  ],
+                  "mac": "90:3c:b3:6a:e5:5c",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:a491:65ff:fed1:a74c"
+                  ],
+                  "mac": "a6:91:65:d1:a7:4c",
+                  "ports": [
+                    "wlan0"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:5efd:f030:76ab:85ce"
+                  ],
+                  "mac": "b8:27:eb:96:14:2f",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:f1c8:8c95:355b:22d1",
+                    "fd00:ab:cd:0:0:0:0:29"
+                  ],
+                  "mac": "b8:27:eb:d9:24:74",
+                  "ports": [
+                    "wlan0"
+                  ]
+                },
+                {
+                  "ipv4_addresses": [
+                    "192.168.88.1"
+                  ],
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:c417:e6ff:fe7e:fa99"
+                  ],
+                  "mac": "c6:17:e6:7e:fa:99",
+                  "ports": [
+                    "eth1"
+                  ]
+                },
+                {
+                  "ipv6_addresses": [
+                    "fe80:0:0:0:f474:cfff:fe60:5634"
+                  ],
+                  "mac": "f6:74:cf:60:56:34",
+                  "ports": [
+                    "eth1"
+                  ]
                 }
+              ],
+              "counters": {
+                "collisions": 0,
+                "multicast": 169,
+                "rx_bytes": 36411,
+                "rx_dropped": 0,
+                "rx_errors": 0,
+                "rx_packets": 235,
+                "tx_bytes": 3535,
+                "tx_dropped": 0,
+                "tx_errors": 0,
+                "tx_packets": 11
+              },
+              "dns_servers": [
+                "192.168.88.1"
+              ],
+              "ipv4": {
+                "addresses": [
+                  "192.168.88.90/24"
+                ],
+                "leasetime": 43200
+              },
+              "location": "/interfaces/0",
+              "name": "up0v0",
+              "ssids": [
+                {
+                  "associations": [
+                    {
+                      "bssid": "a6:91:65:d1:a7:4c",
+                      "connected": 26241,
+                      "inactive": 245,
+                      "rssi": -65,
+                      "rx_bytes": 0,
+                      "rx_packets": 0,
+                      "rx_rate": {
+                        "bitrate": 108000,
+                        "chwidth": 40,
+                        "mcs": 3,
+                        "nss": 2,
+                        "sgi": true,
+                        "vht": true
+                      },
+                      "station": "a6:91:65:d1:a7:4c",
+                      "tx_bytes": 0,
+                      "tx_duration": 823,
+                      "tx_failed": 0,
+                      "tx_offset": 0,
+                      "tx_packets": 0,
+                      "tx_rate": {
+                        "bitrate": 300000,
+                        "chwidth": 40,
+                        "mcs": 7,
+                        "nss": 2,
+                        "sgi": true,
+                        "vht": true
+                      },
+                      "tx_retries": 0
+                    },
+                    {
+                      "bssid": "0e:f9:d5:98:67:94",
+                      "connected": 50734,
+                      "inactive": 0,
+                      "rssi": -66,
+                      "rx_bytes": 78218,
+                      "rx_packets": 508,
+                      "rx_rate": {
+                        "bitrate": 180000,
+                        "chwidth": 40,
+                        "mcs": 8,
+                        "nss": 1,
+                        "sgi": true,
+                        "vht": true
+                      },
+                      "station": "0e:f9:d5:98:67:94",
+                      "tx_bytes": 311735,
+                      "tx_duration": 58721,
+                      "tx_failed": 0,
+                      "tx_offset": 0,
+                      "tx_packets": 563,
+                      "tx_rate": {
+                        "bitrate": 360000,
+                        "chwidth": 40,
+                        "mcs": 8,
+                        "nss": 2,
+                        "sgi": true,
+                        "vht": true
+                      },
+                      "tx_retries": 0
+                    },
+                    {
+                      "bssid": "b8:27:eb:d9:24:74",
+                      "connected": 54112,
+                      "inactive": 26,
+                      "rssi": -62,
+                      "rx_bytes": 1642,
+                      "rx_packets": 5,
+                      "rx_rate": {
+                        "bitrate": 150000,
+                        "chwidth": 40,
+                        "mcs": 7,
+                        "nss": 1,
+                        "sgi": true,
+                        "vht": true
+                      },
+                      "station": "b8:27:eb:d9:24:74",
+                      "tx_bytes": 221,
+                      "tx_duration": 28629,
+                      "tx_failed": 0,
+                      "tx_offset": 0,
+                      "tx_packets": 2,
+                      "tx_rate": {
+                        "bitrate": 200000,
+                        "chwidth": 40,
+                        "mcs": 9,
+                        "nss": 1,
+                        "sgi": true,
+                        "vht": true
+                      },
+                      "tx_retries": 0
+                    }
+                  ],
+                  "bssid": "90:3c:b3:6c:42:36",
+                  "counters": {
+                    "collisions": 0,
+                    "multicast": 0,
+                    "rx_bytes": 72770,
+                    "rx_dropped": 0,
+                    "rx_errors": 0,
+                    "rx_packets": 555,
+                    "tx_bytes": 365626,
+                    "tx_dropped": 0,
+                    "tx_errors": 0,
+                    "tx_packets": 651
+                  },
+                  "iface": "wlan0",
+                  "mode": "ap",
+                  "phy": "platform/soc/c000000.wifi",
+                  "radio": {
+                    "$ref": "#/radios/0"
+                  },
+                  "ssid": "theDao"
+                },
+                {
+                  "associations": [
+                    {
+                      "bssid": "dc:4f:22:cc:9f:51",
+                      "connected": 48590,
+                      "inactive": 1,
+                      "rssi": -78,
+                      "rx_bytes": 4944,
+                      "rx_packets": 23,
+                      "rx_rate": {
+                        "bitrate": 48000,
+                        "chwidth": 20
+                      },
+                      "station": "dc:4f:22:cc:9f:51",
+                      "tx_bytes": 120,
+                      "tx_duration": 2097,
+                      "tx_failed": 0,
+                      "tx_offset": 0,
+                      "tx_packets": 2,
+                      "tx_rate": {
+                        "bitrate": 13000,
+                        "chwidth": 20,
+                        "ht": true,
+                        "mcs": 1,
+                        "sgi": true
+                      },
+                      "tx_retries": 0
+                    }
+                  ],
+                  "bssid": "90:3c:b3:6c:42:3e",
+                  "counters": {
+                    "collisions": 0,
+                    "multicast": 0,
+                    "rx_bytes": 4530,
+                    "rx_dropped": 0,
+                    "rx_errors": 0,
+                    "rx_packets": 23,
+                    "tx_bytes": 2834,
+                    "tx_dropped": 0,
+                    "tx_errors": 0,
+                    "tx_packets": 30
+                  },
+                  "iface": "wlan1",
+                  "mode": "ap",
+                  "phy": "platform/soc/c000000.wifi+1",
+                  "radio": {
+                    "$ref": "#/radios/1"
+                  },
+                  "ssid": "theDao24G"
+                }
+              ],
+              "uptime": 54176
+            },
+            {
+              "counters": {
+                "collisions": 0,
+                "multicast": 0,
+                "rx_bytes": 0,
+                "rx_dropped": 0,
+                "rx_errors": 0,
+                "rx_packets": 0,
+                "tx_bytes": 0,
+                "tx_dropped": 0,
+                "tx_errors": 0,
+                "tx_packets": 0
+              },
+              "ipv4": {
+                "addresses": [
+                  "192.168.1.1/24"
+                ]
+              },
+              "location": "/interfaces/1",
+              "name": "down1v0",
+              "uptime": 54159
+            }
+          ],
+          "link-state": {
+            "lan": {
+              "eth1": {
+                "carrier": 0
+              },
+              "eth2": {
+                "carrier": 0
+              }
+            },
+            "wan": {
+              "eth0": {
+                "carrier": 1,
+                "duplex": "full",
+                "speed": 1000
+              }
+            }
+          },
+          "radios": [
+            {
+              "active_ms": 54138788,
+              "busy_ms": 4602642,
+              "channel": 157,
+              "channel_width": "40",
+              "noise": -104,
+              "phy": "platform/soc/c000000.wifi",
+              "receive_ms": 24292,
+              "temperature": 47,
+              "transmit_ms": 223348,
+              "tx_power": 25
+            },
+            {
+              "active_ms": 54139791,
+              "busy_ms": 9552294,
+              "channel": 6,
+              "channel_width": "20",
+              "noise": -97,
+              "phy": "platform/soc/c000000.wifi+1",
+              "receive_ms": 41999,
+              "temperature": 43,
+              "transmit_ms": 266360,
+              "tx_power": 23
+            }
+          ],
+          "unit": {
+            "load": [
+              0.024903,
+              0.010254,
+              0
+            ],
+            "localtime": 1636087409,
+            "memory": {
+              "buffered": 10137600,
+              "cached": 29208576,
+              "free": 753881088,
+              "total": 973139968
+            },
+            "uptime": 54223
+          }
+        }
     )"_json;
 
     const std::string SimulationCoordinator::GetSimDefaultState(uint64_t StartTime) {

@@ -37,6 +37,10 @@ namespace OpenWifi {
                 SetFirmware();
                 Active_ = UUID_ = std::time(nullptr);
                 CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(UUID_);
+                uint64_t Delta1 = SimulationCoordinator()->GetSimulationInfo().maxClients - SimulationCoordinator()->GetSimulationInfo().minClients;
+                NumClients_ = SimulationCoordinator()->GetSimulationInfo().minClients + (rand() % Delta1);
+                uint64_t Delta2 = SimulationCoordinator()->GetSimulationInfo().maxAssociations - SimulationCoordinator()->GetSimulationInfo().minAssociations;
+                NumClients_ = SimulationCoordinator()->GetSimulationInfo().minAssociations + (rand() % Delta2);
             }
 
     void uCentralClient::Disconnect( bool Reconnect ) {

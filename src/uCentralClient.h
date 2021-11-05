@@ -76,8 +76,7 @@ namespace OpenWifi {
         void  DoLEDs(uint64_t Id, Poco::DynamicStruct Params);
         void  DoPerform(uint64_t Id, Poco::DynamicStruct Params);
         void  DoTrace(uint64_t Id, Poco::DynamicStruct Params);
-
-        void DoCensus( CensusReport & Census );
+        void  DoCensus( CensusReport & Census );
 
     private:
         std::recursive_mutex        Mutex_;
@@ -93,6 +92,8 @@ namespace OpenWifi {
         bool                        KeepRedirector_=false;
         uint64_t                    Version_=0;
         uint64_t                    StartTime_ = std::time(nullptr);
+        uint64_t                    NumClients_=0;
+        uint64_t                    NumAssociations_=0;
 
         // outstanding commands are marked with a time and the event itself
         std::map< uint64_t , uCentralEventType >    Commands_;

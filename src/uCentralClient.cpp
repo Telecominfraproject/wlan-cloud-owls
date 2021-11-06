@@ -98,15 +98,15 @@ namespace OpenWifi {
 
     static void AddCounters(nlohmann::json & d) {
         d["counters"]["collisions"] = 0 ;
-        d["counters"]["multicast"] = 0 ;
-        d["counters"]["rx_bytes"] = 0 ;
+        d["counters"]["multicast"] = rand() % 30 ;
+        d["counters"]["rx_bytes"] = rand() % 25000 ;
         d["counters"]["rx_dropped"] = 0 ;
         d["counters"]["rx_errors"] = 0 ;
-        d["counters"]["rx_packets"] = 0 ;
-        d["counters"]["tx_bytes"] = 0 ;
-        d["counters"]["tx_dropped"] = 0 ;
-        d["counters"]["tx_errors"] = 0 ;
-        d["counters"]["tx_packets"] = 0 ;
+        d["counters"]["rx_packets"] = rand() % 200 ;
+        d["counters"]["tx_bytes"] = rand() % 5000 ;
+        d["counters"]["tx_dropped"] = rand() % 7 ;
+        d["counters"]["tx_errors"] = rand() % 3 ;
+        d["counters"]["tx_packets"] = rand() % 50 ;
     }
 
     static void AddAssociations(const uCentralClient::Clients & C, nlohmann::json & J) {
@@ -119,13 +119,13 @@ namespace OpenWifi {
             a["connected"] = 7437;
             a["inactive"] = 19;
             a["rssi"] = -60;
-            a["rx_bytes"] = 1544;
-            a["rx_packets"] = 4;
-            a["tx_bytes"] = 0;
+            a["rx_bytes"] = 5000 + rand() % 100000;
+            a["rx_packets"] = 50 + rand() % 600;
+            a["tx_bytes"] = 100 + rand() % 20000;
             a["tx_duration"] = 36;
             a["tx_failed"] = 0;
             a["tx_offset"] = 0;
-            a["tx_packets"] = 0;
+            a["tx_packets"] = rand() % 200;
             a["tx_retries"] = 0;
             a["rx_rate"]["bitrate"] = 162000;
             a["rx_rate"]["chwidth"] = 40;

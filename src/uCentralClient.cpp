@@ -110,6 +110,7 @@ namespace OpenWifi {
     }
 
     static void AddAssociations(const uCentralClient::Clients & C, nlohmann::json & J) {
+        nlohmann::json Arr;
         for(const auto &i:C) {
             nlohmann::json a;
 
@@ -139,8 +140,9 @@ namespace OpenWifi {
             a["tx_rate"]["sgi"] = true;
             a["tx_rate"]["vht"] = true;
 
-            J.push_back(a);
+            Arr.push_back(a);
         }
+        J["associations"] = Arr;
     }
 
 #define DBG std::cout << __func__ << ":" << __LINE__ << std::endl;

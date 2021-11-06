@@ -153,7 +153,7 @@ namespace OpenWifi {
 
         // unit
         uint64_t    Now = std::time(nullptr);
-        S["unit"]["load"] = std::vector<int>{ rand() % 75, rand() % 50 , rand() % 25 };
+        S["unit"]["load"] = std::vector<double>{ (double)(rand() % 75) /100.0 , (double)(rand() % 50)/100.0 , (double)(rand() % 25)/100.0 };
         S["unit"]["localtime"] = Now;
         S["unit"]["uptime"] = Now - StartTime_;
         S["unit"]["memory"]["total"] = 973139968;

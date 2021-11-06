@@ -181,8 +181,10 @@ namespace OpenWifi {
 
     bool WSPingEvent::Send() {
         try {
-            if (Client_->SendWSPing())
+            if (Client_->SendWSPing()) {
                 Client_->AddEvent(ev_wsping, 60 * 5);
+                return true;
+            }
         }
         catch(const Poco::Exception &E) {
             Client_->Logger().log(E);

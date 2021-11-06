@@ -25,7 +25,7 @@ namespace OpenWifi {
             if(Client_->Send(to_string(M))) {
                 Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
                 Client_->AddEvent(ev_healthcheck, SimulationCoordinator()->GetSimulationInfo().healthCheckInterval);
-                Client_->AddEvent(ev_log, 120 + (rand() % 200));
+                Client_->AddEvent(ev_log, SimulationCoordinator()->Random(120,200));
                 Client_->AddEvent(ev_wsping, 60 * 5);
                 return true;
             }
@@ -110,7 +110,7 @@ namespace OpenWifi {
             M["params"]["log"] = LogLine_;
 
             if(Client_->Send(to_string(M))) {
-                Client_->AddEvent(ev_log, 120 + (rand() % 200));
+                Client_->AddEvent(ev_log, SimulationCoordinator()->Random(300,600));
                 return true;
             }
         }

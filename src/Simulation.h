@@ -5,6 +5,9 @@
 #ifndef OWLS_SIMULATION_H
 #define OWLS_SIMULATION_H
 
+#include <chrono>
+#include <random>
+
 #include "framework/MicroService.h"
 #include "RESTObjects/RESTAPI_OWLSobjects.h"
 #include "Simulator.h"
@@ -46,6 +49,13 @@ namespace OpenWifi {
             [[nodiscard]] inline const int GetLevel() { return Level_; }
             [[nodiscard]] const nlohmann::json & GetSimCapabilities() { return DefaultCapabilities_; }
             [[nodiscard]] nlohmann::json GetSimConfiguration( uint64_t uuid );
+            [[nodiscard]] inline uint64_t Random(uint64_t ceiling) {
+                return (RandomEngine_() % ceiling);
+            }
+
+            [[nodiscard]] inline uint64_t Random(uint64_t min, uint64_t max) {
+                return ((RandomEngine_() % (max-min)) + min);
+            }
 
         private:
         static SimulationCoordinator 		*instance_;
@@ -59,17 +69,17 @@ namespace OpenWifi {
             std::string                     KeyFileName_;
             std::string                     RootCAFileName_;
             nlohmann::json                  DefaultCapabilities_;
-            int                             Level_;
+            int                             Level_=0;
+            std::default_random_engine      RandomEngine_;
 
             SimulationCoordinator() noexcept:
                 SubSystemServer("SimulationCoordinator", "SIM-COORDINATOR", "coordinator")
             {
+                RandomEngine_.seed(std::chrono::steady_clock::now().time_since_epoch().count());
             }
 
             void StartSimulators();
             void StopSimulators();
-            void PauseSimulators();
-            void ResumeSimulators();
             void CancelSimulators();
     };
 

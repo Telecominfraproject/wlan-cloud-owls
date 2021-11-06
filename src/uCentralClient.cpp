@@ -60,25 +60,27 @@ namespace OpenWifi {
 
     static std::string RandomMAC() {
         char b[64];
-        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x", rand() % 255, rand() % 255,rand() % 255,rand() % 255,rand() % 255,rand() % 255 );
+        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x",  SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255) );
         return b;
     }
 
     static std::string RandomIPv4() {
         char b[64];
-        sprintf(b,"%d.%d.%d.%d", rand() % 255, rand() % 255,rand() % 255,rand() % 255);
+        sprintf(b,"%d.%d.%d.%d", SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255));
         return b;
     }
 
     static std::string RandomIPv6() {
         char b[128];
-        sprintf(b,"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x", rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff, rand() & 0x0ffff );
+        sprintf(b,"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+                SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff),
+                SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff),
+                SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff) );
         return b;
     }
 
     void uCentralClient::CreateClients(Clients &C, uint64_t min, uint64_t max) {
-        uint64_t Num = (rand() % (max-min)) + min;
-
+        uint64_t Num = SimulationCoordinator()->Random(min,max);
         for(auto i=0;i<Num;i++) {
             ClientInfo  CI{ .mac = RandomMAC(), .ipv4 = RandomIPv4(), .ipv6 = RandomIPv6() };
             C.push_back(CI);
@@ -98,15 +100,15 @@ namespace OpenWifi {
 
     static void AddCounters(nlohmann::json & d) {
         d["counters"]["collisions"] = 0 ;
-        d["counters"]["multicast"] = rand() % 30 ;
-        d["counters"]["rx_bytes"] = rand() % 25000 ;
+        d["counters"]["multicast"] =  SimulationCoordinator()->Random(30);
+        d["counters"]["rx_bytes"] = SimulationCoordinator()->Random(25000);
         d["counters"]["rx_dropped"] = 0 ;
         d["counters"]["rx_errors"] = 0 ;
-        d["counters"]["rx_packets"] = rand() % 200 ;
-        d["counters"]["tx_bytes"] = rand() % 5000 ;
-        d["counters"]["tx_dropped"] = rand() % 7 ;
-        d["counters"]["tx_errors"] = rand() % 3 ;
-        d["counters"]["tx_packets"] = rand() % 50 ;
+        d["counters"]["rx_packets"] = SimulationCoordinator()->Random(200);
+        d["counters"]["tx_bytes"] = SimulationCoordinator()->Random(5000);
+        d["counters"]["tx_dropped"] = SimulationCoordinator()->Random(7);
+        d["counters"]["tx_errors"] = SimulationCoordinator()->Random(3);
+        d["counters"]["tx_packets"] = SimulationCoordinator()->Random(50);
     }
 
     static void AddAssociations(const uCentralClient::Clients & C, nlohmann::json & J) {
@@ -119,13 +121,13 @@ namespace OpenWifi {
             a["connected"] = 7437;
             a["inactive"] = 19;
             a["rssi"] = -60;
-            a["rx_bytes"] = 5000 + rand() % 100000;
-            a["rx_packets"] = 50 + rand() % 600;
-            a["tx_bytes"] = 100 + rand() % 20000;
+            a["rx_bytes"] = SimulationCoordinator()->Random(5000,100000);
+            a["rx_packets"] = SimulationCoordinator()->Random(50,600);
+            a["tx_bytes"] = SimulationCoordinator()->Random(100,20000);
             a["tx_duration"] = 36;
             a["tx_failed"] = 0;
             a["tx_offset"] = 0;
-            a["tx_packets"] = rand() % 200;
+            a["tx_packets"] = SimulationCoordinator()->Random(200);
             a["tx_retries"] = 0;
             a["rx_rate"]["bitrate"] = 162000;
             a["rx_rate"]["chwidth"] = 40;
@@ -153,7 +155,7 @@ namespace OpenWifi {
 
         // unit
         uint64_t    Now = std::time(nullptr);
-        S["unit"]["load"] = std::vector<double>{ (double)(rand() % 75) /100.0 , (double)(rand() % 50)/100.0 , (double)(rand() % 25)/100.0 };
+        S["unit"]["load"] = std::vector<double>{ (double)(SimulationCoordinator()->Random(75)) /100.0 , (double)(SimulationCoordinator()->Random(50))/100.0 , (double)(SimulationCoordinator()->Random(25))/100.0 };
         S["unit"]["localtime"] = Now;
         S["unit"]["uptime"] = Now - StartTime_;
         S["unit"]["memory"]["total"] = 973139968;
@@ -260,7 +262,7 @@ namespace OpenWifi {
         Commands_.clear();
 
         if(Reconnect)
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + (rand() % 15) );
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + SimulationCoordinator()->Random(15) );
 
         SimStats()->Disconnect();
     }
@@ -696,17 +698,17 @@ namespace OpenWifi {
         catch ( const Poco::Exception & E )
         {
             Logger_.warning(Poco::format("connecting(%s): exception. %s",SerialNumber_,E.displayText()));
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval+(rand()%15));
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + SimulationCoordinator()->Random(15));
         }
         catch ( const std::exception & E )
         {
             Logger_.warning(Poco::format("connecting(%s): std::exception. %s",SerialNumber_,E.what()));
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval+(rand()%15));
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + SimulationCoordinator()->Random(15));
         }
         catch ( ... )
         {
             Logger_.warning(Poco::format("connecting(%s): unknown exception. %s",SerialNumber_));
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval+(rand()%15));
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + SimulationCoordinator()->Random(15));
         }
     }
 

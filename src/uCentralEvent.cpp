@@ -26,6 +26,7 @@ namespace OpenWifi {
                 Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
                 Client_->AddEvent(ev_healthcheck, SimulationCoordinator()->GetSimulationInfo().healthCheckInterval);
                 Client_->AddEvent(ev_log, 120 + (rand() % 200));
+                Client_->AddEvent(ev_wsping, 60 * 5);
                 return true;
             }
         }

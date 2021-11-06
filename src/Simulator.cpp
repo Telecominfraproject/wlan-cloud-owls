@@ -12,7 +12,7 @@
 #include "SimStats.h"
 
 namespace OpenWifi {
-    void Simulator::Initialize(Poco::Logger &ClientLogger) {
+    void Simulator::Initialize(/*Poco::Logger &ClientLogger*/) {
         std::random_device  rd;
         std::mt19937        gen(rd());
         std::uniform_int_distribution<> distrib(1, 15);
@@ -25,7 +25,7 @@ namespace OpenWifi {
             snprintf(Buffer,sizeof(Buffer),"%s%02x%03x0",SerialStart_.c_str(),(unsigned int)Index_,i);
             auto Client = std::make_shared<uCentralClient>( Reactor_,
                                                             Buffer,
-                                                            ClientLogger);
+                                                            Logger_);
             Client->AddEvent(ev_reconnect, distrib(gen) );
             Clients_[Buffer] = std::move(Client);
         }
@@ -40,9 +40,7 @@ namespace OpenWifi {
     }
 
     void Simulator::run() {
-        Logger_.setLevel(Poco::Message::PRIO_NOTICE);
         Logger_.notice(Poco::format("Starting reactor %Lu...",Index_));
-
         Running_ = true;
         SocketReactorThread_.start(Reactor_);
 

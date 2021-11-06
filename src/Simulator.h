@@ -27,7 +27,7 @@ namespace OpenWifi {
 
         void run() override;
         void stop();
-        void Initialize( Poco::Logger & ClientLogger);
+        void Initialize(/* Poco::Logger & ClientLogger*/);
 
         void Cancel() { State_ = "cancel"; SocketReactorThread_.wakeUp(); }
 

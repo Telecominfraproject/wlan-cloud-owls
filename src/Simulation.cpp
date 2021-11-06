@@ -568,16 +568,6 @@ namespace OpenWifi {
         }
     )"_json;
 
-    nlohmann::json SimulationCoordinator::GetSimDefaultState(uint64_t StartTime) {
-        nlohmann::json Temp = DefaultState;
-
-        uint64_t Now = std::time(nullptr);
-        Temp["unit"]["localtime"] = Now;
-        Temp["unit"]["uptime"] = Now - StartTime;
-
-        return Temp;
-    }
-
     static const nlohmann::json DefaultConfiguration = R"~~~(
         {
             "interfaces": [

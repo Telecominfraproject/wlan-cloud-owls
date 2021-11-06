@@ -43,7 +43,7 @@ namespace OpenWifi {
             M["jsonrpc"] = "2.0";
             M["method"] = "state";
 
-            auto State = SimulationCoordinator()->GetSimDefaultState(Client_->GetStartTime());
+            auto State = Client_->CreateState();
 
             nlohmann::json CPayload;
 

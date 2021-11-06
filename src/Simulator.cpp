@@ -182,7 +182,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_wsping: {
-                            Logger_.information(Poco::format("wp-ping(%s): ", Client->Serial()));
+                            Logger_.information(Poco::format("ws-ping(%s): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 WSPingEvent E(Client);

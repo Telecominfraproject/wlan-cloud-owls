@@ -47,12 +47,9 @@ namespace OpenWifi {
 
             nlohmann::json CPayload;
 
-            CPayload["params"]["serial"] = Client_->Serial();
-            CPayload["params"]["uuid"] = Client_->UUID();
-
-            std::cout << ">>>" << to_string(CPayload) << std::endl;
-
-            CPayload["params"]["state"] = State;
+            CPayload["serial"] = Client_->Serial();
+            CPayload["uuid"] = Client_->UUID();
+            CPayload["state"] = State;
 
             auto StateStr = to_string(CPayload);
 

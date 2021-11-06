@@ -44,44 +44,33 @@ namespace OpenWifi {
             M["method"] = "state";
 
             auto State = SimulationCoordinator()->GetSimDefaultState(Client_->GetStartTime());
-            std::string StateStr = to_string(State);
 
-            // std::cout << "State:" << StateStr << std::endl;
+            nlohmann::json CPayload;
 
-            if (StateStr.size() > 3000) {
-                nlohmann::json C;
+            CPayload["params"]["serial"] = Client_->Serial();
+            CPayload["params"]["uuid"] = Client_->UUID();
 
-                C["params"]["serial"] = Client_->Serial();
-                C["params"]["uuid"] = Client_->UUID();
-                C["params"]["state"] = State;
+            std::cout << ">>>" << to_string(CPayload) << std::endl;
 
-                StateStr = to_string(C);
+            CPayload["params"]["state"] = State;
 
-                unsigned long BufSize = StateStr.size() + 4000;
-                std::vector<Bytef> Buffer(BufSize);
+            auto StateStr = to_string(CPayload);
 
-                compress(&Buffer[0], &BufSize, (Bytef *) StateStr.c_str(), StateStr.size());
-                auto Compressed = OpenWifi::Utils::base64encode(&Buffer[0], BufSize);
+            unsigned long BufSize = StateStr.size() + 4000;
+            std::vector<Bytef> Buffer(BufSize);
+            compress(&Buffer[0], &BufSize, (Bytef *) StateStr.c_str(), StateStr.size());
+            auto Compressed = OpenWifi::Utils::base64encode(&Buffer[0], BufSize);
 
-                M["params"]["compress_64"] = Compressed;
-            } else {
-                M["params"]["serial"] = Client_->Serial();
-                M["params"]["uuid"] = Client_->UUID();
-                M["params"]["state"] = State;
-            }
-
-            std::cout << "M:" << to_string(M) << std::endl;
-
+            M["params"]["compress_64"] = Compressed;
 
             if(Client_->Send(to_string(M))) {
                 Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
                 return true;
             }
-            Client_->Disconnect(true);
         }
         catch(...) {
-            Client_->Disconnect(true);
         }
+        Client_->Disconnect(true);
         return false;
     }
 

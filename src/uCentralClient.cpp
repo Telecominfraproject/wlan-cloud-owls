@@ -161,8 +161,6 @@ namespace OpenWifi {
         S["unit"]["memory"]["cached"] = 29233152;
         S["unit"]["memory"]["free"] = 760164352;
 
-        DBG;
-
         S["radios"] = {
                 {
                     {"active_ms", 7440626},
@@ -189,19 +187,16 @@ namespace OpenWifi {
                     {"tx_power", 23}
                 }
         };
-        DBG;
         S["link-state"]["lan"]["eth1"]["carrier"] = 0;
         S["link-state"]["lan"]["eth2"]["carrier"] = 0;
         S["link-state"]["wan"]["eth0"]["carrier"] = 1;
         S["link-state"]["wan"]["eth0"]["duplex"] = "full";
         S["link-state"]["wan"]["eth0"]["speed"] = 1000;
-        DBG;
         nlohmann::json interface0;
 
         nlohmann::json RFClients;
         AddClients(RFClients, clients_2g);
         AddClients(RFClients, clients_5g);
-        DBG;
 
         interface0["clients"] = RFClients;
         interface0["location"] = "/interfaces/0";
@@ -212,7 +207,6 @@ namespace OpenWifi {
         AddCounters(interface0);
         interface0["dns_servers"].push_back("192.168.88.1");
         interface0["addresses"].push_back("192.168.88.91/24");
-        DBG;
 
         nlohmann::json ssid_5g;
         ssid_5g["bssid"] = mac_5g;
@@ -223,7 +217,6 @@ namespace OpenWifi {
         ssid_5g["radio"]["$ref"] = "#/radios/0";
         ssid_5g["ssid"] = "the5Gnetwork";
         AddAssociations(clients_5g,ssid_5g);
-        DBG;
 
         nlohmann::json ssid_2g;
         ssid_2g["bssid"] = mac_2g;
@@ -234,11 +227,9 @@ namespace OpenWifi {
         ssid_2g["radio"]["$ref"] = "#/radios/1";
         ssid_2g["ssid"] = "the2Gnetwork";
         AddAssociations(clients_2g,ssid_2g);
-        DBG;
 
         interface0["ssids"].push_back(ssid_5g);
         interface0["ssids"].push_back(ssid_2g);
-        DBG;
 
         nlohmann::json interface1;
         nlohmann::json LANClients;
@@ -251,12 +242,8 @@ namespace OpenWifi {
         interface1["uptime"] = Now - StartTime_;
         interface1["ipv4"]["addresses"].push_back("192.168.1.1/24");
 
-        DBG;
-
         S["interfaces"].push_back(interface0);
-        DBG;
         S["interfaces"].push_back(interface1);
-        DBG;
 
         return S;
     }

@@ -28,11 +28,11 @@ namespace OpenWifi {
                 Client_->AddEvent(ev_log, 120 + (rand() % 200));
                 return true;
             }
-            Client_->Disconnect(true);
         }
-        catch(...) {
-            Client_->Disconnect(true);
+        catch(const Poco::Exception &E) {
+            Client_->Logger().log(E);
         }
+        Client_->Disconnect("Error occurred during connection", true);
         return false;
     }
 
@@ -65,9 +65,10 @@ namespace OpenWifi {
                 return true;
             }
         }
-        catch(...) {
+        catch(const Poco::Exception &E) {
+            Client_->Logger().log(E);
         }
-        Client_->Disconnect(true);
+        Client_->Disconnect("Error sending stats event", true);
         return false;
     }
 
@@ -89,9 +90,10 @@ namespace OpenWifi {
                 return true;
             }
         }
-        catch(...) {
-            Client_->Disconnect(true);
+        catch(const Poco::Exception &E) {
+            Client_->Logger().log(E);
         }
+        Client_->Disconnect("Error whiel sending HealthCheck", true);
         return false;
     }
 
@@ -110,11 +112,11 @@ namespace OpenWifi {
                 Client_->AddEvent(ev_log, 120 + (rand() % 200));
                 return true;
             }
-            Client_->Disconnect(true);
         }
-        catch(...) {
-            Client_->Disconnect(true);
+        catch(const Poco::Exception &E) {
+            Client_->Logger().log(E);
         }
+        Client_->Disconnect("Error while sending a Log event", true);
         return false;
     };
 
@@ -137,11 +139,10 @@ namespace OpenWifi {
                 return true;
             }
         }
-        catch (...)
-        {
-
+        catch(const Poco::Exception &E) {
+            Client_->Logger().log(E);
         }
-        Client_->Disconnect(true);
+        Client_->Disconnect("Error while sending CongifPendingEvent", true);
         return false;
     }
 
@@ -159,9 +160,10 @@ namespace OpenWifi {
                 return true;
             }
         }
-        catch(...) {
+        catch(const Poco::Exception &E) {
+            Client_->Logger().log(E);
         }
-        Client_->Disconnect(true);
+        Client_->Disconnect("Error while sending a keepalive", true);
         return false;
     };
 
@@ -181,10 +183,10 @@ namespace OpenWifi {
             if (Client_->SendWSPing())
                 Client_->AddEvent(ev_wsping, 60 * 5);
         }
-        catch(...) {
-
+        catch(const Poco::Exception &E) {
+            Client_->Logger().log(E);
         }
-        Client_->Disconnect(true);
+        Client_->Disconnect("Error in WSPing", true);
         return false;
     }
 }

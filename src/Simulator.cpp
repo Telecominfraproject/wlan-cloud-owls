@@ -204,7 +204,7 @@ namespace OpenWifi {
         }
 
         for(auto &[Key,Client]:Clients_) {
-            Client->Disconnect(false);
+            Client->Disconnect("Simulation termination", false);
         }
 
         Clients_.clear();

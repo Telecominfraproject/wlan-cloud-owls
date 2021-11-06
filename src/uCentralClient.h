@@ -60,7 +60,7 @@ namespace OpenWifi {
         bool SendObject(nlohmann::json &O);
         void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf);
         void EstablishConnection();
-        void Disconnect(bool Reconnect);
+        void Disconnect( const char * Reason, bool Reconnect );
         void ProcessCommand(nlohmann::json & Vars);
 
         void SetFirmware( const std::string & S = "sim-firmware-1" ) { Firmware_ = S; }
@@ -87,6 +87,8 @@ namespace OpenWifi {
         static void CreateClients( Clients & C, uint64_t min, uint64_t max);
 
         nlohmann::json CreateState();
+
+        Poco::Logger & Logger() { return Logger_; };
 
     private:
         std::recursive_mutex        Mutex_;

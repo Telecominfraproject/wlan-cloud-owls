@@ -246,8 +246,9 @@ namespace OpenWifi {
         return S;
     }
 
-    void uCentralClient::Disconnect( bool Reconnect ) {
+    void uCentralClient::Disconnect( const char * Reason, bool Reconnect ) {
         std::lock_guard G(Mutex_);
+        Logger_.debug(Poco::format("DEVICE(%s): disconnecting because '%s'", SerialNumber_, std::string{Reason}));
         if(Connected_) {
             Reactor_.removeEventHandler(*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
             (*WS_).close();
@@ -294,7 +295,7 @@ namespace OpenWifi {
             auto Op = Flags & Poco::Net::WebSocket::FRAME_OP_BITMASK;
 
             if (MessageSize == 0 && Flags == 0 && Op == 0) {
-                Disconnect(true);
+                Disconnect("Error while waiting for data in WebSocket", true);
                 return;
             }
 
@@ -341,7 +342,7 @@ namespace OpenWifi {
         {
             Logger_.warning(Poco::format("Exception(%s): Generic exception: %s", SerialNumber_,E.displayText()));
         }
-        Disconnect(true);
+        Disconnect("Exception caught during data reception", true);
     }
 
     void uCentralClient::ProcessCommand(nlohmann::json & Vars) {
@@ -427,7 +428,7 @@ namespace OpenWifi {
                 SendObject(Answer);
 
                 Logger_.information(Poco::format("reboot(%s): done.",SerialNumber_));
-                Disconnect(true);
+                Disconnect("Rebooting" , true);
             } else {
                 Logger_.warning(Poco::format("reboot(%s): Illegal command.",SerialNumber_));
             }
@@ -478,7 +479,7 @@ namespace OpenWifi {
 
                 SendObject(Answer);
                 Logger_.information(Poco::format("upgrade(%s): from URI=%s.",SerialNumber_,URI));
-                Disconnect(true);
+                Disconnect("Doing an upgrade", true);
             } else {
                 Logger_.warning(Poco::format("upgrade(%s): Illegal command.",SerialNumber_));
             }
@@ -513,7 +514,7 @@ namespace OpenWifi {
                 SendObject(Answer);
 
                 Logger_.information(Poco::format("factory(%s): done.",SerialNumber_));
-                Disconnect(true);
+                Disconnect("Factory reset", true);
             } else {
                 Logger_.warning(Poco::format("factory(%s): Illegal command.",SerialNumber_));
             }
@@ -719,8 +720,8 @@ namespace OpenWifi {
             } else {
                 Logger_.warning(Poco::format("SEND(%s): incomplete send. Sent: %l", SerialNumber_, BytesSent));
             }
-        } catch(...) {
-
+        } catch(const Poco::Exception &E) {
+            Logger_.log(E);
         }
         return false;
     }
@@ -732,8 +733,8 @@ namespace OpenWifi {
             WS_->sendFrame("", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
             return true;
         }
-        catch(...) {
-
+        catch(const Poco::Exception &E) {
+            Logger_.log(E);
         }
         return false;
     }
@@ -751,8 +752,9 @@ namespace OpenWifi {
             } else {
                 Logger_.warning(Poco::format("SEND(%s): incomplete send object. Sent: %l", SerialNumber_, BytesSent));
             }
-        } catch (...) {
-
+        }
+        catch(const Poco::Exception &E) {
+            Logger_.log(E);
         }
         return false;
     }

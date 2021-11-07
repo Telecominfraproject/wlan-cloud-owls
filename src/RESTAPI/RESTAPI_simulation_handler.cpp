@@ -80,23 +80,8 @@ namespace OpenWifi {
     }
 
     void RESTAPI_simulation_handler::DoGet() {
-
-        Poco::Net::NameValueCollection  Cookies;
-        Request->getCookies(Cookies);
-
-        for(const auto &i:Cookies)
-            std::cout << "Name: " << i.first << "   Value: " << i.second << std::endl;
-
         std::vector<OWLSObjects::SimulationDetails> Sims;
         StorageService()->SimulationDB().GetRecords(1,1000,Sims);
-
-        //  try to add a cookie to see if it comes back.
-
-        Poco::Net::HTTPCookie   Cookie("APITest", "This is a cookie");
-
-        Cookie.setMaxAge(-1);
-        Response->addCookie(Cookie);
-
         ReturnObject("list", Sims);
     }
 

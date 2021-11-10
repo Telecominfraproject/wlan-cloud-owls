@@ -15,15 +15,18 @@ namespace OpenWifi {
             return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
         }
 
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         std::string Id;
         if(HasParameter("id",Id) && Op=="start") {
             return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
         }
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         std::string SimId;
         if(HasParameter("simulationId",SimId) && Op!="start") {
             return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
         }
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         std::string Error;
         if(Op=="start") {
@@ -33,14 +36,21 @@ namespace OpenWifi {
         } else if(Op=="cancel") {
             SimulationCoordinator()->CancelSim(Id,Error);
         }
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         if(Error.empty()) {
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             OWLSObjects::SimulationStatus   S;
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             SimStats()->GetCurrent(S);
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             Poco::JSON::Object  Answer;
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             S.to_json(Answer);
+            std::cout << __func__ << " : " << __LINE__ << std::endl;
             return ReturnObject(Answer);
         }
+        std::cout << __func__ << " : " << __LINE__ << std::endl;
         return BadRequest(Error);
      }
 }

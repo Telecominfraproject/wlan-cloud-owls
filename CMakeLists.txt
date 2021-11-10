@@ -36,12 +36,11 @@ find_package(Boost REQUIRED system)
 find_package(OpenSSL REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(MySQL REQUIRED)
-find_package(ODBC REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(CppKafka REQUIRED)
 find_package(nlohmann_json  REQUIRED)
 find_package(nlohmann_json_schema_validator REQUIRED)
-find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite DataPostgreSQL DataMySQL DataODBC)
+find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite DataPostgreSQL DataMySQL)
 
 include_directories(/usr/local/include  /usr/local/opt/openssl/include src include/kafka /usr/local/opt/mysql-client/include)
 
@@ -74,5 +73,5 @@ add_executable( owls
 
 target_link_libraries(owls PRIVATE
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
-        ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${ZLIB_LIBRARIES}
+        ${MySQL_LIBRARIES} ${ZLIB_LIBRARIES}
         CppKafka::cppkafka nlohmann_json_schema_validator)

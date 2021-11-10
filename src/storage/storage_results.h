@@ -21,7 +21,8 @@ namespace OpenWifi {
         uint64_t,
         uint64_t,
         uint64_t,
-        uint64_t
+        uint64_t,
+        std::string
     > SimulationResultsDBRecordType;
 
     class SimulationResultsDB : public ORM::DB<SimulationResultsDBRecordType,OWLSObjects::SimulationStatus> {

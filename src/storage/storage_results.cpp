@@ -18,7 +18,8 @@ namespace OpenWifi {
         ORM::Field{"timeToFullDevices",ORM::FieldType::FT_BIGINT},
         ORM::Field{"startTime",ORM::FieldType::FT_BIGINT},
         ORM::Field{"endTime",ORM::FieldType::FT_BIGINT},
-        ORM::Field{"errorDevices",ORM::FieldType::FT_BIGINT}
+        ORM::Field{"errorDevices",ORM::FieldType::FT_BIGINT},
+        ORM::Field{"owner",ORM::FieldType::FT_TEXT}
     };
 
     static  ORM::IndexVec    SimulationResultsDB_Indexes{
@@ -42,6 +43,7 @@ template<> void ORM::DB<OpenWifi::SimulationResultsDBRecordType, OpenWifi::OWLSO
     Out.startTime = In.get<9>();
     Out.endTime = In.get<10>();
     Out.errorDevices = In.get<11>();
+    Out.owner = In.get<12>();
 }
 
 template<> void ORM::DB<OpenWifi::SimulationResultsDBRecordType, OpenWifi::OWLSObjects::SimulationStatus>::Convert(OpenWifi::OWLSObjects::SimulationStatus &In, OpenWifi::SimulationResultsDBRecordType &Out) {
@@ -57,4 +59,5 @@ template<> void ORM::DB<OpenWifi::SimulationResultsDBRecordType, OpenWifi::OWLSO
     Out.set<9>(In.startTime);
     Out.set<10>(In.endTime);
     Out.set<11>(In.errorDevices);
+    Out.set<12>(In.owner);
 }

@@ -27,7 +27,7 @@ namespace OpenWifi {
 
         std::string Error;
         if(Op=="start") {
-            SimulationCoordinator()->StartSim(SimId,Id,Error);
+            SimulationCoordinator()->StartSim(SimId,Id,Error, UserInfo_.userinfo.email);
         } else if(Op=="stop") {
             SimulationCoordinator()->StopSim(Id,Error);
         } else if(Op=="cancel") {

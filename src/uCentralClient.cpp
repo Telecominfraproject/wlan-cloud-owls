@@ -60,22 +60,36 @@ namespace OpenWifi {
 
     static std::string RandomMAC() {
         char b[64];
-        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x",  SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255) );
+        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x",  (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255) );
         return b;
     }
 
     static std::string RandomIPv4() {
         char b[64];
-        sprintf(b,"%d.%d.%d.%d", SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255), SimulationCoordinator()->Random(255));
+        sprintf(b,"%d.%d.%d.%d",
+                (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255),
+                (int)SimulationCoordinator()->Random(255));
         return b;
     }
 
     static std::string RandomIPv6() {
         char b[128];
         sprintf(b,"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
-                SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff),
-                SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff),
-                SimulationCoordinator()->Random(0x0ffff), SimulationCoordinator()->Random(0x0ffff) );
+                (uint)SimulationCoordinator()->Random(0x0ffff),
+                (uint)SimulationCoordinator()->Random(0x0ffff),
+                (uint)SimulationCoordinator()->Random(0x0ffff),
+                (uint)SimulationCoordinator()->Random(0x0ffff),
+                (uint)SimulationCoordinator()->Random(0x0ffff),
+                (uint)SimulationCoordinator()->Random(0x0ffff),
+                (uint)SimulationCoordinator()->Random(0x0ffff),
+                (uint)SimulationCoordinator()->Random(0x0ffff) );
         return b;
     }
 

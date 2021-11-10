@@ -79,7 +79,7 @@ namespace OpenWifi {
 
         }
 
-        inline void StartSim(const std::string &id , const std::string & simid, uint64_t Devices) {
+        inline void StartSim(const std::string &id , const std::string & simid, uint64_t Devices, const std::string & owner) {
             std::lock_guard G(Mutex_);
             CollectInfo_ = true;
             ExpectedDevices_ = Devices;
@@ -90,6 +90,7 @@ namespace OpenWifi {
             Status_.tx = Status_.msgsTx = Status_.msgsRx = Status_.timeToFullDevices =
             Status_.errorDevices = 0;
             Status_.startTime = std::time(nullptr);
+            Status_.owner = owner;
         }
 
         inline void EndSim() {

@@ -57,9 +57,7 @@ namespace OpenWifi {
     void SimulationCoordinator::StartSimulators() {
         Logger_.notice("Starting simulation threads...");
         for(const auto &i:SimThreads_) {
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             i->Thread.start(i->Sim);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
         }
     }
 
@@ -97,26 +95,18 @@ namespace OpenWifi {
             Error = "Simulation ID specified does not exist.";
             return false;
         }
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         DefaultCapabilities_ = DefaultCapabilities;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         DefaultCapabilities_["compatible"] = CurrentSim_.deviceType;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         auto ClientCount = CurrentSim_.devices;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         auto NumClientsPerThread = CurrentSim_.devices;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
 
         // create the actual simulation...
         if(CurrentSim_.threads==0) {
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             CurrentSim_.threads = Poco::Environment::processorCount() * 4;
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
         }
         if(CurrentSim_.devices>250) {
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             if(CurrentSim_.devices % CurrentSim_.threads == 0)
             {
                 NumClientsPerThread = CurrentSim_.devices / CurrentSim_.threads;
@@ -131,26 +121,16 @@ namespace OpenWifi {
         // ClientLogger.setLevel(Poco::Message::PRIO_WARNING);
         for(auto i=0;ClientCount;i++)
         {
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto Clients = std::min(ClientCount,NumClientsPerThread);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             auto NewSimThread = std::make_unique<SimThread>(i,CurrentSim_.macPrefix,Clients, Logger_);
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             NewSimThread->Sim.Initialize();
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             SimThreads_.push_back(std::move(NewSimThread));
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
             ClientCount -= Clients;
-            std::cout << __func__ << " : " << __LINE__ << std::endl;
         }
 
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         StartSimulators();
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimRunning_ = true ;
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         SimStats()->StartSim(MicroService::instance().CreateUUID(), SimId, CurrentSim_.devices, Owner);
-        std::cout << __func__ << " : " << __LINE__ << std::endl;
         return true;
     }
 

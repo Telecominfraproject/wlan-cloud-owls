@@ -161,8 +161,6 @@ namespace OpenWifi {
         J["associations"] = Arr;
     }
 
-#define DBG std::cout << __func__ << ":" << __LINE__ << std::endl;
-
     nlohmann::json uCentralClient::CreateState() {
         nlohmann::json S;
         uint64_t    total_mem = 973139968;

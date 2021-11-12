@@ -103,8 +103,6 @@ namespace OpenWifi {
         DBType                                              dbType_ = sqlite;
     };
 
-//    inline StorageClass * Storage() { return StorageClass::instance(); }
-
 #ifdef	SMALL_BUILD
     int Service::Setup_MySQL() { Daemon()->exit(Poco::Util::Application::EXIT_CONFIG); return 0; }
     int Service::Setup_PostgreSQL() { Daemon()->exit(Poco::Util::Application::EXIT_CONFIG); return 0; }

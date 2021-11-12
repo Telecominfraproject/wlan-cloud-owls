@@ -15,13 +15,6 @@
 
 namespace OpenWifi::ProvObjects {
 
-    enum FIRMWARE_UPGRADE_RULES {
-        dont_upgrade,
-        upgrade_inherit,
-        upgrade_release_only,
-        upgrade_latest
-    };
-
     struct ObjectInfo {
         Types::UUID_t   id;
         std::string     name;
@@ -325,8 +318,6 @@ namespace OpenWifi::ProvObjects {
     };
 
     bool UpdateObjectInfo(const Poco::JSON::Object::Ptr &O, const SecurityObjects::UserInfo &U, ObjectInfo &I);
-    bool CreateObjectInfo(const Poco::JSON::Object::Ptr &O, const SecurityObjects::UserInfo &U, ObjectInfo &I);
-
 };
 
 

@@ -438,47 +438,13 @@ namespace OpenWifi::ProvObjects {
     }
 
     bool UpdateObjectInfo(const Poco::JSON::Object::Ptr &O, const SecurityObjects::UserInfo &U, ObjectInfo &I) {
-        uint64_t Now = std::time(nullptr);
         if(O->has("name"))
             I.name = O->get("name").toString();
-
-        if(I.name.empty())
-            return false;
-
-       if(O->has("description"))
-            I.description = O->get("description").toString();
-        SecurityObjects::MergeNotes(O,U,I.notes);
-        SecurityObjects::NoteInfoVec N;
-        for(auto &i:I.notes) {
-            if(i.note.empty())
-                continue;
-            N.push_back(SecurityObjects::NoteInfo{.created=Now,.createdBy=U.email,.note=i.note});
-        }
-        I.modified = Now;
-        return true;
-    }
-
-    bool CreateObjectInfo(const Poco::JSON::Object::Ptr &O, const SecurityObjects::UserInfo &U, ObjectInfo &I) {
-        uint64_t Now = std::time(nullptr);
-        if(O->has("name"))
-            I.name = O->get("name").toString();
-
-        if(I.name.empty())
-            return false;
-
         if(O->has("description"))
             I.description = O->get("description").toString();
-
-        SecurityObjects::NoteInfoVec N;
-        for(auto &i:I.notes) {
-            if(i.note.empty())
-                continue;
-            N.push_back(SecurityObjects::NoteInfo{.created=Now,.createdBy=U.email,.note=i.note});
-        }
-        I.notes = N;
-        I.modified = I.created = Now;
-        I.id = MicroService::instance().CreateUUID();
-
+        SecurityObjects::MergeNotes(O,U,I.notes);
+        I.modified = std::time(nullptr);
         return true;
     }
+
 };

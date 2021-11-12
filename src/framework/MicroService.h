@@ -57,6 +57,7 @@ using namespace std::chrono_literals;
 #include "Poco/URI.h"
 #include "Poco/Net/HTTPSClientSession.h"
 #include "Poco/Net/NetworkInterface.h"
+#include "Poco/ExpireLRUCache.h"
 
 #include "cppkafka/cppkafka.h"
 
@@ -66,6 +67,86 @@ using namespace std::chrono_literals;
 #include "framework/RESTAPI_errors.h"
 #include "framework/uCentral_Protocol.h"
 #include "RESTObjects/RESTAPI_SecurityObjects.h"
+#include "nlohmann/json.hpp"
+
+namespace OpenWifi {
+
+    enum UNAUTHORIZED_REASON {
+        SUCCESS=0,
+        PASSWORD_CHANGE_REQUIRED,
+        INVALID_CREDENTIALS,
+        PASSWORD_ALREADY_USED,
+        USERNAME_PENDING_VERIFICATION,
+        PASSWORD_INVALID,
+        INTERNAL_ERROR,
+        ACCESS_DENIED,
+        INVALID_TOKEN
+    };
+
+	class AppServiceRegistry {
+	  public:
+		inline AppServiceRegistry();
+
+		static AppServiceRegistry & instance() {
+			static AppServiceRegistry instance;
+			return instance;
+		}
+
+		inline ~AppServiceRegistry() {
+			Save();
+		}
+
+		inline void Save() {
+			std::istringstream  IS( to_string(Registry_));
+			std::ofstream       OF;
+			OF.open(FileName,std::ios::binary | std::ios::trunc);
+			Poco::StreamCopier::copyStream(IS, OF);
+		}
+
+		inline void Set(const char *Key, uint64_t Value ) {
+			Registry_[Key] = Value;
+			Save();
+		}
+
+		inline void Set(const char *Key, const std::string &Value ) {
+			Registry_[Key] = Value;
+			Save();
+		}
+
+		inline void Set(const char *Key, bool Value ) {
+			Registry_[Key] = Value;
+			Save();
+		}
+
+		inline bool Get(const char *Key, bool & Value ) {
+			if(Registry_[Key].is_boolean()) {
+				Value = Registry_[Key].get<bool>();
+				return true;
+			}
+			return false;
+		}
+
+		inline bool Get(const char *Key, uint64_t & Value ) {
+			if(Registry_[Key].is_number_unsigned()) {
+				Value = Registry_[Key].get<uint64_t>();
+				return true;
+			}
+			return false;
+		}
+
+		inline bool Get(const char *Key, std::string & Value ) {
+			if(Registry_[Key].is_string()) {
+				Value = Registry_[Key].get<std::string>();
+				return true;
+			}
+			return false;
+		}
+
+	  private:
+		std::string         FileName;
+		nlohmann::json      Registry_;
+	};
+}
 
 namespace OpenWifi::RESTAPI_utils {
 
@@ -263,6 +344,21 @@ namespace OpenWifi::RESTAPI_utils {
         return OS.str();
     }
 
+    inline std::string to_string(const Types::StringPairVec & ObjectArray) {
+        Poco::JSON::Array OutputArr;
+        if(ObjectArray.empty())
+            return "[]";
+        for(auto const &i:ObjectArray) {
+            Poco::JSON::Array InnerArray;
+            InnerArray.add(i.first);
+            InnerArray.add(i.second);
+            OutputArr.add(InnerArray);
+        }
+        std::ostringstream OS;
+        Poco::JSON::Stringifier::condense(OutputArr,OS);
+        return OS.str();
+    }
+
     template<class T> std::string to_string(const std::vector<T> & ObjectArray) {
         Poco::JSON::Array OutputArr;
         if(ObjectArray.empty())
@@ -343,6 +439,27 @@ namespace OpenWifi::RESTAPI_utils {
 
         }
         return Result;
+    }
+
+    inline Types::StringPairVec to_stringpair_array(const std::string &S) {
+        Types::StringPairVec   R;
+        if(S.empty())
+            return R;
+        try {
+            Poco::JSON::Parser P;
+            auto Object = P.parse(S).template extract<Poco::JSON::Array::Ptr>();
+            for (auto const &i : *Object) {
+                auto InnerObject = i.template extract<Poco::JSON::Array::Ptr>();
+                if(InnerObject->size()==2) {
+                    Types::StringPair P{InnerObject->get(0).toString(), InnerObject->get(1).toString()};
+                    R.push_back(P);
+                }
+            }
+        } catch (...) {
+
+        }
+
+        return R;
     }
 
     template<class T> std::vector<T> to_object_array(const std::string & ObjectString) {
@@ -729,16 +846,13 @@ namespace OpenWifi::Utils {
         return Result;
     }
 
-    inline void SaveSystemId(uint64_t Id);
-
     [[nodiscard]] inline uint64_t InitializeSystemId() {
         std::random_device	RDev;
         std::srand(RDev());
         std::chrono::high_resolution_clock	Clock;
         auto Now = Clock.now().time_since_epoch().count();
         auto S = (GetDefaultMacAsInt64() + std::rand() + Now)  ;
-        SaveSystemId(S);
-        std::cout << "ID: " << S << std::endl;
+		OpenWifi::AppServiceRegistry().Set("systemid",S);
         return S;
     }
 
@@ -886,6 +1000,7 @@ namespace OpenWifi {
     static const std::string uSERVICE_OWLS{ "owls"};
     static const std::string uSERVICE_SUBCRIBER{ "owsub"};
     static const std::string uSERVICE_INSTALLER{ "owinst"};
+
 
 	class MyErrorHandler : public Poco::ErrorHandler {
 	  public:
@@ -1309,6 +1424,63 @@ namespace OpenWifi {
 	            std::string _fileName;
     };
 
+	class RESTAPI_RateLimiter : public SubSystemServer {
+	public:
+
+	    struct ClientCacheEntry {
+	        int64_t  Start=0;
+	        int      Count=0;
+	    };
+
+	    static RESTAPI_RateLimiter *instance() {
+	        static RESTAPI_RateLimiter instance;
+	        return &instance;
+	    }
+
+	    inline int Start() final { return 0;};
+	    inline void Stop() final { };
+
+	    inline bool IsRateLimited(const Poco::Net::HTTPServerRequest &R, int64_t Period, int64_t MaxCalls) {
+	        Poco::URI   uri(R.getURI());
+	        auto H = str_hash(uri.getPath() + R.clientAddress().host().toString());
+	        auto E = Cache_.get(H);
+	        const auto p1 = std::chrono::system_clock::now();
+	        auto Now = std::chrono::duration_cast<std::chrono::milliseconds>(p1.time_since_epoch()).count();
+	        if(E.isNull()) {
+	            Cache_.add(H,ClientCacheEntry{.Start=Now, .Count=1});
+	            Logger_.warning(Poco::format("RATE-LIMIT-EXCEEDED: from '%s'", R.clientAddress().toString()));
+	            return false;
+	        }
+	        if((Now-E->Start)<Period) {
+	            E->Count++;
+	            Cache_.update(H,E);
+	            if(E->Count > MaxCalls)
+	                return true;
+	            return false;
+	        }
+	        E->Start = Now;
+	        E->Count = 1;
+	        Cache_.update(H,E);
+	        return false;
+	    }
+
+	    inline void Clear() {
+	        Cache_.clear();
+	    }
+
+	private:
+	    Poco::ExpireLRUCache<uint64_t,ClientCacheEntry>      Cache_{2048};
+	    std::hash<std::string>          str_hash;
+
+	    RESTAPI_RateLimiter() noexcept:
+	    SubSystemServer("RateLimiter", "RATE-LIMITER", "rate.limiter")
+	    {
+	    }
+
+	};
+
+	inline RESTAPI_RateLimiter * RESTAPI_RateLimiter() { return RESTAPI_RateLimiter::instance(); }
+
 	class RESTAPIHandler : public Poco::Net::HTTPRequestHandler {
 	public:
 	    struct QueryBlock {
@@ -1318,8 +1490,28 @@ namespace OpenWifi {
 	    };
 	    typedef std::map<std::string, std::string> BindingMap;
 
-	    RESTAPIHandler(BindingMap map, Poco::Logger &l, std::vector<std::string> Methods, RESTAPI_GenericServer & Server, bool Internal=false, bool AlwaysAuthorize=true)
-	    : Bindings_(std::move(map)), Logger_(l), Methods_(std::move(Methods)), Server_(Server), Internal_(Internal), AlwaysAuthorize_(AlwaysAuthorize) {}
+	    struct RateLimit {
+	        int64_t     Interval=1000;
+	        int64_t     MaxCalls=10;
+	    };
+
+	    RESTAPIHandler( BindingMap map,
+                        Poco::Logger &l,
+                        std::vector<std::string> Methods,
+                        RESTAPI_GenericServer & Server,
+                        bool Internal=false,
+                        bool AlwaysAuthorize=true,
+                        bool RateLimited=false,
+	                    const RateLimit & Profile = RateLimit{.Interval=1000,.MaxCalls=100})
+	    :   Bindings_(std::move(map)),
+	        Logger_(l),
+	        Methods_(std::move(Methods)),
+	        Server_(Server),
+	        Internal_(Internal),
+	        AlwaysAuthorize_(AlwaysAuthorize),
+	        RateLimited_(RateLimited),
+	        MyRates_(Profile){
+	    }
 
 	    inline bool RoleIsAuthorized(const std::string & Path, const std::string & Method, std::string & Reason) {
 	        return true;
@@ -1331,6 +1523,9 @@ namespace OpenWifi {
 	            Request = &RequestIn;
 	            Response = &ResponseIn;
 
+	            if(RateLimited_ && RESTAPI_RateLimiter()->IsRateLimited(RequestIn,MyRates_.Interval, MyRates_.MaxCalls))
+	                return;
+
 	            if (!ContinueProcessing())
 	                return;
 
@@ -1340,7 +1535,7 @@ namespace OpenWifi {
 
 	            std::string Reason;
 	            if(!RoleIsAuthorized(RequestIn.getURI(), Request->getMethod(), Reason)) {
-                    UnAuthorized(Reason);
+                    UnAuthorized(Reason, ACCESS_DENIED);
                     return;
 	            }
 
@@ -1561,10 +1756,10 @@ namespace OpenWifi {
 	        Poco::JSON::Stringifier::stringify(ErrorObject, Answer);
 	    }
 
-	    inline void UnAuthorized(const std::string & Reason = "") {
+	    inline void UnAuthorized(const std::string & Reason = "", int Code = INVALID_CREDENTIALS ) {
 	        PrepareResponse(Poco::Net::HTTPResponse::HTTP_FORBIDDEN);
 	        Poco::JSON::Object	ErrorObject;
-	        ErrorObject.set("ErrorCode",403);
+	        ErrorObject.set("ErrorCode",Code);
 	        ErrorObject.set("ErrorDetails",Request->getMethod());
 	        ErrorObject.set("ErrorDescription",Reason.empty() ? "No access allowed." : Reason) ;
 	        std::ostream &Answer = Response->send();
@@ -1609,7 +1804,7 @@ namespace OpenWifi {
 	        Response->set("Cache-Control", "private");
 	        Response->set("Pragma", "private");
 	        Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
-	        Response->set("Content-Length", std::to_string(File.getSize()));
+	        Response->setContentLength(File.getSize());
 	        AddCORS();
 	        Response->sendFile(File.path(),"application/octet-stream");
 	    }
@@ -1647,10 +1842,10 @@ namespace OpenWifi {
                                      const Types::StringPairVec & FormVars) {
 	        Response->set("Pragma", "private");
 	        Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
-	        Response->set("Content-Length", std::to_string(File.getSize()));
-	        AddCORS();
-	        auto FormContent = Utils::LoadFile(File.path());
+	        std::string FormContent = Utils::LoadFile(File.path());
 	        Utils::ReplaceVariables(FormContent, FormVars);
+	        Response->setContentLength(FormContent.size());
+	        AddCORS();
 	        Response->setChunkedTransferEncoding(true);
 	        Response->setContentType("text/html");
 	        std::ostream& ostr = Response->send();
@@ -1760,12 +1955,14 @@ namespace OpenWifi {
 	        std::vector<std::string> 	Methods_;
 	        QueryBlock					QB_;
 	        bool                        Internal_=false;
+	        bool                        RateLimited_=false;
 	        bool                        QueryBlockInitialized_=false;
 	        Poco::Net::HTTPServerRequest    *Request= nullptr;
 	        Poco::Net::HTTPServerResponse   *Response= nullptr;
 	        bool                        AlwaysAuthorize_=true;
 	        Poco::JSON::Parser          IncomingParser_;
 	        RESTAPI_GenericServer       & Server_;
+	        RateLimit                   MyRates_;
 	    };
 
 	    class RESTAPI_UnknownRequestHandler : public RESTAPIHandler {
@@ -1890,9 +2087,8 @@ namespace OpenWifi {
 	    inline void initialize(Poco::Util::Application & self) override;
 
 	    static KafkaManager *instance() {
-	        if(instance_== nullptr)
-	            instance_ = new KafkaManager;
-	        return instance_;
+	        static KafkaManager instance;
+	        return &instance;
 	    }
 
 	    inline int Start() override {
@@ -1967,7 +2163,6 @@ namespace OpenWifi {
 	    // void WakeUp();
 
 	private:
-	    static KafkaManager 			*instance_;
 	    std::mutex 						ProducerMutex_;
 	    std::mutex						ConsumerMutex_;
 	    bool 							KafkaEnabled_ = false;
@@ -1995,7 +2190,6 @@ namespace OpenWifi {
 	};
 
 	inline KafkaManager * KafkaManager() { return KafkaManager::instance(); }
-	inline 	class KafkaManager *KafkaManager::instance_ = nullptr;
 
 	class AuthClient : public SubSystemServer {
 	public:
@@ -2005,10 +2199,8 @@ namespace OpenWifi {
 	    }
 
 	    static AuthClient *instance() {
-	        if (instance_ == nullptr) {
-	            instance_ = new AuthClient;
-	        }
-	        return instance_;
+	        static AuthClient instance;
+	        return &instance;
 	    }
 
 	    inline int Start() override {
@@ -2086,12 +2278,10 @@ namespace OpenWifi {
 	    }
 
 	private:
-	    static AuthClient 					*instance_;
 	    OpenWifi::SecurityObjects::UserInfoCache 		UserCache_;
 	};
 
 	inline AuthClient * AuthClient() { return AuthClient::instance(); }
-	inline class AuthClient * AuthClient::instance_ = nullptr;
 
 	class ALBRequestHandler: public Poco::Net::HTTPRequestHandler
 	        /// Return a HTML document with the current date and time.
@@ -2148,10 +2338,8 @@ namespace OpenWifi {
 	    }
 
 	    static ALBHealthCheckServer *instance() {
-	        if (instance_ == nullptr) {
-	            instance_ = new ALBHealthCheckServer;
-	        }
-	        return instance_;
+	        static ALBHealthCheckServer instance;
+	        return &instance;
 	    }
 
 	    inline int Start() override;
@@ -2162,14 +2350,12 @@ namespace OpenWifi {
 	    }
 
 	private:
-	    static ALBHealthCheckServer *instance_;
 	    std::unique_ptr<Poco::Net::HTTPServer>   	Server_;
 	    std::unique_ptr<Poco::Net::ServerSocket> 	Socket_;
 	    int                                     	Port_ = 0;
 	};
 
 	inline ALBHealthCheckServer * ALBHealthCheckServer() { return ALBHealthCheckServer::instance(); }
-	inline class ALBHealthCheckServer * ALBHealthCheckServer::instance_ = nullptr;
 
 	Poco::Net::HTTPRequestHandler * RESTAPI_external_server(const char *Path, RESTAPIHandler::BindingMap &Bindings,
                                            Poco::Logger & L, RESTAPI_GenericServer & S);
@@ -2181,10 +2367,8 @@ namespace OpenWifi {
 	class RESTAPI_server : public SubSystemServer {
 	public:
 	    static RESTAPI_server *instance() {
-	        if (instance_ == nullptr) {
-	            instance_ = new RESTAPI_server;
-	        }
-	        return instance_;
+	        static RESTAPI_server instance;
+	        return &instance;
 	    }
 	    int Start() override;
 	    inline void Stop() override {
@@ -2202,7 +2386,6 @@ namespace OpenWifi {
 	    }
 
 	private:
-	    static RESTAPI_server *instance_;
 	    std::vector<std::unique_ptr<Poco::Net::HTTPServer>>   RESTServers_;
 	    Poco::ThreadPool	    Pool_;
 	    RESTAPI_GenericServer   Server_;
@@ -2235,9 +2418,6 @@ namespace OpenWifi {
 	    RESTAPI_GenericServer   &Server_;
 	};
 
-
-	inline class RESTAPI_server *RESTAPI_server::instance_ = nullptr;
-
 	inline int RESTAPI_server::Start() {
 	    Logger_.information("Starting.");
 	    Server_.InitLogging();
@@ -2269,10 +2449,8 @@ namespace OpenWifi {
 
 	public:
 	    static RESTAPI_InternalServer *instance() {
-	        if (instance_ == nullptr) {
-	            instance_ = new RESTAPI_InternalServer;
-	        }
-	        return instance_;
+	        static RESTAPI_InternalServer instance;
+	        return &instance;
 	    }
 
 	    inline int Start() override;
@@ -2290,7 +2468,6 @@ namespace OpenWifi {
 	        return RESTAPI_internal_server(Path, Bindings, Logger_, Server_);
 	    }
 	private:
-	    static RESTAPI_InternalServer *instance_;
 	    std::vector<std::unique_ptr<Poco::Net::HTTPServer>>   RESTServers_;
 	    Poco::ThreadPool	    Pool_;
 	    RESTAPI_GenericServer   Server_;
@@ -2300,8 +2477,6 @@ namespace OpenWifi {
 	    }
 
 	};
-
-	inline class RESTAPI_InternalServer* RESTAPI_InternalServer::instance_ = nullptr;
 
 	inline RESTAPI_InternalServer * RESTAPI_InternalServer() { return RESTAPI_InternalServer::instance(); };
 
@@ -2356,6 +2531,8 @@ namespace OpenWifi {
 		std::string		Version;
 		uint64_t 		LastUpdate=0;
 	};
+
+
 
 	class SubSystemServer;
 	typedef std::map<uint64_t, MicroServiceMeta>	MicroServiceMetaMap;
@@ -2918,6 +3095,22 @@ namespace OpenWifi {
 	    return Application::EXIT_OK;
 	}
 
+	AppServiceRegistry::AppServiceRegistry() {
+		FileName = MicroService::instance().DataDir() + "/registry.json";
+		Poco::File F(FileName);
+
+		try {
+			if(F.exists()) {
+				std::ostringstream  OS;
+				std::ifstream       IF(FileName);
+				Poco::StreamCopier::copyStream(IF, OS);
+				Registry_ = nlohmann::json::parse(OS.str());
+			}
+		} catch (...) {
+			Registry_ = nlohmann::json::parse("{}");
+		}
+	}
+
 	inline void SubSystemServer::initialize(Poco::Util::Application &self) {
 	    Logger_.notice("Initializing...");
 	    auto i = 0;
@@ -3178,7 +3371,8 @@ namespace OpenWifi {
 	                        auto InsertResult = CertNames.insert(CertFileName);
 	                        if(InsertResult.second) {
 	                            Poco::JSON::Object  Inner;
-	                            Inner.set("filename", CertFileName);
+	                            Poco::Path  F(CertFileName);
+	                            Inner.set("filename", F.getFileName());
 	                            Poco::Crypto::X509Certificate   C(CertFileName);
 	                            auto ExpiresOn = C.expiresOn();
 	                            Inner.set("expiresOn",ExpiresOn.timestamp().epochTime());
@@ -3477,7 +3671,7 @@ namespace OpenWifi {
                                                Utils::FormatIPv6(Request->clientAddress().toString()),
                                                Request->getMethod(), Request->getURI()));
                 }
-                UnAuthorized();
+                UnAuthorized("Invalid token", INVALID_TOKEN);
             }
             return false;
         }
@@ -3487,40 +3681,14 @@ namespace OpenWifi {
 }
 
 namespace OpenWifi::Utils {
-        inline void SaveSystemId(uint64_t Id) {
-            try {
-                std::ofstream O;
-                O.open(MicroService::instance().DataDir() + "/system.id",std::ios::binary | std::ios::trunc);
-                O << Id;
-                O.close();
-            } catch (...)
-            {
-                std::cout << "Could not save system ID" << std::endl;
-            }
-        }
-
-        [[nodiscard]] inline uint64_t GetSystemId() {
-            uint64_t ID=0;
-
-            // if the system ID file exists, open and read it.
-            Poco::File	SID( MicroService::instance().DataDir() + "/system.id");
-            try {
-                if (SID.exists()) {
-                    std::ifstream I;
-                    I.open(SID.path());
-                    I >> ID;
-                    I.close();
-                    if (ID == 0)
-                        return InitializeSystemId();
-                    return ID;
-                } else {
-                    return InitializeSystemId();
-                }
-            } catch (...) {
-                return InitializeSystemId();
-            }
-        }
-    }
+	[[nodiscard]] inline uint64_t GetSystemId() {
+		uint64_t ID=0;
+		if(!AppServiceRegistry().Get("systemid",ID)) {
+			return InitializeSystemId();
+		}
+		return ID;
+	}
+}
 
 namespace OpenWifi::CIDR {
 

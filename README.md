@@ -1,3 +1,2 @@
 # OWLS for TIP 2.0
-
-Test
+This the OpenWifi Load Simulator for TIP 2.x. OWLS is a tool to help test platform sizing for large TIP 2.x deployments. The goal is to flood a TIP gateway with thousands of simulated Access Points. The simulation performs full mTLS, connection, state, health checks, log messages over the whole period. Exponential back-off is included when reconnections are need to the gateway. The simulated also response to some commands: blink, factory reset, upgrade, reboot.

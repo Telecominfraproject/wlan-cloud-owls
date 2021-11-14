@@ -81,7 +81,8 @@ namespace OpenWifi {
         INTERNAL_ERROR,
         ACCESS_DENIED,
         INVALID_TOKEN,
-        EXPIRED_TOKEN
+        EXPIRED_TOKEN,
+        RATE_LIMIT_EXCEEDED
     };
 
 	class AppServiceRegistry {
@@ -89,8 +90,8 @@ namespace OpenWifi {
 		inline AppServiceRegistry();
 
 		static AppServiceRegistry & instance() {
-			static AppServiceRegistry instance;
-			return instance;
+		    static AppServiceRegistry *instance_= new AppServiceRegistry;
+			return *instance_;
 		}
 
 		inline ~AppServiceRegistry() {
@@ -1434,8 +1435,8 @@ namespace OpenWifi {
 	    };
 
 	    static RESTAPI_RateLimiter *instance() {
-	        static RESTAPI_RateLimiter instance;
-	        return &instance;
+	        static RESTAPI_RateLimiter * instance_ = new RESTAPI_RateLimiter;
+	        return instance_;
 	    }
 
 	    inline int Start() final { return 0;};
@@ -1445,18 +1446,18 @@ namespace OpenWifi {
 	        Poco::URI   uri(R.getURI());
 	        auto H = str_hash(uri.getPath() + R.clientAddress().host().toString());
 	        auto E = Cache_.get(H);
-	        const auto p1 = std::chrono::system_clock::now();
-	        auto Now = std::chrono::duration_cast<std::chrono::milliseconds>(p1.time_since_epoch()).count();
+	        auto Now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	        if(E.isNull()) {
 	            Cache_.add(H,ClientCacheEntry{.Start=Now, .Count=1});
-	            Logger_.warning(Poco::format("RATE-LIMIT-EXCEEDED: from '%s'", R.clientAddress().toString()));
 	            return false;
 	        }
 	        if((Now-E->Start)<Period) {
 	            E->Count++;
 	            Cache_.update(H,E);
-	            if(E->Count > MaxCalls)
+	            if(E->Count > MaxCalls) {
+	                Logger_.warning(Poco::format("RATE-LIMIT-EXCEEDED: from '%s'", R.clientAddress().toString()));
 	                return true;
+	            }
 	            return false;
 	        }
 	        E->Start = Now;
@@ -1524,8 +1525,9 @@ namespace OpenWifi {
 	            Request = &RequestIn;
 	            Response = &ResponseIn;
 
-	            if(RateLimited_ && RESTAPI_RateLimiter()->IsRateLimited(RequestIn,MyRates_.Interval, MyRates_.MaxCalls))
-	                return;
+	            if(RateLimited_ && RESTAPI_RateLimiter()->IsRateLimited(RequestIn,MyRates_.Interval, MyRates_.MaxCalls)) {
+	                return UnAuthorized("Rate limit exceeded.",RATE_LIMIT_EXCEEDED);
+	            }
 
 	            if (!ContinueProcessing())
 	                return;
@@ -2079,6 +2081,50 @@ namespace OpenWifi {
 	    Poco::JSON::Object      Body_;
 	};
 
+    class KafkaProducer : public Poco::Runnable {
+    public:
+        inline void run();
+        void Start() {
+            if(!Running_) {
+                Running_=true;
+                Worker_.start(*this);
+            }
+        }
+        void Stop() {
+            if(Running_) {
+                Running_=false;
+                Worker_.wakeUp();
+                Worker_.join();
+            }
+        }
+    private:
+        std::mutex          Mutex_;
+        Poco::Thread        Worker_;
+        std::atomic_bool    Running_=false;
+    };
+
+    class KafkaConsumer : public Poco::Runnable {
+    public:
+        inline void run();
+        void Start() {
+            if(!Running_) {
+                Running_=true;
+                Worker_.start(*this);
+            }
+        }
+        void Stop() {
+            if(Running_) {
+                Running_=false;
+                Worker_.wakeUp();
+                Worker_.join();
+            }
+        }
+    private:
+        std::mutex          Mutex_;
+        Poco::Thread        Worker_;
+        std::atomic_bool    Running_=false;
+    };
+
 	class KafkaManager : public SubSystemServer {
 	public:
 	    struct KMessage {
@@ -2087,32 +2133,31 @@ namespace OpenWifi {
 	        PayLoad;
 	    };
 
+	    friend class KafkaConsumer;
+	    friend class KafkaProducer;
+
 	    inline void initialize(Poco::Util::Application & self) override;
 
 	    static KafkaManager *instance() {
-	        static KafkaManager instance;
-	        return &instance;
+	        static KafkaManager * instance_ = new KafkaManager;
+	        return instance_;
 	    }
 
 	    inline int Start() override {
 	        if(!KafkaEnabled_)
 	            return 0;
-	        ProducerThr_ = std::make_unique<std::thread>([this]() { this->ProducerThr(); });
-	        ConsumerThr_ = std::make_unique<std::thread>([this]() { this->ConsumerThr(); });
+	        ConsumerThr_.Start();
+	        ProducerThr_.Start();
 	        return 0;
 	    }
 
 	    inline void Stop() override {
 	        if(KafkaEnabled_) {
-	            ProducerRunning_ = ConsumerRunning_ = false;
-	            ProducerThr_->join();
-	            ConsumerThr_->join();
+	            ProducerThr_.Stop();
+	            ConsumerThr_.Stop();
 	            return;
 	        }
 	    }
-
-	    inline void ProducerThr();
-	    inline void ConsumerThr();
 
 	    inline void PostMessage(const std::string &topic, const std::string & key, const std::string &PayLoad, bool WrapMessage = true  ) {
 	        if(KafkaEnabled_) {
@@ -2166,18 +2211,13 @@ namespace OpenWifi {
 	    // void WakeUp();
 
 	private:
-	    std::mutex 						ProducerMutex_;
-	    std::mutex						ConsumerMutex_;
 	    bool 							KafkaEnabled_ = false;
-	    std::atomic_bool 				ProducerRunning_ = false;
-	    std::atomic_bool 				ConsumerRunning_ = false;
 	    std::queue<KMessage>			Queue_;
 	    std::string 					SystemInfoWrapper_;
-	    std::unique_ptr<std::thread>	ConsumerThr_;
-	    std::unique_ptr<std::thread>	ProducerThr_;
 	    int                       		FunctionId_=1;
 	    Types::NotifyTable        		Notifiers_;
-	    std::unique_ptr<cppkafka::Configuration>    Config_;
+	    KafkaProducer                   ProducerThr_;
+	    KafkaConsumer                   ConsumerThr_;
 
 	    inline void PartitionAssignment(const cppkafka::TopicPartitionList& partitions) {
 	        Logger_.information(Poco::format("Partition assigned: %Lu...",(uint64_t )partitions.front().get_partition()));
@@ -2202,8 +2242,8 @@ namespace OpenWifi {
 	    }
 
 	    static AuthClient *instance() {
-	        static AuthClient instance;
-	        return &instance;
+	        static AuthClient * instance_ = new AuthClient;
+	        return instance_;
 	    }
 
 	    inline int Start() override {
@@ -2326,14 +2366,14 @@ namespace OpenWifi {
 	    }
 
 	    static ALBHealthCheckServer *instance() {
-	        static ALBHealthCheckServer instance;
-	        return &instance;
+	        static ALBHealthCheckServer * instance = new ALBHealthCheckServer;
+	        return instance;
 	    }
 
 	    inline int Start() override;
 
 	    inline void Stop() override {
-	        if(Server_)
+	        if(Running_)
 	            Server_->stop();
 	    }
 
@@ -2341,6 +2381,7 @@ namespace OpenWifi {
 	    std::unique_ptr<Poco::Net::HTTPServer>   	Server_;
 	    std::unique_ptr<Poco::Net::ServerSocket> 	Socket_;
 	    int                                     	Port_ = 0;
+	    std::atomic_bool                            Running_=false;
 	};
 
 	inline ALBHealthCheckServer * ALBHealthCheckServer() { return ALBHealthCheckServer::instance(); }
@@ -2355,17 +2396,18 @@ namespace OpenWifi {
 	class RESTAPI_server : public SubSystemServer {
 	public:
 	    static RESTAPI_server *instance() {
-	        static RESTAPI_server instance;
-	        return &instance;
+	        static RESTAPI_server *instance_ = new RESTAPI_server;
+	        return instance_;
 	    }
 	    int Start() override;
 	    inline void Stop() override {
 	        Logger_.information("Stopping ");
 	        for( const auto & svr : RESTServers_ )
 	            svr->stop();
+	        Pool_.joinAll();
 	        RESTServers_.clear();
-
 	    }
+
 	    inline void reinitialize(Poco::Util::Application &self) override;
 
 	    inline Poco::Net::HTTPRequestHandler *CallServer(const char *Path) {
@@ -2420,7 +2462,7 @@ namespace OpenWifi {
 	        if(!Svr.RootCA().empty())
 	            Svr.LogCas(Logger_);
 
-	        auto Params = new Poco::Net::HTTPServerParams;
+	        Poco::Net::HTTPServerParams::Ptr Params = new Poco::Net::HTTPServerParams;
 	        Params->setMaxThreads(50);
 	        Params->setMaxQueued(200);
 	        Params->setKeepAlive(true);
@@ -2437,8 +2479,8 @@ namespace OpenWifi {
 
 	public:
 	    static RESTAPI_InternalServer *instance() {
-	        static RESTAPI_InternalServer instance;
-	        return &instance;
+	        static RESTAPI_InternalServer *instance_ = new RESTAPI_InternalServer;
+	        return instance_;
 	    }
 
 	    inline int Start() override;
@@ -2446,7 +2488,7 @@ namespace OpenWifi {
 	        Logger_.information("Stopping ");
 	        for( const auto & svr : RESTServers_ )
 	            svr->stop();
-	        RESTServers_.clear();
+	        Pool_.stopAll();
 	    }
 
 	    inline void reinitialize(Poco::Util::Application &self) override;
@@ -2463,7 +2505,6 @@ namespace OpenWifi {
 	    RESTAPI_InternalServer() noexcept: SubSystemServer("RESTAPIInternalServer", "REST-ISRV", "openwifi.internal.restapi")
 	    {
 	    }
-
 	};
 
 	inline RESTAPI_InternalServer * RESTAPI_InternalServer() { return RESTAPI_InternalServer::instance(); };
@@ -2481,7 +2522,7 @@ namespace OpenWifi {
 	    }
 	private:
 	    Poco::Logger    & Logger_;
-	    RESTAPI_GenericServer   &Server_;
+	    RESTAPI_GenericServer   & Server_;
 	};
 
 	inline int RESTAPI_InternalServer::Start() {
@@ -2619,7 +2660,7 @@ namespace OpenWifi {
 		std::string                 ConfigFileName_;
 		Poco::UUIDGenerator         UUIDGenerator_;
 		uint64_t                    ID_ = 1;
-		Poco::SharedPtr<Poco::Crypto::RSAKey>	AppKey_ = nullptr;
+		Poco::SharedPtr<Poco::Crypto::RSAKey>	AppKey_;
 		bool                        DebugMode_ = false;
 		std::string 				DataDir_;
 		std::string                 WWWAssetsDir_;
@@ -2921,8 +2962,9 @@ namespace OpenWifi {
 
 	inline void MicroService::StopSubSystemServers() {
 	    BusEventManager_.Stop();
-	    for(auto i=SubSystems_.rbegin(); i!=SubSystems_.rend(); ++i)
-	        (*i)->Stop();
+	    for(auto i=SubSystems_.rbegin(); i!=SubSystems_.rend(); ++i) {
+			(*i)->Stop();
+		}
 	}
 
 	[[nodiscard]] inline std::string MicroService::CreateUUID() {
@@ -2940,7 +2982,6 @@ namespace OpenWifi {
 	            }
 	            return true;
 	        } else {
-	            // std::cout << "Sub:" << SubSystem << " Level:" << Level << std::endl;
 	            for (auto i : SubSystems_) {
 	                if (Sub == Poco::toLower(i->Name())) {
 	                    i->Logger().setLevel(P);
@@ -3090,7 +3131,6 @@ namespace OpenWifi {
 	        StartSubSystemServers();
 	        waitForTerminationRequest();
 	        StopSubSystemServers();
-
 	        logger.notice(Poco::format("Stopped %s...",DAEMON_APP_NAME));
 	    }
 
@@ -3170,6 +3210,7 @@ namespace OpenWifi {
 
 	inline int ALBHealthCheckServer::Start() {
 	    if(MicroService::instance().ConfigGetBool("alb.enable",false)) {
+	        Running_=true;
 	        Port_ = (int)MicroService::instance().ConfigGetInt("alb.port",15015);
 	        Socket_ = std::make_unique<Poco::Net::ServerSocket>(Port_);
 	        auto Params = new Poco::Net::HTTPServerParams;
@@ -3214,41 +3255,42 @@ namespace OpenWifi {
 	    KafkaEnabled_ = MicroService::instance().ConfigGetBool("openwifi.kafka.enable",false);
 	}
 
-	inline void KafkaManager::ProducerThr() {
+	inline void KafkaProducer::run() {
 	    cppkafka::Configuration Config({
 	        { "client.id", MicroService::instance().ConfigGetString("openwifi.kafka.client.id") },
 	        { "metadata.broker.list", MicroService::instance().ConfigGetString("openwifi.kafka.brokerlist") }
 	    });
-	    SystemInfoWrapper_ = 	R"lit({ "system" : { "id" : )lit" +
+	    KafkaManager()->SystemInfoWrapper_ = 	R"lit({ "system" : { "id" : )lit" +
 	            std::to_string(MicroService::instance().ID()) +
 	            R"lit( , "host" : ")lit" + MicroService::instance().PrivateEndPoint() +
 	            R"lit(" } , "payload" : )lit" ;
 	    cppkafka::Producer	Producer(Config);
-	    ProducerRunning_ = true;
-	    while(ProducerRunning_) {
+	    Running_ = true;
+	    while(Running_) {
 	        std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	        try
 	        {
-	            std::lock_guard G(ProducerMutex_);
+	            std::lock_guard G(Mutex_);
 	            auto Num=0;
-	            while (!Queue_.empty()) {
-	                const auto M = Queue_.front();
+	            while (!KafkaManager()->Queue_.empty()) {
+	                const auto M = KafkaManager()->Queue_.front();
 	                Producer.produce(
 	                        cppkafka::MessageBuilder(M.Topic).key(M.Key).payload(M.PayLoad));
-	                Queue_.pop();
+	                KafkaManager()->Queue_.pop();
 	                Num++;
 	            }
 	            if(Num)
 	                Producer.flush();
 	        } catch (const cppkafka::HandleException &E ) {
-	            Logger_.warning(Poco::format("Caught a Kafka exception (producer): %s",std::string{E.what()}));
+	            KafkaManager()->Logger_.warning(Poco::format("Caught a Kafka exception (producer): %s",std::string{E.what()}));
 	        } catch (const Poco::Exception &E) {
-	            Logger_.log(E);
+	            KafkaManager()->Logger_.log(E);
 	        }
 	    }
+	    Producer.flush();
 	}
 
-	inline void KafkaManager::ConsumerThr() {
+	inline void KafkaConsumer::run() {
 	    cppkafka::Configuration Config({
 	        { "client.id", MicroService::instance().ConfigGetString("openwifi.kafka.client.id") },
 	        { "metadata.broker.list", MicroService::instance().ConfigGetString("openwifi.kafka.brokerlist") },
@@ -3268,13 +3310,13 @@ namespace OpenWifi {
 	    cppkafka::Consumer Consumer(Config);
 	    Consumer.set_assignment_callback([this](cppkafka::TopicPartitionList& partitions) {
 	        if(!partitions.empty()) {
-	            Logger_.information(Poco::format("Partition assigned: %Lu...",
+	            KafkaManager()->Logger_.information(Poco::format("Partition assigned: %Lu...",
                                                  (uint64_t)partitions.front().get_partition()));
 	        }
 	    });
 	    Consumer.set_revocation_callback([this](const cppkafka::TopicPartitionList& partitions) {
 	        if(!partitions.empty()) {
-	            Logger_.information(Poco::format("Partition revocation: %Lu...",
+	            KafkaManager()->Logger_.information(Poco::format("Partition revocation: %Lu...",
                                                  (uint64_t)partitions.front().get_partition()));
 	        }
 	    });
@@ -3283,13 +3325,13 @@ namespace OpenWifi {
 	    auto BatchSize = MicroService::instance().ConfigGetInt("openwifi.kafka.consumer.batchsize",20);
 
 	    Types::StringVec    Topics;
-	    for(const auto &i:Notifiers_)
+	    for(const auto &i:KafkaManager()->Notifiers_)
 	        Topics.push_back(i.first);
 
 	    Consumer.subscribe(Topics);
 
-	    ConsumerRunning_ = true;
-	    while(ConsumerRunning_) {
+	    Running_ = true;
+	    while(Running_) {
 	        try {
 	            std::vector<cppkafka::Message> MsgVec = Consumer.poll_batch(BatchSize, std::chrono::milliseconds(200));
 	            for(auto const &Msg:MsgVec) {
@@ -3297,14 +3339,14 @@ namespace OpenWifi {
 	                    continue;
 	                if (Msg.get_error()) {
 	                    if (!Msg.is_eof()) {
-	                        Logger_.error(Poco::format("Error: %s", Msg.get_error().to_string()));
+	                        KafkaManager()->Logger_.error(Poco::format("Error: %s", Msg.get_error().to_string()));
 	                    }if(!AutoCommit)
 	                        Consumer.async_commit(Msg);
 	                    continue;
 	                }
-	                std::lock_guard G(ConsumerMutex_);
-	                auto It = Notifiers_.find(Msg.get_topic());
-	                if (It != Notifiers_.end()) {
+	                std::lock_guard G(Mutex_);
+	                auto It = KafkaManager()->Notifiers_.find(Msg.get_topic());
+	                if (It != KafkaManager()->Notifiers_.end()) {
 	                    Types::TopicNotifyFunctionList &FL = It->second;
 	                    std::string Key{Msg.get_key()};
 	                    std::string Payload{Msg.get_payload()};
@@ -3317,11 +3359,12 @@ namespace OpenWifi {
 	                    Consumer.async_commit(Msg);
 	            }
 	        } catch (const cppkafka::HandleException &E) {
-	            Logger_.warning(Poco::format("Caught a Kafka exception (consumer): %s",std::string{E.what()}));
+	            KafkaManager()->Logger_.warning(Poco::format("Caught a Kafka exception (consumer): %s",std::string{E.what()}));
 	        } catch (const Poco::Exception &E) {
-	            Logger_.log(E);
+	            KafkaManager()->Logger_.log(E);
 	        }
 	    }
+	    Consumer.unsubscribe();
 	}
 
 	inline void RESTAPI_server::reinitialize(Poco::Util::Application &self) {
@@ -3542,11 +3585,9 @@ namespace OpenWifi {
                 if(Response.getStatus()==Poco::Net::HTTPResponse::HTTP_OK) {
                     Poco::JSON::Parser	P;
                     ResponseObject = P.parse(is).extract<Poco::JSON::Object::Ptr>();
-                    //	                std::cout << "Response OK" << std::endl;
                 } else {
                     Poco::JSON::Parser	P;
                     ResponseObject = P.parse(is).extract<Poco::JSON::Object::Ptr>();
-                    //	                std::cout << "Response: " << Response.getStatus() << std::endl;
                 }
                 return Response.getStatus();
             }
@@ -3592,11 +3633,9 @@ namespace OpenWifi {
                 if(Response.getStatus()==Poco::Net::HTTPResponse::HTTP_OK) {
                     Poco::JSON::Parser	P;
                     ResponseObject = P.parse(is).extract<Poco::JSON::Object::Ptr>();
-                    //	                std::cout << "Response OK" << std::endl;
                 } else {
                     Poco::JSON::Parser	P;
                     ResponseObject = P.parse(is).extract<Poco::JSON::Object::Ptr>();
-                    //	                std::cout << "Response: " << Response.getStatus() << std::endl;
                 }
                 return Response.getStatus();
             }

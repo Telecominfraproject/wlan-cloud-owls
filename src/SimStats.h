@@ -32,8 +32,7 @@ namespace OpenWifi {
         }
 
         static SimStats * instance() {
-            if(instance_ == nullptr)
-                instance_ = new SimStats;
+            static auto * instance_ = new SimStats;
             return instance_;
         }
 
@@ -125,7 +124,6 @@ namespace OpenWifi {
         [[nodiscard]] inline uint64_t GetLiveDevices() const { return Status_.liveDevices; }
 
     private:
-        static SimStats                 * instance_;
         OWLSObjects::SimulationStatus   Status_;
         uint64_t                        ExpectedDevices_=0;
         std::atomic_bool                CollectInfo_=false;
@@ -137,7 +135,6 @@ namespace OpenWifi {
     };
 
     inline SimStats * SimStats() { return SimStats::instance(); }
-    inline class SimStats * SimStats::instance_= nullptr;
 }
 
 #endif //UCENTRALSIM_SIMSTATS_H

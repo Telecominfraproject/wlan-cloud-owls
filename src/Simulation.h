@@ -25,8 +25,7 @@ namespace OpenWifi {
     class SimulationCoordinator : public SubSystemServer, Poco::Runnable {
         public:
         static SimulationCoordinator *instance() {
-                if(instance_== nullptr)
-                    instance_ = new SimulationCoordinator;
+                static auto * instance_ = new SimulationCoordinator;
                 return instance_;
             }
 
@@ -51,7 +50,6 @@ namespace OpenWifi {
             [[nodiscard]] nlohmann::json GetSimConfiguration( uint64_t uuid );
 
         private:
-        static SimulationCoordinator 		*instance_;
             Poco::Thread                    Worker_;
             std::atomic_bool                Running_=false;
             std::atomic_bool                SimRunning_ = false;
@@ -75,8 +73,6 @@ namespace OpenWifi {
     };
 
     inline SimulationCoordinator * SimulationCoordinator() { return SimulationCoordinator::instance(); }
-    inline class SimulationCoordinator * SimulationCoordinator::instance_= nullptr;
-
 }
 
 #endif //OWLS_SIMULATION_H

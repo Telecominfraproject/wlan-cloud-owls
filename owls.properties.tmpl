@@ -1,0 +1,116 @@
+ucentral.rootca = ${ROOTCA}
+ucentral.issuer = ${ISSUER}
+ucentral.cert = ${CERT}
+ucentral.key = ${KEY}
+ucentral.clientcas = ${CLIENTCAS}
+ucentral.cas = ${CAS}
+ucentral.security = strict
+ucentral.key.password = ${KEY_PASSWORD}
+
+openwifi.restapi.host.0.backlog = 100
+openwifi.restapi.host.0.security = relaxed
+openwifi.restapi.host.0.rootca = ${RESTAPI_HOST_ROOTCA}
+openwifi.restapi.host.0.address = *
+openwifi.restapi.host.0.port = ${RESTAPI_HOST_PORT}
+openwifi.restapi.host.0.cert = ${RESTAPI_HOST_CERT}
+openwifi.restapi.host.0.key = ${RESTAPI_HOST_KEY}
+openwifi.restapi.host.0.key.password = ${RESTAPI_HOST_KEY_PASSWORD}
+
+openwifi.internal.restapi.host.0.backlog = 100
+openwifi.internal.restapi.host.0.security = relaxed
+openwifi.internal.restapi.host.0.rootca = ${INTERNAL_RESTAPI_HOST_ROOTCA}
+openwifi.internal.restapi.host.0.address = *
+openwifi.internal.restapi.host.0.port = ${INTERNAL_RESTAPI_HOST_PORT}
+openwifi.internal.restapi.host.0.cert = ${INTERNAL_RESTAPI_HOST_CERT}
+openwifi.internal.restapi.host.0.key = ${INTERNAL_RESTAPI_HOST_KEY}
+openwifi.internal.restapi.host.0.key.password = ${INTERNAL_RESTAPI_HOST_KEY_PASSWORD}
+
+openwifi.service.key = ${SERVICE_KEY}
+openwifi.service.key.password = ${SERVICE_KEY_PASSWORD}
+openwifi.system.data = ${SYSTEM_DATA}
+openwifi.system.debug = false
+openwifi.system.uri.private = ${SYSTEM_URI_PRIVATE}
+openwifi.system.uri.public = ${SYSTEM_URI_PUBLIC}
+openwifi.system.commandchannel = /tmp/app.ucentralfms
+openwifi.system.uri.ui = ${SYSTEM_URI_UI}
+
+openwifi.kafka.group.id = owls
+openwifi.kafka.client.id = owls
+openwifi.kafka.enable = ${KAFKA_ENABLE}
+openwifi.kafka.brokerlist = ${KAFKA_BROKERLIST}
+openwifi.kafka.auto.commit = false
+openwifi.kafka.queue.buffering.max.ms = 50
+
+alb.enable = true
+alb.port = 16107
+
+#
+# This section select which form of persistence you need
+# Only one selected at a time. If you select multiple, this service will die if a horrible
+# death and might make your beer flat.
+#
+storage.type = ${STORAGE_TYPE}
+
+storage.type.sqlite.db = simulations.db
+storage.type.sqlite.idletime = 120
+storage.type.sqlite.maxsessions = 128
+
+storage.type.postgresql.maxsessions = 64
+storage.type.postgresql.idletime = 60
+storage.type.postgresql.host = ${STORAGE_TYPE_POSTGRESQL_HOST}
+storage.type.postgresql.username = ${STORAGE_TYPE_POSTGRESQL_USERNAME}
+storage.type.postgresql.password = ${STORAGE_TYPE_POSTGRESQL_PASSWORD}
+storage.type.postgresql.database = ${STORAGE_TYPE_POSTGRESQL_DATABASE}
+storage.type.postgresql.port = ${STORAGE_TYPE_POSTGRESQL_PORT}
+storage.type.postgresql.connectiontimeout = 60
+
+storage.type.mysql.maxsessions = 64
+storage.type.mysql.idletime = 60
+storage.type.mysql.host = ${STORAGE_TYPE_MYSQL_HOST}
+storage.type.mysql.username = ${STORAGE_TYPE_MYSQL_USERNAME}
+storage.type.mysql.password = ${STORAGE_TYPE_MYSQL_PASSWORD}
+storage.type.mysql.database = ${STORAGE_TYPE_MYSQL_DATABASE}
+storage.type.mysql.port = ${STORAGE_TYPE_MYSQL_PORT}
+storage.type.mysql.connectiontimeout = 60
+
+
+########################################################################
+########################################################################
+#
+# Logging: please leave as is for now.
+#
+########################################################################
+logging.formatters.f1.class = PatternFormatter
+logging.formatters.f1.pattern = %Y-%m-%d %H:%M:%S %s: [%p] %t
+logging.formatters.f1.times = UTC
+logging.channels.c1.class = ConsoleChannel
+logging.channels.c1.formatter = f1
+
+# This is where the logs will be written. This path MUST exist
+logging.channels.c2.class = FileChannel
+logging.channels.c2.path = $OWLS_ROOT/logs/log
+logging.channels.c2.formatter.class = PatternFormatter
+logging.channels.c2.formatter.pattern = %Y-%m-%d %H:%M:%S %s: [%p] %t
+logging.channels.c2.rotation = 20 M
+logging.channels.c2.archive = timestamp
+logging.channels.c2.purgeCount = 20
+logging.channels.c3.class = ConsoleChannel
+logging.channels.c3.pattern = %s: [%p] %t
+
+# External Channel
+logging.loggers.root.channel = c1
+logging.loggers.root.level = debug
+
+# Inline Channel with PatternFormatter
+# logging.loggers.l1.name = logger1
+# logging.loggers.l1.channel.class = ConsoleChannel
+# logging.loggers.l1.channel.pattern = %s: [%p] %t
+# logging.loggers.l1.level = information
+# SplitterChannel
+# logging.channels.splitter.class = SplitterChannel
+# logging.channels.splitter.channels = l1,l2
+# logging.loggers.l2.name = logger2
+# logging.loggers.l2.channel = splitter
+
+
+

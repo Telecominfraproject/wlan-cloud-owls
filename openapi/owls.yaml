@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: OpenWifi Load Simulator
   description: An application to test load on an OpenWifi system.
-  version: 2.0.0
+  version: 2.5.0
   license:
     name: BSD3
     url: https://github.com/Telecominfraproject/wlan-cloud-ucentralgw/blob/master/LICENSE

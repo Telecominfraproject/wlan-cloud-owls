@@ -35,7 +35,6 @@ namespace OpenWifi::OWLSObjects {
         field_to_json(Obj,"keepAlive", keepAlive);
         field_to_json(Obj,"reconnectInterval", reconnectInterval);
         field_to_json(Obj,"concurrentDevices", concurrentDevices);
-
     }
 
     bool SimulationDetails::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -60,7 +59,6 @@ namespace OpenWifi::OWLSObjects {
             field_from_json(Obj,"keepAlive", keepAlive);
             field_from_json(Obj,"reconnectInterval", reconnectInterval);
             field_from_json(Obj,"concurrentDevices", concurrentDevices);
-
             return true;
         } catch(...) {
 
@@ -96,7 +94,6 @@ namespace OpenWifi::OWLSObjects {
         field_to_json(Obj,"endTime", endTime);
         field_to_json(Obj,"errorDevices", errorDevices);
         field_to_json(Obj,"owner", owner);
-
     }
 
     void Dashboard::to_json(Poco::JSON::Object &Obj) const {

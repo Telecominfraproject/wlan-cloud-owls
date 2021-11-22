@@ -26,7 +26,7 @@ namespace OpenWifi {
       "edgecore_spw2ac1200",
       "edgecore_spw2ac1200-lan-poe",
       "edgecore_ssw2ac2600",
-      "hfcl_ion4.yml",
+      "hfcl_ion4",
       "indio_um-305ac",
       "linksys_e8450-ubi",
       "linksys_ea6350",

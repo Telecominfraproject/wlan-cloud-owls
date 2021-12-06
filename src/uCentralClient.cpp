@@ -477,8 +477,8 @@ namespace OpenWifi {
                 Params.contains("uri")) {
 
                 uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto Serial = Params["serial"];
-                auto URI = Params["uri"];
+                auto Serial = to_string(Params["serial"]);
+                auto URI = to_string(Params["uri"]);
 
                 //  prepare response...
                 nlohmann::json Answer;
@@ -512,7 +512,7 @@ namespace OpenWifi {
                 Params.contains("keep_redirector")) {
 
                 uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto Serial = Params["serial"];
+                auto Serial = to_string(Params["serial"]);
                 auto KeepRedirector = Params["uri"];
 
                 Version_ = 1;
@@ -547,8 +547,8 @@ namespace OpenWifi {
             Params.contains("pattern")) {
 
                 uint64_t    When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto        Serial = Params["serial"];
-                auto        Pattern = Params["pattern"];
+                auto        Serial = to_string(Params["serial"]);
+                auto        Pattern = to_string(Params["pattern"]);
                 uint64_t    Duration = Params.contains("duration") ? (uint64_t )Params["durarion"] : 10;
 
                 //  prepare response...
@@ -580,8 +580,8 @@ namespace OpenWifi {
             Params.contains("payload")) {
 
                 uint64_t    When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto        Serial = Params["serial"];
-                auto        Command = Params["command"];
+                auto        Serial = to_string(Params["serial"]);
+                auto        Command = to_string(Params["command"]);
                 auto        Payload = Params["payload"];
 
                 //  prepare response...
@@ -617,12 +617,12 @@ namespace OpenWifi {
             Params.contains("uri")) {
 
                 uint64_t    When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
-                auto        Serial = Params["serial"];
-                auto        Network = Params["network"];
-                auto        Interface = Params["interface"];
+                auto        Serial = to_string(Params["serial"]);
+                auto        Network = to_string(Params["network"]);
+                auto        Interface = to_string(Params["interface"]);
                 uint64_t    Duration = Params["duration"];
                 uint64_t    Packets = Params["packets"];
-                auto        URI = Params["uri"];
+                auto        URI = to_string(Params["uri"]);
 
                 //  prepare response...
                 nlohmann::json Answer;
@@ -637,7 +637,8 @@ namespace OpenWifi {
                 Answer["result"]["status"]["text"]["resultText"] = "no return status" ;
                 SendObject(Answer);
 
-                Logger_.information(Poco::format("trace(%s): network=%s interface=%s packets=%Lu duration=%Lu URI=%s.",SerialNumber_,Network,
+                Logger_.information(Poco::format("trace(%s): network=%s interface=%s packets=%Lu duration=%Lu URI=%s.",
+                                                 SerialNumber_, Network,
                                                  Interface, Packets, Duration, URI));
             } else {
                 Logger_.warning(Poco::format("trace(%s): Illegal command.",SerialNumber_));

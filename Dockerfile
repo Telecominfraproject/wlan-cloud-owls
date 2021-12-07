@@ -38,6 +38,7 @@ RUN make install
 ADD CMakeLists.txt build /owls/
 ADD cmake /owls/cmake
 ADD src /owls/src
+ADD .git /owls/.git
 
 WORKDIR /owls
 RUN mkdir cmake-build

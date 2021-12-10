@@ -71,7 +71,7 @@ add_executable( owls
         src/framework/uCentral_Protocol.h
         src/framework/ConfigurationValidator.cpp
         src/framework/ConfigurationValidator.h
-        src/APIServers.cpp
+        src/RESTAPI/RESTAPI_Routers.cpp
         src/Daemon.cpp src/Daemon.h
         src/Dashboard.cpp src/Dashboard.h
         src/uCentralClient.cpp

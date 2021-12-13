@@ -35,7 +35,7 @@ fi
 token=""
 result_file=result.json
 username="tip@ucentral.com"
-password="openwifi"
+password="NoMoreN00bs!"
 browser_list=(firefox sensible-browser xdg-open w3m links links2 lynx youtube-dl)
 browser=""
 
@@ -171,7 +171,7 @@ results() {
 
 shopt -s nocasematch
 case "$1" in
-    "login") login; help  ; logout ;;
+    "login") login; echo "You succesfully logged in..."  ; logout ;;
     "createsim") login; createsim "$2" ; logout;;
     "listsim") login; listsim; logout;;
     "deletesim") login; deletesim $2; logout;;

@@ -69,6 +69,8 @@ COPY docker-entrypoint.sh /
 RUN wget https://raw.githubusercontent.com/Telecominfraproject/wlan-cloud-ucentral-deploy/main/docker-compose/certs/restapi-ca.pem \
     -O /usr/local/share/ca-certificates/restapi-ca-selfsigned.pem
 
+COPY test_scripts/curl/cli /cli
+
 EXPOSE 16007 17007 16107
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

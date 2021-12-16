@@ -295,6 +295,8 @@ certs:
   # restapi-ca.pem: ""
   # restapi-cert.pem: ""
   # restapi-key.pem: ""
+  # device-cert.pem: ""
+  # device-key.pem: ""
   root.pem: |
     -----BEGIN CERTIFICATE-----
     MIIDojCCAoqgAwIBAgIUPVYBpqNbcLYygF6Mx+qxSWwQyFowDQYJKoZIhvcNAQEL

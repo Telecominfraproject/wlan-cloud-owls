@@ -58,7 +58,7 @@ RUN addgroup -S "$OWLS_USER" && \
 RUN mkdir /openwifi
 RUN mkdir -p "$OWLS_ROOT" "$OWLS_CONFIG" && \
     chown "$OWLS_USER": "$OWLS_ROOT" "$OWLS_CONFIG"
-RUN apk add --update --no-cache librdkafka mariadb-connector-c libpq unixodbc su-exec gettext ca-certificates bash jq curl
+RUN apk add --update --no-cache librdkafka mariadb-connector-c libpq unixodbc su-exec gettext ca-certificates bash jq curl postgresql-client
 
 COPY --from=builder /owls/cmake-build/owls /openwifi/owls
 COPY --from=builder /cppkafka/cmake-build/src/lib/* /lib/

@@ -42,3 +42,6 @@ git_rsa
 *.swp
 helm/charts/*
 *.dec
+
+# Logs
+test_scripts/curl/result.json

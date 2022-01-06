@@ -488,6 +488,18 @@ namespace ORM {
             return false;
         }
 
+        template <typename T> bool ReplaceRecord( const char *FieldName, T & Value,  RecordType & R) {
+            try {
+                if(Exists(FieldName, Value)) {
+                    return UpdateRecord(FieldName,Value,R);
+                }
+                return CreateRecord(R);
+            } catch (const Poco::Exception &E) {
+                Logger_.log(E);
+            }
+            return false;
+        }
+
         template <typename T> bool GetNameAndDescription(const char *FieldName, T & Value, std::string & Name, std::string & Description ) {
             try {
                 assert( FieldNames_.find(FieldName) != FieldNames_.end() );
@@ -776,9 +788,9 @@ namespace ORM {
     protected:
         Poco::Data::SessionPool     &Pool_;
         Poco::Logger                &Logger_;
+        std::string                 DBName_;
     private:
         OpenWifi::DBType            Type_;
-        std::string                 DBName_;
         std::string                 CreateFields_;
         std::string                 SelectFields_;
         std::string                 SelectList_;

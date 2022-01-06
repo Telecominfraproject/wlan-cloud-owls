@@ -55,14 +55,14 @@ namespace OpenWifi {
     }
 
     void SimulationCoordinator::StartSimulators() {
-        Logger_.notice("Starting simulation threads...");
+        Logger().notice("Starting simulation threads...");
         for(const auto &i:SimThreads_) {
             i->Thread.start(i->Sim);
         }
     }
 
     void SimulationCoordinator::CancelSimulators() {
-        Logger_.notice("Cancel simulation threads...");
+        Logger().notice("Cancel simulation threads...");
         SimStats()->EndSim();
         for(const auto &i:SimThreads_) {
             i->Sim.stop();
@@ -72,7 +72,7 @@ namespace OpenWifi {
     }
 
     void SimulationCoordinator::StopSimulators() {
-        Logger_.notice("Stopping simulation threads...");
+        Logger().notice("Stopping simulation threads...");
         SimStats()->EndSim();
         for(const auto &i:SimThreads_) {
             i->Sim.stop();
@@ -122,7 +122,7 @@ namespace OpenWifi {
         for(auto i=0;ClientCount;i++)
         {
             auto Clients = std::min(ClientCount,NumClientsPerThread);
-            auto NewSimThread = std::make_unique<SimThread>(i,CurrentSim_.macPrefix,Clients, Logger_);
+            auto NewSimThread = std::make_unique<SimThread>(i,CurrentSim_.macPrefix,Clients, Logger());
             NewSimThread->Sim.Initialize();
             SimThreads_.push_back(std::move(NewSimThread));
             ClientCount -= Clients;

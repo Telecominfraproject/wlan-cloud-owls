@@ -37,3 +37,11 @@ git_rsa
 /cmake-build/
 /cmake-build-debug/
 /data/
+
+# Helm
+*.swp
+helm/charts/*
+*.dec
+
+# Logs
+test_scripts/curl/result.json

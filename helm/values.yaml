@@ -1,0 +1,439 @@
+# System
+replicaCount: 1
+strategyType: Recreate
+revisionHistoryLimit: 2
+
+nameOverride: ""
+fullnameOverride: ""
+
+images:
+  owls:
+    repository: tip-tip-wlan-cloud-ucentral.jfrog.io/owls
+    tag: main
+    pullPolicy: Always
+#    regcred:
+#      registry: tip-tip-wlan-cloud-ucentral.jfrog.io
+#      username: username
+#      password: password
+
+services:
+  owls:
+    type: LoadBalancer
+    ports:
+      restapi:
+        servicePort: 16007
+        targetPort: 16007
+        protocol: TCP
+      restapiinternal:
+        servicePort: 17007
+        targetPort: 17007
+        protocol: TCP
+
+checks:
+  owls:
+    liveness:
+      httpGet:
+        path: /
+        port: 16107
+    readiness:
+      httpGet:
+        path: /
+        port: 16107
+
+ingresses:
+  restapi:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+    - restapi.chart-example.local
+    paths:
+    - path: /
+      serviceName: owls
+      servicePort: restapi
+
+volumes:
+  owls:
+    - name: config
+      mountPath: /owls-data/owls.properties
+      subPath: owls.properties
+      # Template below will be rendered in template
+      volumeDefinition: |
+        secret:
+          secretName: {{ include "owls.fullname" . }}-config
+    - name: certs
+      mountPath: /owls-data/certs
+      volumeDefinition: |
+        secret:
+          secretName: {{ include "owls.fullname" . }}-certs
+    - name: certs-cas
+      mountPath: /owls-data/certs/cas
+      volumeDefinition: |
+        secret:
+          secretName: {{ include "owls.fullname" . }}-certs-cas
+    # Change this if you want to use another volume type
+    - name: persist
+      mountPath: /owls-data/persist
+      volumeDefinition: |
+        persistentVolumeClaim:
+          claimName: {{ template "owls.fullname" . }}-pvc
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+securityContext:
+  fsGroup: 101
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+
+persistence:
+  enabled: true
+  # storageClassName: "-"
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  annotations: {}
+
+# Application
+public_env_variables:
+  OWLS_ROOT: /owls-data
+  OWLS_CONFIG: /owls-data
+
+secret_env_variables: {}
+
+configProperties:
+  # -> Public part
+  # REST API
+  openwifi.restapi.host.0.backlog: 100
+  openwifi.restapi.host.0.security: relaxed
+  openwifi.restapi.host.0.rootca: $OWLS_ROOT/certs/restapi-ca.pem
+  openwifi.restapi.host.0.address: "*"
+  openwifi.restapi.host.0.port: 16007
+  openwifi.restapi.host.0.cert: $OWLS_ROOT/certs/restapi-cert.pem
+  openwifi.restapi.host.0.key: $OWLS_ROOT/certs/restapi-key.pem
+  openwifi.internal.restapi.host.0.backlog: 100
+  openwifi.internal.restapi.host.0.security: relaxed
+  openwifi.internal.restapi.host.0.rootca: $OWLS_ROOT/certs/restapi-ca.pem
+  openwifi.internal.restapi.host.0.address: "*"
+  openwifi.internal.restapi.host.0.port: 17007
+  openwifi.internal.restapi.host.0.cert: $OWLS_ROOT/certs/restapi-cert.pem
+  openwifi.internal.restapi.host.0.key: $OWLS_ROOT/certs/restapi-key.pem
+  # Certificates
+  ucentral.rootca: $OWLS_ROOT/certs/root.pem
+  ucentral.issuer: $OWLS_ROOT/certs/issuer.pem
+  ucentral.cert: $OWLS_ROOT/certs/device-cert.pem
+  ucentral.key: $OWLS_ROOT/certs/device-key.pem
+  ucentral.clientcas: $OWLS_ROOT/certs/clientcas.pem
+  ucentral.cas: $OWLS_ROOT/certs/cas
+  ucentral.security: strict
+  # System
+  openwifi.service.key: $OWLS_ROOT/certs/restapi-key.pem
+  openwifi.system.data: $OWLS_ROOT/data
+  openwifi.system.debug: "false"
+  openwifi.system.uri.private: https://localhost:17007
+  openwifi.system.uri.public: https://localhost:16007
+  openwifi.system.commandchannel: /tmp/app_owls
+  openwifi.system.uri.ui: owls.local
+  # ALB
+  alb.enable: "true"
+  alb.port: 16107
+  # Kafka
+  openwifi.kafka.enable: "true"
+  openwifi.kafka.group.id: owls
+  openwifi.kafka.client.id: owls1
+  openwifi.kafka.brokerlist: localhost:9092
+  openwifi.kafka.auto.commit: "false"
+  openwifi.kafka.queue.buffering.max.ms: 50
+  # Storage
+  storage.type: sqlite # (sqlite|postgresql|mysql|odbc)
+  ## SQLite
+  storage.type.sqlite.db: simulations.db
+  storage.type.sqlite.idletime: 120
+  storage.type.sqlite.maxsessions: 128
+  ## PostgreSQL
+  storage.type.postgresql.maxsessions: 64
+  storage.type.postgresql.idletime: 60
+  storage.type.postgresql.host: localhost
+  storage.type.postgresql.database: owls
+  storage.type.postgresql.port: 5432
+  storage.type.postgresql.connectiontimeout: 60
+  ## MySQL
+  storage.type.mysql.maxsessions: 64
+  storage.type.mysql.idletime: 60
+  storage.type.mysql.host: localhost
+  storage.type.mysql.database: owls
+  storage.type.mysql.port: 3306
+  storage.type.mysql.connectiontimeout: 60
+  # Logging
+  logging.formatters.f1.class: PatternFormatter
+  logging.formatters.f1.pattern: "%Y-%m-%d %H:%M:%S %s: [%p] %t"
+  logging.formatters.f1.times: UTC
+  logging.channels.c1.class: ConsoleChannel
+  logging.channels.c1.formatter: f1
+  logging.channels.c2.class: FileChannel
+  logging.channels.c2.path: /tmp/log_owls
+  logging.channels.c2.formatter.class: PatternFormatter
+  logging.channels.c2.formatter.pattern: "%Y-%m-%d %H:%M:%S %s: [%p] %t"
+  logging.channels.c2.rotation: "20 M"
+  logging.channels.c2.archive: timestamp
+  logging.channels.c2.purgeCount: 20
+  logging.channels.c3.class: ConsoleChannel
+  logging.channels.c3.pattern: "%s: [%p] %t"
+  logging.loggers.root.channel: c1
+  logging.loggers.root.level: debug
+
+  # -> Secret part
+  # REST API
+  openwifi.restapi.host.0.key.password: mypassword
+  openwifi.internal.restapi.host.0.key.password: mypassword
+  # Certificates
+  ucentral.key.password: mypassword
+  # System
+  openwifi.service.key.password: mypassword
+  # Storage
+  ## PostgreSQL
+  storage.type.postgresql.username: stephb
+  storage.type.postgresql.password: snoopy99
+  ## MySQL
+  storage.type.mysql.username: stephb
+  storage.type.mysql.password: snoopy99
+
+certs:
+  clientcas.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIEnDCCA4SgAwIBAgIUVpyCUx1MUeUwxg+7I1BvGFTz7HkwDQYJKoZIhvcNAQEL
+    BQAwaTELMAkGA1UEBhMCVVMxJDAiBgNVBAoTG1RlbGVjb20gSW5mcmEgUHJvamVj
+    dCwgSW5jLjEMMAoGA1UECxMDVElQMSYwJAYDVQQDEx1UZWxlY29tIEluZnJhIFBy
+    b2plY3QgUm9vdCBDQTAeFw0yMTA0MTMyMjUxMjZaFw0yNjA0MTMyMjM4NDZaMGwx
+    CzAJBgNVBAYTAlVTMSQwIgYDVQQKExtUZWxlY29tIEluZnJhIFByb2plY3QsIElu
+    Yy4xDDAKBgNVBAsTA1RJUDEpMCcGA1UEAxMgVGVsZWNvbSBJbmZyYSBQcm9qZWN0
+    IElzc3VpbmcgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDtKBrq
+    qd2aKVSk25KfL5xHu8X7/8rJrz3IvyPuVKWhk/N1zabot3suBcGaYNKjnRHxg78R
+    yKwKzajKYWtiQFqztu24g16LQeAnoUxZnF6a0z3JkkRPsz14A2y8TUhdEe1tx+UU
+    4VGsk3n+FMmOQHL+79FO57zQC1LwylgfLSltrI6mF3jowVUQvnwzKhUzT87AJ6EO
+    ndK/q0T/Bgi+aI39zfVOjJjsTJwghvrmYW3iarP1THSKxeib2s02bZKrvvHa5HL4
+    UI8+LvREpVZl4mzt1z6Nl344Y6f+UeJlYa/Ci0jJqaXJmyVnUbAz+c0i5JfwAVn3
+    YQzfC4eLnZCmdF8zAgMBAAGjggE3MIIBMzAPBgNVHRMBAf8EBTADAQH/MB0GA1Ud
+    DgQWBBSzG1S44EerPfM4gOQ85f0AYW3R6DAfBgNVHSMEGDAWgBQCRpZgebFT9qny
+    98WfIUDk6ZEB+jAOBgNVHQ8BAf8EBAMCAYYwgYMGCCsGAQUFBwEBBHcwdTAoBggr
+    BgEFBQcwAYYcaHR0cDovL29jc3Aub25lLmRpZ2ljZXJ0LmNvbTBJBggrBgEFBQcw
+    AoY9aHR0cDovL2NhY2VydHMub25lLmRpZ2ljZXJ0LmNvbS9UZWxlY29tSW5mcmFQ
+    cm9qZWN0Um9vdENBLmNydDBKBgNVHR8EQzBBMD+gPaA7hjlodHRwOi8vY3JsLm9u
+    ZS5kaWdpY2VydC5jb20vVGVsZWNvbUluZnJhUHJvamVjdFJvb3RDQS5jcmwwDQYJ
+    KoZIhvcNAQELBQADggEBAFbz+K94bHIkBMJqps0dApniUmOn0pO6Q6cGh47UP/kX
+    IiPIsnYgG+hqYD/qtsiqJhaWi0hixRWn38UmvZxMRk27aSTGE/TWx0JTC3qDGsSe
+    XkUagumbSfmS0ZyiTwMPeGAjXwyzGorqZWeA95eKfImntMiOf3E7//GK0K7HpCx8
+    IPCnLZsZD2q/mLyBsduImFIRQJbLAhwIxpcd1qYJk+BlGFL+HtBpEbq6JxW2Xy+v
+    DpNWc2WIsUTle0rTc9JNJrLX4ChUJmKqf8obKHap3Xh3//qw/jDB9pOAinA33FLJ
+    EmCnwBvQr9mfNmPBGMYZVU8cPruDQJ57GjmmvdisbJY=
+    -----END CERTIFICATE-----
+    -----BEGIN CERTIFICATE-----
+    MIIDojCCAoqgAwIBAgIUPVYBpqNbcLYygF6Mx+qxSWwQyFowDQYJKoZIhvcNAQEL
+    BQAwaTELMAkGA1UEBhMCVVMxJDAiBgNVBAoTG1RlbGVjb20gSW5mcmEgUHJvamVj
+    dCwgSW5jLjEMMAoGA1UECxMDVElQMSYwJAYDVQQDEx1UZWxlY29tIEluZnJhIFBy
+    b2plY3QgUm9vdCBDQTAeFw0yMTA0MTMyMjQyNDRaFw0zMTA0MTMyMjM4NDZaMGkx
+    CzAJBgNVBAYTAlVTMSQwIgYDVQQKExtUZWxlY29tIEluZnJhIFByb2plY3QsIElu
+    Yy4xDDAKBgNVBAsTA1RJUDEmMCQGA1UEAxMdVGVsZWNvbSBJbmZyYSBQcm9qZWN0
+    IFJvb3QgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDIGCibwf5u
+    AAwZ+1H8U0e3u2V+0d2gSctucoK86XwUmfe1V2a/qlCYZd29r80IuN1IIeB0naIm
+    KnK/MzXW87clF6tFd1+HzEvmlY/W4KyIXalVCTEzirFSvBEG2oZpM0yC3AefytAO
+    aOpA00LaM3xTfTqMKIRhJBuLy0I4ANUVG6ixVebbGuc78IodleqiLoWy2Q9QHyEO
+    t/7hZndJhiVogh0PveRhho45EbsACu7ymDY+JhlIleevqwlE3iQoq0YcmYADHno6
+    Eq8vcwLpZFxihupUafkd1T3WJYQAJf9coCjBu2qIhNgrcrGD8R9fGswwNRzMRMpX
+    720+GjcDW3bJAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFAJG
+    lmB5sVP2qfL3xZ8hQOTpkQH6MA4GA1UdDwEB/wQEAwIBhjANBgkqhkiG9w0BAQsF
+    AAOCAQEAVjl9dm4epG9NUYnagT9sg7scVQEPfz3Lt6w1NXJXgD8mAUlK0jXmEyvM
+    dCPD4514n+8+lM7US8fh+nxc7jO//LwK17Wm9FblgjNFR7+anv0Q99T9fP19DLlF
+    PSNHL2emogy1bl1lLTAoj8nxg2wVKPDSHBGviQ5LR9fsWUIJDv9Bs5k0qWugWYSj
+    19S6qnHeskRDB8MqRLhKMG82oDVLerSnhD0P6HjySBHgTTU7/tYS/OZr1jI6MPbG
+    L+/DtiR5fDVMNdBSGU89UNTi0wHY9+RFuNlIuvZC+x/swF0V9R5mN+ywquTPtDLA
+    5IOM7ItsRmen6u3qu+JXros54e4juQ==
+    -----END CERTIFICATE-----
+  issuer.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIEnDCCA4SgAwIBAgIUVpyCUx1MUeUwxg+7I1BvGFTz7HkwDQYJKoZIhvcNAQEL
+    BQAwaTELMAkGA1UEBhMCVVMxJDAiBgNVBAoTG1RlbGVjb20gSW5mcmEgUHJvamVj
+    dCwgSW5jLjEMMAoGA1UECxMDVElQMSYwJAYDVQQDEx1UZWxlY29tIEluZnJhIFBy
+    b2plY3QgUm9vdCBDQTAeFw0yMTA0MTMyMjUxMjZaFw0yNjA0MTMyMjM4NDZaMGwx
+    CzAJBgNVBAYTAlVTMSQwIgYDVQQKExtUZWxlY29tIEluZnJhIFByb2plY3QsIElu
+    Yy4xDDAKBgNVBAsTA1RJUDEpMCcGA1UEAxMgVGVsZWNvbSBJbmZyYSBQcm9qZWN0
+    IElzc3VpbmcgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDtKBrq
+    qd2aKVSk25KfL5xHu8X7/8rJrz3IvyPuVKWhk/N1zabot3suBcGaYNKjnRHxg78R
+    yKwKzajKYWtiQFqztu24g16LQeAnoUxZnF6a0z3JkkRPsz14A2y8TUhdEe1tx+UU
+    4VGsk3n+FMmOQHL+79FO57zQC1LwylgfLSltrI6mF3jowVUQvnwzKhUzT87AJ6EO
+    ndK/q0T/Bgi+aI39zfVOjJjsTJwghvrmYW3iarP1THSKxeib2s02bZKrvvHa5HL4
+    UI8+LvREpVZl4mzt1z6Nl344Y6f+UeJlYa/Ci0jJqaXJmyVnUbAz+c0i5JfwAVn3
+    YQzfC4eLnZCmdF8zAgMBAAGjggE3MIIBMzAPBgNVHRMBAf8EBTADAQH/MB0GA1Ud
+    DgQWBBSzG1S44EerPfM4gOQ85f0AYW3R6DAfBgNVHSMEGDAWgBQCRpZgebFT9qny
+    98WfIUDk6ZEB+jAOBgNVHQ8BAf8EBAMCAYYwgYMGCCsGAQUFBwEBBHcwdTAoBggr
+    BgEFBQcwAYYcaHR0cDovL29jc3Aub25lLmRpZ2ljZXJ0LmNvbTBJBggrBgEFBQcw
+    AoY9aHR0cDovL2NhY2VydHMub25lLmRpZ2ljZXJ0LmNvbS9UZWxlY29tSW5mcmFQ
+    cm9qZWN0Um9vdENBLmNydDBKBgNVHR8EQzBBMD+gPaA7hjlodHRwOi8vY3JsLm9u
+    ZS5kaWdpY2VydC5jb20vVGVsZWNvbUluZnJhUHJvamVjdFJvb3RDQS5jcmwwDQYJ
+    KoZIhvcNAQELBQADggEBAFbz+K94bHIkBMJqps0dApniUmOn0pO6Q6cGh47UP/kX
+    IiPIsnYgG+hqYD/qtsiqJhaWi0hixRWn38UmvZxMRk27aSTGE/TWx0JTC3qDGsSe
+    XkUagumbSfmS0ZyiTwMPeGAjXwyzGorqZWeA95eKfImntMiOf3E7//GK0K7HpCx8
+    IPCnLZsZD2q/mLyBsduImFIRQJbLAhwIxpcd1qYJk+BlGFL+HtBpEbq6JxW2Xy+v
+    DpNWc2WIsUTle0rTc9JNJrLX4ChUJmKqf8obKHap3Xh3//qw/jDB9pOAinA33FLJ
+    EmCnwBvQr9mfNmPBGMYZVU8cPruDQJ57GjmmvdisbJY=
+    -----END CERTIFICATE-----
+  # restapi-ca.pem: ""
+  # restapi-cert.pem: ""
+  # restapi-key.pem: ""
+  # device-cert.pem: ""
+  # device-key.pem: ""
+  root.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIDojCCAoqgAwIBAgIUPVYBpqNbcLYygF6Mx+qxSWwQyFowDQYJKoZIhvcNAQEL
+    BQAwaTELMAkGA1UEBhMCVVMxJDAiBgNVBAoTG1RlbGVjb20gSW5mcmEgUHJvamVj
+    dCwgSW5jLjEMMAoGA1UECxMDVElQMSYwJAYDVQQDEx1UZWxlY29tIEluZnJhIFBy
+    b2plY3QgUm9vdCBDQTAeFw0yMTA0MTMyMjQyNDRaFw0zMTA0MTMyMjM4NDZaMGkx
+    CzAJBgNVBAYTAlVTMSQwIgYDVQQKExtUZWxlY29tIEluZnJhIFByb2plY3QsIElu
+    Yy4xDDAKBgNVBAsTA1RJUDEmMCQGA1UEAxMdVGVsZWNvbSBJbmZyYSBQcm9qZWN0
+    IFJvb3QgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDIGCibwf5u
+    AAwZ+1H8U0e3u2V+0d2gSctucoK86XwUmfe1V2a/qlCYZd29r80IuN1IIeB0naIm
+    KnK/MzXW87clF6tFd1+HzEvmlY/W4KyIXalVCTEzirFSvBEG2oZpM0yC3AefytAO
+    aOpA00LaM3xTfTqMKIRhJBuLy0I4ANUVG6ixVebbGuc78IodleqiLoWy2Q9QHyEO
+    t/7hZndJhiVogh0PveRhho45EbsACu7ymDY+JhlIleevqwlE3iQoq0YcmYADHno6
+    Eq8vcwLpZFxihupUafkd1T3WJYQAJf9coCjBu2qIhNgrcrGD8R9fGswwNRzMRMpX
+    720+GjcDW3bJAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFAJG
+    lmB5sVP2qfL3xZ8hQOTpkQH6MA4GA1UdDwEB/wQEAwIBhjANBgkqhkiG9w0BAQsF
+    AAOCAQEAVjl9dm4epG9NUYnagT9sg7scVQEPfz3Lt6w1NXJXgD8mAUlK0jXmEyvM
+    dCPD4514n+8+lM7US8fh+nxc7jO//LwK17Wm9FblgjNFR7+anv0Q99T9fP19DLlF
+    PSNHL2emogy1bl1lLTAoj8nxg2wVKPDSHBGviQ5LR9fsWUIJDv9Bs5k0qWugWYSj
+    19S6qnHeskRDB8MqRLhKMG82oDVLerSnhD0P6HjySBHgTTU7/tYS/OZr1jI6MPbG
+    L+/DtiR5fDVMNdBSGU89UNTi0wHY9+RFuNlIuvZC+x/swF0V9R5mN+ywquTPtDLA
+    5IOM7ItsRmen6u3qu+JXros54e4juQ==
+    -----END CERTIFICATE-----
+  # websocket-cert.pem: ""
+  # websocket-key.pem: ""
+
+certsCAs:
+  issuer.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIEnDCCA4SgAwIBAgIUVpyCUx1MUeUwxg+7I1BvGFTz7HkwDQYJKoZIhvcNAQEL
+    BQAwaTELMAkGA1UEBhMCVVMxJDAiBgNVBAoTG1RlbGVjb20gSW5mcmEgUHJvamVj
+    dCwgSW5jLjEMMAoGA1UECxMDVElQMSYwJAYDVQQDEx1UZWxlY29tIEluZnJhIFBy
+    b2plY3QgUm9vdCBDQTAeFw0yMTA0MTMyMjUxMjZaFw0yNjA0MTMyMjM4NDZaMGwx
+    CzAJBgNVBAYTAlVTMSQwIgYDVQQKExtUZWxlY29tIEluZnJhIFByb2plY3QsIElu
+    Yy4xDDAKBgNVBAsTA1RJUDEpMCcGA1UEAxMgVGVsZWNvbSBJbmZyYSBQcm9qZWN0
+    IElzc3VpbmcgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDtKBrq
+    qd2aKVSk25KfL5xHu8X7/8rJrz3IvyPuVKWhk/N1zabot3suBcGaYNKjnRHxg78R
+    yKwKzajKYWtiQFqztu24g16LQeAnoUxZnF6a0z3JkkRPsz14A2y8TUhdEe1tx+UU
+    4VGsk3n+FMmOQHL+79FO57zQC1LwylgfLSltrI6mF3jowVUQvnwzKhUzT87AJ6EO
+    ndK/q0T/Bgi+aI39zfVOjJjsTJwghvrmYW3iarP1THSKxeib2s02bZKrvvHa5HL4
+    UI8+LvREpVZl4mzt1z6Nl344Y6f+UeJlYa/Ci0jJqaXJmyVnUbAz+c0i5JfwAVn3
+    YQzfC4eLnZCmdF8zAgMBAAGjggE3MIIBMzAPBgNVHRMBAf8EBTADAQH/MB0GA1Ud
+    DgQWBBSzG1S44EerPfM4gOQ85f0AYW3R6DAfBgNVHSMEGDAWgBQCRpZgebFT9qny
+    98WfIUDk6ZEB+jAOBgNVHQ8BAf8EBAMCAYYwgYMGCCsGAQUFBwEBBHcwdTAoBggr
+    BgEFBQcwAYYcaHR0cDovL29jc3Aub25lLmRpZ2ljZXJ0LmNvbTBJBggrBgEFBQcw
+    AoY9aHR0cDovL2NhY2VydHMub25lLmRpZ2ljZXJ0LmNvbS9UZWxlY29tSW5mcmFQ
+    cm9qZWN0Um9vdENBLmNydDBKBgNVHR8EQzBBMD+gPaA7hjlodHRwOi8vY3JsLm9u
+    ZS5kaWdpY2VydC5jb20vVGVsZWNvbUluZnJhUHJvamVjdFJvb3RDQS5jcmwwDQYJ
+    KoZIhvcNAQELBQADggEBAFbz+K94bHIkBMJqps0dApniUmOn0pO6Q6cGh47UP/kX
+    IiPIsnYgG+hqYD/qtsiqJhaWi0hixRWn38UmvZxMRk27aSTGE/TWx0JTC3qDGsSe
+    XkUagumbSfmS0ZyiTwMPeGAjXwyzGorqZWeA95eKfImntMiOf3E7//GK0K7HpCx8
+    IPCnLZsZD2q/mLyBsduImFIRQJbLAhwIxpcd1qYJk+BlGFL+HtBpEbq6JxW2Xy+v
+    DpNWc2WIsUTle0rTc9JNJrLX4ChUJmKqf8obKHap3Xh3//qw/jDB9pOAinA33FLJ
+    EmCnwBvQr9mfNmPBGMYZVU8cPruDQJ57GjmmvdisbJY=
+    -----END CERTIFICATE-----
+  root.pem: |
+    -----BEGIN CERTIFICATE-----
+    MIIDojCCAoqgAwIBAgIUPVYBpqNbcLYygF6Mx+qxSWwQyFowDQYJKoZIhvcNAQEL
+    BQAwaTELMAkGA1UEBhMCVVMxJDAiBgNVBAoTG1RlbGVjb20gSW5mcmEgUHJvamVj
+    dCwgSW5jLjEMMAoGA1UECxMDVElQMSYwJAYDVQQDEx1UZWxlY29tIEluZnJhIFBy
+    b2plY3QgUm9vdCBDQTAeFw0yMTA0MTMyMjQyNDRaFw0zMTA0MTMyMjM4NDZaMGkx
+    CzAJBgNVBAYTAlVTMSQwIgYDVQQKExtUZWxlY29tIEluZnJhIFByb2plY3QsIElu
+    Yy4xDDAKBgNVBAsTA1RJUDEmMCQGA1UEAxMdVGVsZWNvbSBJbmZyYSBQcm9qZWN0
+    IFJvb3QgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDIGCibwf5u
+    AAwZ+1H8U0e3u2V+0d2gSctucoK86XwUmfe1V2a/qlCYZd29r80IuN1IIeB0naIm
+    KnK/MzXW87clF6tFd1+HzEvmlY/W4KyIXalVCTEzirFSvBEG2oZpM0yC3AefytAO
+    aOpA00LaM3xTfTqMKIRhJBuLy0I4ANUVG6ixVebbGuc78IodleqiLoWy2Q9QHyEO
+    t/7hZndJhiVogh0PveRhho45EbsACu7ymDY+JhlIleevqwlE3iQoq0YcmYADHno6
+    Eq8vcwLpZFxihupUafkd1T3WJYQAJf9coCjBu2qIhNgrcrGD8R9fGswwNRzMRMpX
+    720+GjcDW3bJAgMBAAGjQjBAMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFAJG
+    lmB5sVP2qfL3xZ8hQOTpkQH6MA4GA1UdDwEB/wQEAwIBhjANBgkqhkiG9w0BAQsF
+    AAOCAQEAVjl9dm4epG9NUYnagT9sg7scVQEPfz3Lt6w1NXJXgD8mAUlK0jXmEyvM
+    dCPD4514n+8+lM7US8fh+nxc7jO//LwK17Wm9FblgjNFR7+anv0Q99T9fP19DLlF
+    PSNHL2emogy1bl1lLTAoj8nxg2wVKPDSHBGviQ5LR9fsWUIJDv9Bs5k0qWugWYSj
+    19S6qnHeskRDB8MqRLhKMG82oDVLerSnhD0P6HjySBHgTTU7/tYS/OZr1jI6MPbG
+    L+/DtiR5fDVMNdBSGU89UNTi0wHY9+RFuNlIuvZC+x/swF0V9R5mN+ywquTPtDLA
+    5IOM7ItsRmen6u3qu+JXros54e4juQ==
+    -----END CERTIFICATE-----
+
+# PostgreSQL (https://github.com/bitnami/charts/tree/master/bitnami/postgresql)
+postgresql:
+  enabled: false
+
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: 11.13.0-debian-10-r0
+
+  postgresqlPostgresPassword: "rootPassword"
+  postgresqlUsername: stephb
+  postgresqlPassword: snoopy99
+  postgresqlDatabase: owls
+
+  persistence:
+    enabled: true
+    storageClass: ""
+    size: 8Gi
+
+# MySQL (https://github.com/bitnami/charts/tree/master/bitnami/mysql)
+mysql:
+  enabled: false
+
+  image:
+    registry: docker.io
+    repository: bitnami/mysql
+    tag: 8.0.26-debian-10-r10
+
+  auth:
+    rootPassword: rootPassword
+    database: owls
+    username: stephb
+    password: snoopy99
+
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 8Gi
+
+# MariaDB (https://github.com/bitnami/charts/tree/master/bitnami/mariadb)
+mariadb:
+  enabled: false
+
+  image:
+    registry: docker.io
+    repository: bitnami/mariadb
+    tag: 10.5.12-debian-10-r0
+
+  auth:
+    rootPassword: rootPassword
+    database: owls
+    username: stephb
+    password: snoopy99
+
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 8Gi

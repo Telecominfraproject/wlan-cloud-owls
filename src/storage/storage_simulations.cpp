@@ -36,7 +36,7 @@ namespace OpenWifi {
     }
 }
 
-template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects::SimulationDetails>::Convert(OpenWifi::SimulationDBRecordType &In, OpenWifi::OWLSObjects::SimulationDetails &Out) {
+template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects::SimulationDetails>::Convert(const OpenWifi::SimulationDBRecordType &In, OpenWifi::OWLSObjects::SimulationDetails &Out) {
     Out.id = In.get<0>();
     Out.name = In.get<1>();
     Out.gateway = In.get<2>();
@@ -59,7 +59,7 @@ template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects:
     Out.concurrentDevices = In.get<19>();
 }
 
-template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects::SimulationDetails>::Convert(OpenWifi::OWLSObjects::SimulationDetails &In, OpenWifi::SimulationDBRecordType &Out) {
+template<> void ORM::DB<OpenWifi::SimulationDBRecordType, OpenWifi::OWLSObjects::SimulationDetails>::Convert(const OpenWifi::OWLSObjects::SimulationDetails &In, OpenWifi::SimulationDBRecordType &Out) {
     Out.set<0>(In.id);
     Out.set<1>(In.name);
     Out.set<2>(In.gateway);

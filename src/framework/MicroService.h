@@ -1072,6 +1072,7 @@ namespace OpenWifi {
 		std::variant<bool,uint64_t,std::string> Default_, Current_;
 		std::string Hint_;
 	};
+
 	inline std::string to_string(const ConfigurationEntry &v) { return (std::string) v; }
 
 	typedef std::map<std::string,ConfigurationEntry>    ConfigurationMap_t;

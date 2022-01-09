@@ -20,6 +20,7 @@
 #include <random>
 #include <iomanip>
 #include <queue>
+#include <variant>
 
 using namespace std::chrono_literals;
 
@@ -1072,7 +1073,6 @@ namespace OpenWifi {
 		std::variant<bool,uint64_t,std::string> Default_, Current_;
 		std::string Hint_;
 	};
-
 	inline std::string to_string(const ConfigurationEntry &v) { return (std::string) v; }
 
 	typedef std::map<std::string,ConfigurationEntry>    ConfigurationMap_t;
@@ -1633,6 +1633,8 @@ namespace OpenWifi {
 	            Request = &RequestIn;
 	            Response = &ResponseIn;
 
+				Poco::Thread::current()->setName("WebServerThread_" + std::to_string(TransactionId_));
+
 	            if(RateLimited_ && RESTAPI_RateLimiter()->IsRateLimited(RequestIn,MyRates_.Interval, MyRates_.MaxCalls)) {
 	                return UnAuthorized("Rate limit exceeded.",RATE_LIMIT_EXCEEDED);
 	            }
@@ -1661,19 +1663,17 @@ namespace OpenWifi {
                     return DoDelete();
 	            else if (Request->getMethod() == Poco::Net::HTTPRequest::HTTP_PUT)
                     return DoPut();
-	            else
-                    return BadRequest(RESTAPI::Errors::UnsupportedHTTPMethod);
-	            return;
+				return BadRequest(RESTAPI::Errors::UnsupportedHTTPMethod);
 	        } catch (const Poco::Exception &E) {
 	            Logger_.log(E);
 	            return BadRequest(RESTAPI::Errors::InternalError);
 	        }
 	    }
 
-	    inline bool NeedAdditionalInfo() const { return QB_.AdditionalInfo; }
-	    inline const std::vector<std::string> & SelectedRecords() const { return QB_.Select; }
+	    [[nodiscard]] inline bool NeedAdditionalInfo() const { return QB_.AdditionalInfo; }
+	    [[nodiscard]] inline const std::vector<std::string> & SelectedRecords() const { return QB_.Select; }
 
-	    inline const Poco::JSON::Object::Ptr & ParseStream() {
+	    [[nodiscard]] inline const Poco::JSON::Object::Ptr & ParseStream() {
 	        return IncomingParser_.parse(Request->stream()).extract<Poco::JSON::Object::Ptr>();
 	    }
 
@@ -1725,14 +1725,14 @@ namespace OpenWifi {
 	        return false;
 	    }
 
-	    inline uint64_t GetParameter(const std::string &Name, const uint64_t Default) {
+		[[nodiscard]] inline uint64_t GetParameter(const std::string &Name, const uint64_t Default) {
 	        auto Hint = std::find_if(Parameters_.begin(),Parameters_.end(),[Name](const std::pair<std::string,std::string> &S){ return S.first==Name; });
 	        if(Hint==Parameters_.end() || !is_number(Hint->second))
 	            return Default;
 	        return std::stoull(Hint->second);
 	    }
 
-	    inline bool GetBoolParameter(const std::string &Name, bool Default) {
+		[[nodiscard]] inline bool GetBoolParameter(const std::string &Name, bool Default) {
 	        auto Hint = std::find_if(begin(Parameters_),end(Parameters_),[Name](const std::pair<std::string,std::string> &S){ return S.first==Name; });
 	        if(Hint==end(Parameters_) || !is_bool(Hint->second))
 	            return Default;
@@ -1770,7 +1770,7 @@ namespace OpenWifi {
 	        return E->second;
 	    }
 
-	    inline static std::string MakeList(const std::vector<std::string> &L) {
+		[[nodiscard]] inline static std::string MakeList(const std::vector<std::string> &L) {
 	        std::string Return;
 	        for (const auto &i : L)
 	            if (Return.empty())
@@ -1781,7 +1781,7 @@ namespace OpenWifi {
 	            return Return;
 	    }
 
-	    inline bool AssignIfPresent(const Poco::JSON::Object::Ptr &O, const std::string &Field, std::string &Value) {
+	    static inline bool AssignIfPresent(const Poco::JSON::Object::Ptr &O, const std::string &Field, std::string &Value) {
 	        if(O->has(Field)) {
 	            Value = O->get(Field).toString();
 	            return true;
@@ -1789,7 +1789,7 @@ namespace OpenWifi {
 	        return false;
 	    }
 
-	    inline bool AssignIfPresent(const Poco::JSON::Object::Ptr &O, const std::string &Field, uint64_t &Value) {
+	    static inline bool AssignIfPresent(const Poco::JSON::Object::Ptr &O, const std::string &Field, uint64_t &Value) {
 	        if(O->has(Field)) {
 	            Value = O->get(Field);
 	            return true;
@@ -1797,7 +1797,7 @@ namespace OpenWifi {
 	        return false;
 	    }
 
-	    inline bool AssignIfPresent(const Poco::JSON::Object::Ptr &O, const std::string &Field, bool &Value) {
+	    static inline bool AssignIfPresent(const Poco::JSON::Object::Ptr &O, const std::string &Field, bool &Value) {
 	        if(O->has(Field)) {
 	            Value = O->get(Field).toString()=="true";
 	            return true;
@@ -1897,7 +1897,7 @@ namespace OpenWifi {
 	    inline void OK() {
 	        PrepareResponse();
 	        if(	Request->getMethod()==Poco::Net::HTTPRequest::HTTP_DELETE ||
-	        Request->getMethod()==Poco::Net::HTTPRequest::HTTP_OPTIONS) {
+	        	Request->getMethod()==Poco::Net::HTTPRequest::HTTP_OPTIONS) {
 	            Response->send();
 	        } else {
 	            Poco::JSON::Object ErrorObject;
@@ -1910,6 +1910,8 @@ namespace OpenWifi {
 	    }
 
         inline void SendCompressedTarFile(const std::string & FileName, const std::string & Content) {
+			Response->setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
+			AddCORS();
             Response->set("Content-Type","application/gzip");
             Response->set("Content-Disposition", "attachment; filename=" + FileName );
             Response->set("Content-Transfer-Encoding","binary");
@@ -1918,7 +1920,6 @@ namespace OpenWifi {
             Response->set("Pragma", "private");
             Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
             Response->setStatus(Poco::Net::HTTPResponse::HTTP_OK);
-            AddCORS();
             Response->setContentLength(Content.size());
             Response->setChunkedTransferEncoding(true);
             std::ostream& OutputStream = Response->send();
@@ -1926,6 +1927,8 @@ namespace OpenWifi {
         }
 
 	    inline void SendFile(Poco::File & File, const std::string & UUID) {
+			Response->setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
+			AddCORS();
 	        Response->set("Content-Type","application/octet-stream");
 	        Response->set("Content-Disposition", "attachment; filename=" + UUID );
 	        Response->set("Content-Transfer-Encoding","binary");
@@ -1934,11 +1937,12 @@ namespace OpenWifi {
 	        Response->set("Pragma", "private");
 	        Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
 	        Response->setContentLength(File.getSize());
-	        AddCORS();
 	        Response->sendFile(File.path(),"application/octet-stream");
 	    }
 
 	    inline void SendFile(Poco::File & File) {
+			Response->setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
+			AddCORS();
 	        Poco::Path  P(File.path());
 	        auto MT = Utils::FindMediaType(File);
 	        if(MT.Encoding==Utils::BINARY) {
@@ -1948,11 +1952,12 @@ namespace OpenWifi {
 	        Response->set("Cache-Control", "private");
 	        Response->set("Pragma", "private");
 	        Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
-	        AddCORS();
 	        Response->sendFile(File.path(),MT.ContentType);
 	    }
 
 	    inline void SendFile(Poco::TemporaryFile &TempAvatar, const std::string &Type, const std::string & Name) {
+			Response->setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
+			AddCORS();
 	        auto MT = Utils::FindMediaType(Name);
 	        if(MT.Encoding==Utils::BINARY) {
 	            Response->set("Content-Transfer-Encoding","binary");
@@ -1964,11 +1969,12 @@ namespace OpenWifi {
 	        Response->set("Pragma", "private");
 	        Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
             Response->setContentLength(TempAvatar.getSize());
-	        AddCORS();
 	        Response->sendFile(TempAvatar.path(),MT.ContentType);
 	    }
 
         inline void SendFileContent(const std::string &Content, const std::string &Type, const std::string & Name) {
+			Response->setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
+			AddCORS();
             auto MT = Utils::FindMediaType(Name);
             if(MT.Encoding==Utils::BINARY) {
                 Response->set("Content-Transfer-Encoding","binary");
@@ -1981,19 +1987,19 @@ namespace OpenWifi {
             Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
             Response->setContentLength(Content.size());
             Response->setContentType(Type );
-            AddCORS();
             auto & OutputStream = Response->send();
             OutputStream << Content ;
         }
 
         inline void SendHTMLFileBack(Poco::File & File,
                                      const Types::StringPairVec & FormVars) {
+			Response->setStatus(Poco::Net::HTTPResponse::HTTPStatus::HTTP_OK);
+			AddCORS();
 	        Response->set("Pragma", "private");
 	        Response->set("Expires", "Mon, 26 Jul 2027 05:00:00 GMT");
 	        std::string FormContent = Utils::LoadFile(File.path());
 	        Utils::ReplaceVariables(FormContent, FormVars);
 	        Response->setContentLength(FormContent.size());
-	        AddCORS();
 	        Response->setChunkedTransferEncoding(true);
 	        Response->setContentType("text/html");
 	        std::ostream& ostr = Response->send();
@@ -2141,7 +2147,8 @@ namespace OpenWifi {
 	            }
 
 	            template<typename T, typename... Args>
-	            RESTAPIHandler * RESTAPI_Router(const std::string & RequestedPath, RESTAPIHandler::BindingMap &Bindings, Poco::Logger & Logger, RESTAPI_GenericServer & Server, uint64_t TransactionId) {
+	            RESTAPIHandler * RESTAPI_Router(const std::string & RequestedPath, RESTAPIHandler::BindingMap &Bindings,
+											   Poco::Logger & Logger, RESTAPI_GenericServer & Server, uint64_t TransactionId) {
 	                static_assert(test_has_PathName_method((T*)nullptr), "Class must have a static PathName() method.");
 	                if(RESTAPIHandler::ParseBindings(RequestedPath,T::PathName(),Bindings)) {
 	                    return new T(Bindings, Logger, Server, false, TransactionId);
@@ -2155,7 +2162,8 @@ namespace OpenWifi {
 	            }
 
 	            template<typename T, typename... Args>
-	            RESTAPIHandler * RESTAPI_Router_I(const std::string & RequestedPath, RESTAPIHandler::BindingMap &Bindings, Poco::Logger & Logger, RESTAPI_GenericServer & Server, uint64_t TransactionId) {
+	            RESTAPIHandler * RESTAPI_Router_I(const std::string & RequestedPath, RESTAPIHandler::BindingMap &Bindings,
+												 Poco::Logger & Logger, RESTAPI_GenericServer & Server, uint64_t TransactionId) {
 	                static_assert(test_has_PathName_method((T*)nullptr), "Class must have a static PathName() method.");
 	                if(RESTAPIHandler::ParseBindings(RequestedPath,T::PathName(),Bindings)) {
 	                    return new T(Bindings, Logger, Server, true, TransactionId);
@@ -2413,7 +2421,9 @@ namespace OpenWifi {
 	        return ((T.expires_in_+T.created_)<std::time(nullptr));
 	    }
 
-	    inline bool RetrieveTokenInformation(const std::string & SessionToken, SecurityObjects::UserInfoAndPolicy & UInfo, bool & Expired, bool Sub=false) {
+	    inline bool RetrieveTokenInformation(const std::string & SessionToken,
+											 SecurityObjects::UserInfoAndPolicy & UInfo,
+											 bool & Expired, bool Sub=false) {
 	        try {
 	            Types::StringPairVec QueryData;
 	            QueryData.push_back(std::make_pair("token",SessionToken));
@@ -2442,7 +2452,8 @@ namespace OpenWifi {
 	        return false;
 	    }
 
-        inline bool IsAuthorized(const std::string &SessionToken, SecurityObjects::UserInfoAndPolicy & UInfo, bool & Expired, bool Sub = false) {
+        inline bool IsAuthorized(const std::string &SessionToken, SecurityObjects::UserInfoAndPolicy & UInfo,
+								 bool & Expired, bool Sub = false) {
             std::lock_guard	G(Mutex_);
 	        auto User = Cache_.get(SessionToken);
 	        if(!User.isNull()) {
@@ -2556,6 +2567,7 @@ namespace OpenWifi {
 	        Logger().information("Stopping ");
 	        for( const auto & svr : RESTServers_ )
 	            svr->stop();
+			Pool_.stopAll();
 	        Pool_.joinAll();
 	        RESTServers_.clear();
 	    }
@@ -2590,9 +2602,15 @@ namespace OpenWifi {
 	    }
 
 	    inline Poco::Net::HTTPRequestHandler *createRequestHandler(const Poco::Net::HTTPServerRequest &Request) override {
-	        Poco::URI uri(Request.getURI());
-	        auto *Path = uri.getPath().c_str();
-	        return RESTAPI_ExtServer()->CallServer(Path, TransactionId_++);
+			try {
+				Poco::URI uri(Request.getURI());
+				auto *Path = uri.getPath().c_str();
+				Poco::Thread::current()->setName("ExtWebServer_" + std::to_string(TransactionId_));
+				return RESTAPI_ExtServer()->CallServer(Path, TransactionId_++);
+			} catch (...) {
+
+			}
+			return nullptr;
 	    }
 
 	private:
@@ -2640,7 +2658,8 @@ namespace OpenWifi {
 	        Logger().information("Stopping ");
 	        for( const auto & svr : RESTServers_ )
 	            svr->stop();
-	        Pool_.stopAll();
+			Pool_.stopAll();
+			Pool_.joinAll();
 	    }
 
 	    inline void reinitialize(Poco::Util::Application &self) override;

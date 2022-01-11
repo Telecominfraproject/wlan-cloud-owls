@@ -11,9 +11,13 @@
 #include <string>
 #include "framework/OpenWifiTypes.h"
 #include "Poco/JSON/Object.h"
+#include "Poco/Data/LOB.h"
+#include "Poco/Data/LOBStream.h"
 
 namespace OpenWifi {
     namespace SecurityObjects {
+
+        typedef std::string USER_ID_TYPE;
 
         struct AclTemplate {
             bool Read_ = true;
@@ -102,36 +106,37 @@ namespace OpenWifi {
         };
 
         struct UserInfo {
-            std::string Id;
+            std::string id;
             std::string name;
             std::string description;
             std::string avatar;
             std::string email;
-            bool validated = false;
+            bool        validated = false;
             std::string validationEmail;
-            uint64_t validationDate = 0;
-            uint64_t creationDate = 0;
+            uint64_t    validationDate = 0;
+            uint64_t    creationDate = 0;
             std::string validationURI;
-            bool changePassword = false;
-            uint64_t lastLogin = 0;
+            bool        changePassword = false;
+            uint64_t    lastLogin = 0;
             std::string currentLoginURI;
-            uint64_t lastPasswordChange = 0;
-            uint64_t lastEmailCheck = 0;
-            bool waitingForEmailCheck = false;
+            uint64_t    lastPasswordChange = 0;
+            uint64_t    lastEmailCheck = 0;
+            bool        waitingForEmailCheck = false;
             std::string locale;
             NoteInfoVec notes;
             std::string location;
             std::string owner;
-            bool suspended = false;
-            bool blackListed = false;
-            USER_ROLE userRole;
+            bool        suspended = false;
+            bool        blackListed = false;
+            USER_ROLE   userRole;
             UserLoginLoginExtensions userTypeProprietaryInfo;
             std::string securityPolicy;
-            uint64_t securityPolicyChange = 0 ;
+            uint64_t    securityPolicyChange = 0 ;
             std::string currentPassword;
             OpenWifi::Types::StringVec lastPasswords;
             std::string oauthType;
             std::string oauthUserInfo;
+            uint64_t    modified;
 
             void to_json(Poco::JSON::Object &Obj) const;
             bool from_json(const Poco::JSON::Object::Ptr &Obj);
@@ -280,5 +285,22 @@ namespace OpenWifi {
             bool from_json(Poco::JSON::Object::Ptr &Obj);
         };
 
+        struct Avatar {
+            std::string             id;
+            std::string             type;
+            uint64_t                created=0;
+            std::string             name;
+            Poco::Data::LOB<char>   avatar;
+        };
+
+        struct LoginRecordInfo {
+            std::string sessionId;
+            std::string userId;
+            std::string email;
+            uint64_t    login=0;
+            uint64_t    logout=0;
+
+            void to_json(Poco::JSON::Object &Obj) const;
+        };
     }
 }

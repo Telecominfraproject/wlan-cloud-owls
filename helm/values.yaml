@@ -181,22 +181,9 @@ configProperties:
   storage.type.mysql.port: 3306
   storage.type.mysql.connectiontimeout: 60
   # Logging
-  logging.formatters.f1.class: PatternFormatter
-  logging.formatters.f1.pattern: "%Y-%m-%d %H:%M:%S %s: [%p] %t"
-  logging.formatters.f1.times: UTC
-  logging.channels.c1.class: ConsoleChannel
-  logging.channels.c1.formatter: f1
-  logging.channels.c2.class: FileChannel
-  logging.channels.c2.path: /tmp/log_owls
-  logging.channels.c2.formatter.class: PatternFormatter
-  logging.channels.c2.formatter.pattern: "%Y-%m-%d %H:%M:%S %s: [%p] %t"
-  logging.channels.c2.rotation: "20 M"
-  logging.channels.c2.archive: timestamp
-  logging.channels.c2.purgeCount: 20
-  logging.channels.c3.class: ConsoleChannel
-  logging.channels.c3.pattern: "%s: [%p] %t"
-  logging.loggers.root.channel: c1
-  logging.loggers.root.level: debug
+  logging.type: console
+  logging.path: $OWLS_ROOT/logs
+  logging.level: debug
 
   # -> Secret part
   # REST API

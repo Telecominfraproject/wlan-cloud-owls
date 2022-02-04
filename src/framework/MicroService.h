@@ -1115,7 +1115,7 @@ namespace OpenWifi {
 			{
 				std::lock_guard M(Mutex_);
 
-				if(isFull()) {
+				if(Used_==Buffer_->capacity()) {
 					Buffer_->reserve( Buffer_->size()+100 );
 				}
 
@@ -1139,11 +1139,11 @@ namespace OpenWifi {
 		inline auto MaxEverUser() const { return MaxEverUsed_; }
 
 	  private:
-		std::mutex      Mutex_;
-		uint32_t        Read_=0;
-		uint32_t                        Write_=0;
-		uint32_t 		Used_=0;
-		uint32_t 		MaxEverUsed_=0;
+		std::recursive_mutex    Mutex_;
+		uint32_t        		Read_=0;
+		uint32_t        		Write_=0;
+		uint32_t 				Used_=0;
+		uint32_t 				MaxEverUsed_=0;
 		std::unique_ptr<std::vector<T>>  Buffer_=std::make_unique<std::vector<T>>();
 	};
 
@@ -2380,7 +2380,7 @@ namespace OpenWifi {
 		}
 
     private:
-        std::mutex          	Mutex_;
+        std::recursive_mutex  	Mutex_;
         Poco::Thread        	Worker_;
         std::atomic_bool    	Running_=false;
 		Poco::NotificationQueue	Queue_;
@@ -2406,7 +2406,7 @@ namespace OpenWifi {
         }
 
 	  private:
-        std::mutex          	Mutex_;
+		std::recursive_mutex  	Mutex_;
         Poco::Thread        	Worker_;
         std::atomic_bool    	Running_=false;
     };
@@ -2487,7 +2487,7 @@ namespace OpenWifi {
 		}
 
 	  private:
-		std::mutex          	Mutex_;
+		std::recursive_mutex  	Mutex_;
 		Types::NotifyTable      Notifiers_;
 		Poco::Thread        	Worker_;
 		std::atomic_bool    	Running_=false;
@@ -3073,7 +3073,7 @@ namespace OpenWifi {
 		std::string                 UIURI_;
 		std::string 				Version_{ OW_VERSION::VERSION + "("+ OW_VERSION::BUILD + ")" + " - " + OW_VERSION::HASH };
 		BusEventManager				BusEventManager_;
-		std::mutex 					InfraMutex_;
+		std::recursive_mutex		InfraMutex_;
 		std::default_random_engine  RandomEngine_;
         Poco::Util::PropertyFileConfiguration   * PropConfigurationFile_ = nullptr;
 		std::string DAEMON_PROPERTIES_FILENAME;

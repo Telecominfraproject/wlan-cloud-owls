@@ -30,7 +30,6 @@ jobs:
       with:
         repository: Telecominfraproject/.github
         path: github
-        ref: WIFI-6729-speed-up-image-build
 
     - name: Build and push Docker image
       uses: ./github/composite-actions/docker-image-build

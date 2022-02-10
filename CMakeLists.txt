@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(owls VERSION 2.5.0)
+project(owls VERSION 2.6.0)
 
 # cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 -DMYSQL_ROOT_DIR=/usr/local/opt/mysql-client
 

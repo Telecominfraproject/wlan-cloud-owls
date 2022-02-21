@@ -65,12 +65,10 @@ add_executable( owls
         src/framework/MicroService.h
         src/framework/OpenWifiTypes.h
         src/framework/orm.h
-        src/framework/RESTAPI_errors.h
-        src/framework/RESTAPI_protocol.h
         src/framework/StorageClass.h
-        src/framework/uCentral_Protocol.h
         src/framework/ConfigurationValidator.cpp
         src/framework/ConfigurationValidator.h
+        src/framework/ow_constants.h
         src/RESTAPI/RESTAPI_routers.cpp
         src/Daemon.cpp src/Daemon.h
         src/Dashboard.cpp src/Dashboard.h

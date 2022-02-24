@@ -285,6 +285,8 @@ namespace OpenWifi::ProvObjects {
         std::string     rrm;
         Types::UUID_t   managementPolicy;
         std::string     state;
+        std::string     devClass;
+        std::string     locale;
 
         void to_json(Poco::JSON::Object &Obj) const;
         bool from_json(const Poco::JSON::Object::Ptr &Obj);
@@ -380,6 +382,57 @@ namespace OpenWifi::ProvObjects {
 
     struct MapList {
         std::vector<Map>    list;
+
+        void to_json(Poco::JSON::Object &Obj) const;
+        bool from_json(const Poco::JSON::Object::Ptr &Obj);
+    };
+
+    struct SignupEntry {
+        ObjectInfo          info;
+        std::string         email;
+        std::string         userId;
+        std::string         serialNumber;
+        uint64_t            submitted = 0 ;
+        uint64_t            completed = 0 ;
+        std::string         status;
+        uint64_t            error=0;
+
+        void to_json(Poco::JSON::Object &Obj) const;
+        bool from_json(const Poco::JSON::Object::Ptr &Obj);
+    };
+
+    struct Variable {
+        std::string         type;
+        uint64_t            weight=0;
+        std::string         prefix;
+        std::string         value;
+
+        void to_json(Poco::JSON::Object &Obj) const;
+        bool from_json(const Poco::JSON::Object::Ptr &Obj);
+    };
+
+    struct VariableList {
+        std::vector<Variable>   variables;
+
+        void to_json(Poco::JSON::Object &Obj) const;
+        bool from_json(const Poco::JSON::Object::Ptr &Obj);
+    };
+
+    struct VariableBlock {
+        ObjectInfo                  info;
+        std::vector<Variable>       variables;
+        std::string                 entity;
+        std::string                 venue;
+        std::string                 subscriber;
+        std::string                 inventory;
+        std::vector<std::string>    inUse;
+
+        void to_json(Poco::JSON::Object &Obj) const;
+        bool from_json(const Poco::JSON::Object::Ptr &Obj);
+    };
+
+    struct VariableBlockList {
+        std::vector<VariableBlock>      variableBlocks;
 
         void to_json(Poco::JSON::Object &Obj) const;
         bool from_json(const Poco::JSON::Object::Ptr &Obj);

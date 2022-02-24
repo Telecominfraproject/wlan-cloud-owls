@@ -37,6 +37,7 @@ namespace OpenWifi::GWObjects {
 		uint64_t 	webSocketClients=0;
 		uint64_t 	kafkaPackets=0;
 		uint64_t 	websocketPackets=0;
+		std::string locale;
 		void to_json(Poco::JSON::Object &Obj) const;
 	};
 
@@ -59,6 +60,11 @@ namespace OpenWifi::GWObjects {
 		uint64_t LastFWUpdate = 0 ;
 		std::string Venue;
 		std::string DevicePassword;
+		std::string subscriber;
+		std::string entity;
+		uint64_t 	modified=0;
+		std::string locale;
+
 		void to_json(Poco::JSON::Object &Obj) const;
 		void to_json_with_status(Poco::JSON::Object &Obj) const;
 		bool from_json(Poco::JSON::Object::Ptr &Obj);

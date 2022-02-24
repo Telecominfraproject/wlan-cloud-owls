@@ -86,6 +86,8 @@ using namespace std::chrono_literals;
 
 namespace OpenWifi {
 
+    inline uint64_t Now() { return std::time(nullptr); };
+
     enum UNAUTHORIZED_REASON {
         SUCCESS=0,
         PASSWORD_CHANGE_REQUIRED,
@@ -166,6 +168,9 @@ namespace OpenWifi {
 		std::string         FileName;
 		nlohmann::json      Registry_;
 	};
+
+    inline auto AppServiceRegistry() { return AppServiceRegistry::instance(); }
+
 }
 
 namespace OpenWifi::RESTAPI_utils {

@@ -51,7 +51,7 @@ find_package(ZLIB REQUIRED)
 find_package(CppKafka REQUIRED)
 find_package(nlohmann_json  REQUIRED)
 find_package(nlohmann_json_schema_validator REQUIRED)
-find_package(Poco REQUIRED COMPONENTS Crypto Net Util NetSSL Data DataSQLite DataPostgreSQL DataMySQL)
+find_package(Poco REQUIRED COMPONENTS Crypto Net Util JWT NetSSL Data DataSQLite DataPostgreSQL DataMySQL)
 
 include_directories(/usr/local/include  /usr/local/opt/openssl/include src include/kafka /usr/local/opt/mysql-client/include)
 

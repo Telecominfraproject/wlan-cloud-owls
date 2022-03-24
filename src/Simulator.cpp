@@ -40,7 +40,7 @@ namespace OpenWifi {
     }
 
     void Simulator::run() {
-        Logger_.notice(Poco::format("Starting reactor %Lu...",Index_));
+        Logger_.notice(fmt::format("Starting reactor {}...",Index_));
         Running_ = true;
         SocketReactorThread_.start(Reactor_);
 
@@ -73,7 +73,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_reconnect: {
-                            Logger_.information(Poco::format("reconnect(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("reconnect({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 Client->EstablishConnection();
@@ -83,7 +83,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_connect: {
-                            Logger_.information(Poco::format("connect(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("connect({}}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 ConnectEvent E(Client);
@@ -94,7 +94,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_healthcheck: {
-                            Logger_.information(Poco::format("healthcheck(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("healthcheck({}s): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 HealthCheckEvent E(Client);
@@ -105,7 +105,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_state: {
-                            Logger_.information(Poco::format("state(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("state({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 StateEvent E(Client);
@@ -116,7 +116,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_log: {
-                            Logger_.information(Poco::format("log(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("log({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 LogEvent E(Client, std::string("log"), 2);
@@ -127,7 +127,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_crashlog: {
-                            Logger_.information(Poco::format("crash-log(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("crash-log({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 CrashLogEvent E(Client);
@@ -138,7 +138,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_configpendingchange: {
-                            Logger_.information(Poco::format("pendingchange(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("pendingchange({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 ConfigChangePendingEvent E(Client);
@@ -149,7 +149,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_keepalive: {
-                            Logger_.information(Poco::format("keepalive(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("keepalive({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 KeepAliveEvent E(Client);
@@ -160,7 +160,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_reboot: {
-                            Logger_.information(Poco::format("reboot(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("reboot({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 RebootEvent E(Client);
@@ -171,7 +171,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_disconnect: {
-                            Logger_.information(Poco::format("disconnect(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("disconnect({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 DisconnectEvent E(Client);
@@ -182,7 +182,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_wsping: {
-                            Logger_.information(Poco::format("ws-ping(%s): ", Client->Serial()));
+                            Logger_.information(fmt::format("ws-ping({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 WSPingEvent E(Client);
@@ -194,10 +194,10 @@ namespace OpenWifi {
                     }
                 }
             } catch ( const Poco::Exception & E) {
-                Logger_.warning(Poco::format("SIMULATOR(%Lu): Crashed. Poco exception:%s",Index_,E.displayText()));
+                Logger_.warning(fmt::format("SIMULATOR({}): Crashed. Poco exception:{}",Index_,E.displayText()));
             } catch ( const std::exception & E ) {
                 std::string S = E.what();
-                Logger_.warning(Poco::format("SIMULATOR(%Lu): Crashed. std::exception:%s",Index_,S));
+                Logger_.warning(fmt::format("SIMULATOR({}): Crashed. std::exception:{}",Index_,S));
             }
         }
 
@@ -206,6 +206,6 @@ namespace OpenWifi {
         }
 
         Clients_.clear();
-        Logger_.notice(Poco::format("Stopped reactor %Lu...",Index_));
+        Logger_.notice(fmt::format("Stopped reactor {}...",Index_));
     }
 }

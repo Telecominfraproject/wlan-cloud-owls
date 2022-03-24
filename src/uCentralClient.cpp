@@ -264,7 +264,7 @@ namespace OpenWifi {
 
     void uCentralClient::Disconnect( const char * Reason, bool Reconnect ) {
         std::lock_guard G(Mutex_);
-        Logger_.debug(Poco::format("DEVICE(%s): disconnecting because '%s'", SerialNumber_, std::string{Reason}));
+        Logger_.debug(fmt::format("DEVICE({}): disconnecting because '{}'", SerialNumber_, std::string{Reason}));
         if(Connected_) {
             Reactor_.removeEventHandler(*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(*this, &uCentralClient::OnSocketReadable));
             (*WS_).close();
@@ -339,7 +339,7 @@ namespace OpenWifi {
                         {
                             ProcessCommand(Vars);
                         } else {
-                            Logger_.warning(Poco::format("MESSAGE(%s): invalid incoming message.",SerialNumber_));
+                            Logger_.warning(fmt::format("MESSAGE({}): invalid incoming message.",SerialNumber_));
                         }
                     }
                 }
@@ -352,11 +352,11 @@ namespace OpenWifi {
         }
         catch ( const Poco::Net::SSLException & E )
         {
-            Logger_.warning(Poco::format("Exception(%s): SSL exception: %s", SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("Exception({}): SSL exception: {}", SerialNumber_,E.displayText()));
         }
         catch ( const Poco::Exception & E )
         {
-            Logger_.warning(Poco::format("Exception(%s): Generic exception: %s", SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("Exception({}): Generic exception: {}", SerialNumber_,E.displayText()));
         }
         Disconnect("Exception caught during data reception", true);
     }
@@ -383,7 +383,7 @@ namespace OpenWifi {
         } else if(Method == "trace") {
             DoTrace(Id,Params);
         } else {
-            Logger_.warning(Poco::format("COMMAND(%s): unknown method '%s'",SerialNumber_,Method));
+            Logger_.warning(fmt::format("COMMAND({}): unknown method '{}'",SerialNumber_,Method));
         }
     }
 
@@ -413,14 +413,14 @@ namespace OpenWifi {
                 Answer["result"]["status"]["text"] = "No errors were found";
                 Answer["result"]["status"]["error"] = 0;
 
-                Logger_.information(Poco::format("configure(%s): done.",SerialNumber_));
+                Logger_.information(fmt::format("configure({}): done.",SerialNumber_));
                 SendObject(Answer);
             } else {
-                Logger_.warning(Poco::format("configure(%s): Illegal command.",SerialNumber_));
+                Logger_.warning(fmt::format("configure({}): Illegal command.",SerialNumber_));
             }
         } catch (const Poco::Exception &E)
         {
-            Logger_.warning(Poco::format("configure(%s): Exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("configure({}): Exception. {}",SerialNumber_,E.displayText()));
         }
     }
 
@@ -443,14 +443,14 @@ namespace OpenWifi {
 
                 SendObject(Answer);
 
-                Logger_.information(Poco::format("reboot(%s): done.",SerialNumber_));
+                Logger_.information(fmt::format("reboot({}): done.",SerialNumber_));
                 Disconnect("Rebooting" , true);
             } else {
-                Logger_.warning(Poco::format("reboot(%s): Illegal command.",SerialNumber_));
+                Logger_.warning(fmt::format("reboot({}): Illegal command.",SerialNumber_));
             }
         } catch( const Poco::Exception &E )
         {
-            Logger_.warning(Poco::format("reboot(%s): Exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("reboot({}): Exception. {}",SerialNumber_,E.displayText()));
         }
     }
 
@@ -494,14 +494,14 @@ namespace OpenWifi {
                 SetFirmware(GetFirmware(URI));
 
                 SendObject(Answer);
-                Logger_.information(Poco::format("upgrade(%s): from URI=%s.",SerialNumber_,URI));
+                Logger_.information(fmt::format("upgrade({}): from URI={}.",SerialNumber_,URI));
                 Disconnect("Doing an upgrade", true);
             } else {
-                Logger_.warning(Poco::format("upgrade(%s): Illegal command.",SerialNumber_));
+                Logger_.warning(fmt::format("upgrade({}): Illegal command.",SerialNumber_));
             }
         } catch( const Poco::Exception &E )
         {
-            Logger_.warning(Poco::format("upgrade(%s): Exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("upgrade({}): Exception. {}",SerialNumber_,E.displayText()));
         }
     }
 
@@ -529,14 +529,14 @@ namespace OpenWifi {
                 Answer["result"]["status"]["text"] = "No errors were found";
                 SendObject(Answer);
 
-                Logger_.information(Poco::format("factory(%s): done.",SerialNumber_));
+                Logger_.information(fmt::format("factory({}): done.",SerialNumber_));
                 Disconnect("Factory reset", true);
             } else {
-                Logger_.warning(Poco::format("factory(%s): Illegal command.",SerialNumber_));
+                Logger_.warning(fmt::format("factory({}): Illegal command.",SerialNumber_));
             }
         } catch( const Poco::Exception &E )
         {
-            Logger_.warning(Poco::format("factory(%s): Exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("factory({}): Exception. {}",SerialNumber_,E.displayText()));
         }
     }
 
@@ -562,13 +562,13 @@ namespace OpenWifi {
                 Answer["result"]["status"]["text"] = "No errors were found";
                 SendObject(Answer);
 
-                Logger_.information(Poco::format("LEDs(%s): pattern set to: %s for %Lu ms.",SerialNumber_,Duration,Pattern));
+                Logger_.information(fmt::format("LEDs({}): pattern set to: {} for {} ms.",SerialNumber_,Duration,Pattern));
             } else {
-                Logger_.warning(Poco::format("LEDs(%s): Illegal command.",SerialNumber_));
+                Logger_.warning(fmt::format("LEDs({}): Illegal command.",SerialNumber_));
             }
         } catch( const Poco::Exception &E )
         {
-            Logger_.warning(Poco::format("LEDs(%s): Exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("LEDs({}): Exception. {}",SerialNumber_,E.displayText()));
         }
     }
 
@@ -596,13 +596,13 @@ namespace OpenWifi {
                 Answer["result"]["status"]["text"]["resultCode"] = 0 ;
                 Answer["result"]["status"]["text"]["resultText"] = "no return status" ;
                 SendObject(Answer);
-                Logger_.information(Poco::format("perform(%s): command=%s.",SerialNumber_,Command));
+                Logger_.information(fmt::format("perform({}): command={}.",SerialNumber_,Command));
             } else {
-                Logger_.warning(Poco::format("perform(%s): Illegal command.",SerialNumber_));
+                Logger_.warning(fmt::format("perform({}): Illegal command.",SerialNumber_));
             }
         } catch( const Poco::Exception &E )
         {
-            Logger_.warning(Poco::format("perform(%s): Exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("perform({}): Exception. {}",SerialNumber_,E.displayText()));
         }
     }
 
@@ -637,15 +637,15 @@ namespace OpenWifi {
                 Answer["result"]["status"]["text"]["resultText"] = "no return status" ;
                 SendObject(Answer);
 
-                Logger_.information(Poco::format("trace(%s): network=%s interface=%s packets=%Lu duration=%Lu URI=%s.",
+                Logger_.information(fmt::format("trace({}): network={} interface={} packets={} duration={} URI={}.",
                                                  SerialNumber_, Network,
                                                  Interface, Packets, Duration, URI));
             } else {
-                Logger_.warning(Poco::format("trace(%s): Illegal command.",SerialNumber_));
+                Logger_.warning(fmt::format("trace({}): Illegal command.",SerialNumber_));
             }
         } catch( const Poco::Exception &E )
         {
-            Logger_.warning(Poco::format("trace(%s): Exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("trace({}): Exception. {}",SerialNumber_,E.displayText()));
         }
     }
 
@@ -691,7 +691,7 @@ namespace OpenWifi {
         Request.set("origin", "http://www.websocket.org");
         Poco::Net::HTTPResponse Response;
 
-        Logger_.information(Poco::format("connecting(%s): host=%s port=%Lu",SerialNumber_,uri.getHost(),(uint64_t )uri.getPort()));
+        Logger_.information(fmt::format("connecting({}): host={} port={}",SerialNumber_,uri.getHost(),uri.getPort()));
 
         std::lock_guard guard(Mutex_);
 
@@ -710,17 +710,17 @@ namespace OpenWifi {
         }
         catch ( const Poco::Exception & E )
         {
-            Logger_.warning(Poco::format("connecting(%s): exception. %s",SerialNumber_,E.displayText()));
+            Logger_.warning(fmt::format("connecting({}): exception. {}",SerialNumber_,E.displayText()));
             AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroService::instance().Random(15));
         }
         catch ( const std::exception & E )
         {
-            Logger_.warning(Poco::format("connecting(%s): std::exception. %s",SerialNumber_,E.what()));
+            Logger_.warning(fmt::format("connecting({}): std::exception. {}",SerialNumber_,E.what()));
             AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroService::instance().Random(15));
         }
         catch ( ... )
         {
-            Logger_.warning(Poco::format("connecting(%s): unknown exception. %s",SerialNumber_));
+            Logger_.warning(fmt::format("connecting({}): unknown exception. {}",SerialNumber_));
             AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroService::instance().Random(15));
         }
     }
@@ -735,7 +735,7 @@ namespace OpenWifi {
                 SimStats()->AddOutMsg();
                 return true;
             } else {
-                Logger_.warning(Poco::format("SEND(%s): incomplete send. Sent: %l", SerialNumber_, BytesSent));
+                Logger_.warning(fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
             }
         } catch(const Poco::Exception &E) {
             Logger_.log(E);
@@ -767,7 +767,7 @@ namespace OpenWifi {
                 SimStats()->AddOutMsg();
                 return true;
             } else {
-                Logger_.warning(Poco::format("SEND(%s): incomplete send object. Sent: %l", SerialNumber_, BytesSent));
+                Logger_.warning(fmt::format("SEND({}): incomplete send object. Sent: {}", SerialNumber_, BytesSent));
             }
         }
         catch(const Poco::Exception &E) {

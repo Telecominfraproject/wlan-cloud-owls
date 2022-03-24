@@ -48,6 +48,7 @@ find_package(OpenSSL REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(MySQL REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(fmt REQUIRED)
 find_package(CppKafka REQUIRED)
 find_package(nlohmann_json  REQUIRED)
 find_package(nlohmann_json_schema_validator REQUIRED)
@@ -86,4 +87,5 @@ add_executable( owls
 target_link_libraries(owls PRIVATE
         ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
         ${MySQL_LIBRARIES} ${ZLIB_LIBRARIES}
+        fmt::fmt
         CppKafka::cppkafka nlohmann_json_schema_validator)

@@ -83,7 +83,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_connect: {
-                            Logger_.information(fmt::format("connect({}}): ", Client->Serial()));
+                            Logger_.information(fmt::format("connect({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 ConnectEvent E(Client);

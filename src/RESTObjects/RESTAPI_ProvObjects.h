@@ -98,7 +98,7 @@ namespace OpenWifi::ProvObjects {
         DiGraph             topology;
         std::string         design;
         Types::UUIDvec_t    deviceConfiguration;
-        std::string         contact;
+        Types::UUIDvec_t    contacts;
         std::string         location;
         std::string         rrm;
         Types::StringVec    sourceIP;
@@ -107,6 +107,7 @@ namespace OpenWifi::ProvObjects {
         Types::UUIDvec_t    maps;
         Types::UUIDvec_t    managementPolicies;
         Types::UUIDvec_t    managementRoles;
+        Types::UUIDvec_t    boards;
 
         void to_json(Poco::JSON::Object &Obj) const;
         bool from_json(const Poco::JSON::Object::Ptr &Obj);
@@ -480,6 +481,18 @@ namespace OpenWifi::ProvObjects {
         bool from_json(const Poco::JSON::Object::Ptr &Obj);
     };
 
+    struct VenueDeviceList {
+        std::string         id;
+        std::string         name;
+        std::string         description;
+        Types::UUIDvec_t    devices;
+
+        void to_json(Poco::JSON::Object &Obj) const;
+        bool from_json(const Poco::JSON::Object::Ptr &Obj);
+    };
+
+
     bool UpdateObjectInfo(const Poco::JSON::Object::Ptr &O, const SecurityObjects::UserInfo &U, ObjectInfo &I);
     bool CreateObjectInfo(const Poco::JSON::Object::Ptr &O, const SecurityObjects::UserInfo &U, ObjectInfo &I);
+    bool CreateObjectInfo(const SecurityObjects::UserInfo &U, ObjectInfo &I);
 };

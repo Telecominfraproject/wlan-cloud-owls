@@ -45,7 +45,7 @@ namespace OpenWifi {
             [[nodiscard]] inline const std::string & GetCertFileName() { return CertFileName_; }
             [[nodiscard]] inline const std::string & GetKeyFileName() { return KeyFileName_; }
             [[nodiscard]] inline const std::string & GetRootCAFileName() { return RootCAFileName_; }
-            [[nodiscard]] inline const int GetLevel() { return Level_; }
+            [[nodiscard]] inline int GetLevel() const { return Level_; }
             [[nodiscard]] const nlohmann::json & GetSimCapabilities() { return DefaultCapabilities_; }
             [[nodiscard]] nlohmann::json GetSimConfiguration( uint64_t uuid );
 

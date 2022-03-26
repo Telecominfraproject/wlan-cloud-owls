@@ -48,8 +48,8 @@ namespace OpenWifi {
 
     class LogEvent : public uCentralEvent {
     public:
-        LogEvent(std::shared_ptr<uCentralClient> Client,std::string LogLine, uint64_t Severity)
-        : LogLine_(std::move(LogLine)), Severity_(Severity), uCentralEvent(std::move(Client)) {};
+        explicit LogEvent(std::shared_ptr<uCentralClient> Client,std::string LogLine, uint64_t Severity)
+        :  uCentralEvent(std::move(Client)), LogLine_(std::move(LogLine)), Severity_(Severity) {};
         bool Send() override;
     private:
         std::string     LogLine_;

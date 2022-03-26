@@ -42,8 +42,8 @@ namespace OpenWifi {
             Poco::Net::SocketReactor  & Reactor,
             std::string SerialNumber,
             Poco::Logger & Logger):
-            Logger_(Logger),
             Reactor_(Reactor),
+            Logger_(Logger),
             SerialNumber_(std::move(SerialNumber))
             {
                 SetFirmware();
@@ -95,7 +95,7 @@ namespace OpenWifi {
 
     void uCentralClient::CreateClients(Clients &C, uint64_t min, uint64_t max) {
         uint64_t Num = MicroService::instance().Random(min,max);
-        for(auto i=0;i<Num;i++) {
+        for(uint64_t i=0;i<Num;i++) {
             ClientInfo  CI{ .mac = RandomMAC(), .ipv4 = RandomIPv4(), .ipv6 = RandomIPv6() };
             C.push_back(CI);
         }
@@ -163,13 +163,12 @@ namespace OpenWifi {
 
     nlohmann::json uCentralClient::CreateState() {
         nlohmann::json S;
-        uint64_t    total_mem = 973139968;
 
         // unit
-        uint64_t    Now = std::time(nullptr);
+        auto now = OpenWifi::Now();
         S["unit"]["load"] = std::vector<double>{ (double)(MicroService::instance().Random(75)) /100.0 , (double)(MicroService::instance().Random(50))/100.0 , (double)(MicroService::instance().Random(25))/100.0 };
-        S["unit"]["localtime"] = Now;
-        S["unit"]["uptime"] = Now - StartTime_;
+        S["unit"]["localtime"] = now;
+        S["unit"]["uptime"] = now - StartTime_;
         S["unit"]["memory"]["total"] = 973139968;
         S["unit"]["memory"]["buffered"] = 10129408;
         S["unit"]["memory"]["cached"] = 29233152;
@@ -217,7 +216,7 @@ namespace OpenWifi {
         interface0["name"] = "up0v0";
         interface0["ipv4"]["addresses"].push_back("192.168.1.1/24");
         interface0["ipv4"]["leasetime"]= 43200;
-        interface0["uptime"] = Now - StartTime_;
+        interface0["uptime"] = now - StartTime_;
         AddCounters(interface0);
         interface0["dns_servers"].push_back("192.168.88.1");
         interface0["addresses"].push_back("192.168.88.91/24");
@@ -253,7 +252,7 @@ namespace OpenWifi {
         AddCounters(interface1);
         interface1["location"] = "/interfaces/1";
         interface1["name"] = "down1v0";
-        interface1["uptime"] = Now - StartTime_;
+        interface1["uptime"] = now - StartTime_;
         interface1["ipv4"]["addresses"].push_back("192.168.1.1/24");
 
         S["interfaces"].push_back(interface0);

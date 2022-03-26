@@ -19,7 +19,7 @@ namespace OpenWifi {
 
         std::lock_guard Lock(Mutex_);
 
-        for(auto i=0;i<NumClients_;i++)
+        for(uint64_t i=0;i<NumClients_;i++)
         {
             char Buffer[32];
             snprintf(Buffer,sizeof(Buffer),"%s%02x%03x0",SerialStart_.c_str(),(unsigned int)Index_,i);

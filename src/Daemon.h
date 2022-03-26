@@ -14,11 +14,11 @@
 
 namespace OpenWifi {
 
-	static const char * vDAEMON_PROPERTIES_FILENAME = "owls.properties";
-	static const char * vDAEMON_ROOT_ENV_VAR = "OWLS_ROOT";
-	static const char * vDAEMON_CONFIG_ENV_VAR = "OWLS_CONFIG";
-	static const char * vDAEMON_APP_NAME = uSERVICE_OWLS.c_str();
-	static const uint64_t vDAEMON_BUS_TIMER = 10000;
+	[[maybe_unused]] static const char * vDAEMON_PROPERTIES_FILENAME = "owls.properties";
+    [[maybe_unused]] static const char * vDAEMON_ROOT_ENV_VAR = "OWLS_ROOT";
+    [[maybe_unused]] static const char * vDAEMON_CONFIG_ENV_VAR = "OWLS_CONFIG";
+    [[maybe_unused]] static const char * vDAEMON_APP_NAME = uSERVICE_OWLS.c_str();
+    [[maybe_unused]] static const uint64_t vDAEMON_BUS_TIMER = 10000;
 
     class Daemon : public MicroService {
 		public:
@@ -30,7 +30,7 @@ namespace OpenWifi {
 							const SubSystemVec & SubSystems) :
 				MicroService( PropFile, RootEnv, ConfigEnv, AppName, BusTimer, SubSystems) {};
 
-			void initialize();
+            void PostInitialization(Poco::Util::Application &self);
 			static Daemon *instance();
 			inline OWLSDashboard	& GetDashboard() { return DB_; }
 	  	private:
@@ -41,6 +41,9 @@ namespace OpenWifi {
     };
 
 	inline Daemon * Daemon() { return Daemon::instance(); }
+    inline void DaemonPostInitialization(Poco::Util::Application &self) {
+        Daemon()->PostInitialization(self);
+    }
 }
 
 #endif //UCENTRAL_UCENTRAL_H

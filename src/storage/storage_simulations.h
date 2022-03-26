@@ -36,6 +36,7 @@ namespace OpenWifi {
     class SimulationDB : public ORM::DB<SimulationDBRecordType,OWLSObjects::SimulationDetails> {
     public:
         SimulationDB( OpenWifi::DBType T, Poco::Data::SessionPool & P, Poco::Logger &L);
+        virtual ~SimulationDB() {};
     private:
     };
 

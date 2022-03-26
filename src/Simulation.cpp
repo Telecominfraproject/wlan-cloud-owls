@@ -134,7 +134,7 @@ namespace OpenWifi {
         return true;
     }
 
-    bool SimulationCoordinator::StopSim(const std::string &Id, std::string &Error) {
+    bool SimulationCoordinator::StopSim([[maybe_unused]] const std::string &Id, std::string &Error) {
         if(!SimRunning_) {
             Error = "No simulation is running.";
             return false;
@@ -150,7 +150,7 @@ namespace OpenWifi {
         return true;
     }
 
-    bool SimulationCoordinator::CancelSim(const std::string &Id, std::string &Error) {
+    bool SimulationCoordinator::CancelSim([[maybe_unused]] const std::string &Id, std::string &Error) {
         if(!SimRunning_) {
             Error = "No simulation is running.";
             return false;

@@ -100,7 +100,7 @@ namespace OpenWifi::OWLSObjects {
 
     }
 
-    bool Dashboard::from_json(const Poco::JSON::Object::Ptr &Obj) {
+    bool Dashboard::from_json([[maybe_unused]] const Poco::JSON::Object::Ptr &Obj) {
         return true;
     }
 

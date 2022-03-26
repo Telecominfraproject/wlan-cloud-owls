@@ -299,7 +299,7 @@ namespace OpenWifi {
             }
     }
 
-    void uCentralClient::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf) {
+    void uCentralClient::OnSocketReadable([[maybe_unused]] const Poco::AutoPtr<Poco::Net::ReadableNotification>& pNf) {
         std::lock_guard G(Mutex_);
 
         try {
@@ -780,7 +780,7 @@ namespace OpenWifi {
     void uCentralClient::AddEvent(uCentralEventType E, uint64_t InSeconds) {
         std::lock_guard guard(Mutex_);
 
-        timeval curTime{0};
+        timeval curTime{0,0};
         gettimeofday(&curTime, nullptr);
         uint64_t NextCommand = (InSeconds * million) + (curTime.tv_sec * million) + curTime.tv_usec;
 
@@ -798,7 +798,7 @@ namespace OpenWifi {
             return ev_none;
 
         auto EventTime = Commands_.begin()->first;
-        timeval curTime{0};
+        timeval curTime{0,0};
         gettimeofday(&curTime, nullptr);
         uint64_t Now = (curTime.tv_sec * million) + curTime.tv_usec;
 

@@ -35,8 +35,6 @@ namespace OpenWifi {
 			inline OWLSDashboard	& GetDashboard() { return DB_; }
 	  	private:
 			static Daemon 				*instance_;
-			bool                        AutoProvisioning_ = false;
-			Types::StringMapStringSet   DeviceTypeIdentifications_;
 			OWLSDashboard				DB_{};
     };
 

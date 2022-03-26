@@ -40,10 +40,6 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 endif()
 add_definitions(-DAWS_CUSTOM_MEMORY_MANAGEMENT)
 
-set(Boost_USE_STATIC_LIBS OFF)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost REQUIRED system)
 find_package(OpenSSL REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(MySQL REQUIRED)
@@ -89,7 +85,10 @@ add_executable( owls
         src/StorageService.cpp src/StorageService.h src/storage/storage_simulations.cpp src/storage/storage_simulations.h src/storage/storage_results.cpp src/storage/storage_results.h src/RESTAPI/RESTAPI_simulation_handler.cpp src/RESTAPI/RESTAPI_simulation_handler.h src/RESTAPI/RESTAPI_results_handler.cpp src/RESTAPI/RESTAPI_results_handler.h src/RESTAPI/RESTAPI_status_handler.cpp src/RESTAPI/RESTAPI_status_handler.h src/RESTAPI/RESTAPI_operation_handler.cpp src/RESTAPI/RESTAPI_operation_handler.h src/Simulation.cpp src/Simulation.h)
 
 target_link_libraries(owls PRIVATE
-        ${Poco_LIBRARIES} ${Boost_LIBRARIES} ${PostgreSQL_LIBRARIES}
-        ${MySQL_LIBRARIES} ${ZLIB_LIBRARIES}
+        ${Poco_LIBRARIES}
+        ${PostgreSQL_LIBRARIES}
+        ${MySQL_LIBRARIES}
+        ${ZLIB_LIBRARIES}
         fmt::fmt
-        CppKafka::cppkafka nlohmann_json_schema_validator)
+        CppKafka::cppkafka
+        nlohmann_json_schema_validator)

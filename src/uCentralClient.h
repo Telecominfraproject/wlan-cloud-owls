@@ -17,6 +17,7 @@
 
 #include "uCentralEventTypes.h"
 #include "nlohmann/json.hpp"
+#include "framework/MicroService.h"
 
 namespace OpenWifi {
     struct CensusReport {
@@ -103,9 +104,9 @@ namespace OpenWifi {
         bool                        Connected_=false;
         bool                        KeepRedirector_=false;
         uint64_t                    Version_=0;
-        uint64_t                    StartTime_ = std::time(nullptr);
-        uint64_t                    NumClients_=0;
-        uint64_t                    NumAssociations_=0;
+        uint64_t                    StartTime_ = OpenWifi::Now();
+//        uint64_t                    NumClients_=0;
+//        uint64_t                    NumAssociations_=0;
         Clients                     clients_lan, clients_2g, clients_5g;
         std::string                 mac_lan, mac_2g, mac_5g;
 

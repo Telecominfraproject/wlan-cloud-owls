@@ -34,8 +34,18 @@ fi
 
 token=""
 result_file=result.json
-username="tip@ucentral.com"
-password="NoMoreN00bs!"
+
+if [ -z ${OWSEC_USERNAME+x} ]; then
+	username="tip@ucentral.com"
+else
+	username=${OWSEC_USERNAME}
+fi
+if [ -z ${OWSEC_PASSWORD+x} ]; then
+  password="NoMoreN00bs!"
+else
+  password=${OWSEC_PASSWORD}
+fi
+
 browser_list=(firefox sensible-browser xdg-open w3m links links2 lynx youtube-dl)
 browser=""
 
@@ -73,34 +83,29 @@ findbrowser() {
 }
 
 setowls() {
+if [ -z ${OWGW_OVERRIDE+x} ]; then
 	curl  ${FLAGS} -X GET "https://${OWSEC}/api/v1/systemEndpoints" \
         -H "accept: application/json" \
         -H "Authorization: Bearer ${token}"  > ${result_file}
-#	jq < ${result_file}
-
-	for index in {0..10}
-	do
-		endpointlocation=".endpoints[${index}].uri"
-	endpointlocationtype=".endpoints[${index}].type"
-	rawurl="$(cat ${result_file} | jq -r ${endpointlocation})"
-	svctype="$(cat ${result_file} | jq -r ${endpointlocationtype})"
-	proto="$(echo $rawurl | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-	url="$(echo ${rawurl/$proto/})"
-	user="$(echo $url | grep @ | cut -d@ -f1)"
-	hostport="$(echo ${url/$user@/} | cut -d/ -f1)"
-	host="$(echo $hostport | sed -e 's,:.*,,g')"
-	port="$(echo $hostport | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
-	path="$(echo $url | grep / | cut -d/ -f2-)"
-	if [[ ${url} != "null" ]]
-		then
-		if [[ ${svctype} == "owls" ]]
-			then
-			OWLS="${url}"
-			break
-		fi
+	rawurl="$(cat ${result_file} | jq -r '.endpoints[] | select( .type == "owls" ) | .uri')"
+	if [[ ! -z "${rawurl}" ]]; then
+		proto="$(echo $rawurl | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+		url="$(echo ${rawurl/$proto/})"
+		user="$(echo $url | grep @ | cut -d@ -f1)"
+		hostport="$(echo ${url/$user@/} | cut -d/ -f1)"
+		host="$(echo $hostport | sed -e 's,:.*,,g')"
+		port="$(echo $hostport | sed -e 's,^.*:,:,g' -e 's,.*:\([0-9]*\).*,\1,g' -e 's,[^0-9],,g')"
+		path="$(echo $url | grep / | cut -d/ -f2-)"
+		export OWLS=${url}
+		echo "Using ${OWLS}..."
+	else
+		echo "OWLS endpoint is not found:"
+		jq < ${result_file}
+		exit 1
 	fi
-	done
-#	echo "Using ${OWLS}..."
+else
+	export OWLS=${OWLS_OVERRIDE}
+fi
 }
 
 logout() {
@@ -110,14 +115,31 @@ logout() {
   rm -rf token.json
 }
 
+examplesim() {
+  cat > example-sim.json << EOF
+{
+  "name":"loadsim",
+  "deviceType":"edgecore_ecw5410",
+  "devices":5,
+  "gateway":"https://ucentral.arilia.com:15002",
+  "macPrefix":"030000",
+  "simulationLength":600
+}
+EOF
+}
+
 createsim() {
-    payload="{ \"name\" : \"$1\", \"gateway\" : \"https://ucentral.arilia.com:15002\", \"certificate\" : \"cert\" , \"key\" : \"key\" , \"macPrefix\" : \"030000\", \"devices\" : 5 , \"deviceType\" :  \"edgecore_ecw5410\" }";
+  if [[ -z "$1" ]]; then
+    echo "Simulation file is not passed as an argument. Please pass the simulation. To get example simulation definition, run 'examplesim' command and check 'example-sim.json' file"
+    exit 1
+  else
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/simulation" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" \
     -H "accept: application/json" \
-    -d "$payload" > ${result_file}
+    -d @$1 > ${result_file}
     jq < ${result_file}
+  fi
 }
 
 listsim() {
@@ -172,7 +194,8 @@ results() {
 shopt -s nocasematch
 case "$1" in
     "login") login; echo "You succesfully logged in..."  ; logout ;;
-    "createsim") login; createsim "$2" ; logout;;
+    "examplesim") examplesim;;
+    "createsim") login; createsim "$2"; logout;;
     "listsim") login; listsim; logout;;
     "deletesim") login; deletesim $2; logout;;
     "startsim") login; startsim "$2"; logout;;

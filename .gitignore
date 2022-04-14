@@ -44,4 +44,4 @@ helm/charts/*
 *.dec
 
 # Logs
-test_scripts/curl/result.json
+test_scripts/curl/*.json

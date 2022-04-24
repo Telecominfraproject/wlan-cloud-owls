@@ -26,7 +26,7 @@ namespace OpenWifi {
             Server,
             TransactionId,
             Internal) {}
-            static const std::list<const char *> PathName() { return std::list<const char *>{"/api/v1/simulation"};}
+        static auto PathName() { return std::list<std::string>{"/api/v1/simulation"};}
         void DoGet() final;
         void DoPost() final;
         void DoPut() final;

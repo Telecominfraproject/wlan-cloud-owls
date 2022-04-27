@@ -690,16 +690,16 @@ namespace OpenWifi::ProvObjects {
         info.to_json(Obj);
         field_to_json( Obj,"managementPolicy",managementPolicy);
         field_to_json( Obj,"deviceTypes",deviceTypes);
-        field_to_json( Obj,"configuration",configuration);
-        field_to_json( Obj,"inUse",inUse);
-        field_to_json( Obj,"variables",variables);
-        field_to_json( Obj,"rrm",rrm);
         field_to_json( Obj,"firmwareUpgrade",firmwareUpgrade);
         field_to_json( Obj,"firmwareRCOnly",firmwareRCOnly);
         field_to_json( Obj,"subscriberOnly",subscriberOnly);
         field_to_json( Obj,"entity", entity);
         field_to_json( Obj,"venue", venue);
         field_to_json( Obj,"subscriber", subscriber);
+        field_to_json( Obj,"configuration",configuration);
+        field_to_json( Obj,"inUse",inUse);
+        field_to_json( Obj,"variables",variables);
+        field_to_json( Obj,"rrm",rrm);
     }
 
     bool DeviceConfiguration::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -707,16 +707,16 @@ namespace OpenWifi::ProvObjects {
             info.from_json(Obj);
             field_from_json( Obj,"managementPolicy",managementPolicy);
             field_from_json( Obj,"deviceTypes",deviceTypes);
-            field_from_json( Obj,"configuration",configuration);
             field_from_json( Obj,"inUse",inUse);
             field_from_json( Obj,"variables",variables);
-            field_from_json( Obj,"rrm",rrm);
-            field_from_json( Obj,"firmwareUpgrade",firmwareUpgrade);
-            field_from_json( Obj,"firmwareRCOnly",firmwareRCOnly);
             field_from_json( Obj,"subscriberOnly",subscriberOnly);
             field_from_json( Obj,"entity", entity);
             field_from_json( Obj,"venue", venue);
             field_from_json( Obj,"subscriber", subscriber);
+            field_from_json( Obj,"configuration",configuration);
+            field_from_json( Obj,"rrm",rrm);
+            field_from_json( Obj,"firmwareUpgrade",firmwareUpgrade);
+            field_from_json( Obj,"firmwareRCOnly",firmwareRCOnly);
             return true;
         } catch(...) {
 
@@ -896,6 +896,7 @@ namespace OpenWifi::ProvObjects {
         field_to_json( Obj,"statusCode", statusCode);
         field_to_json( Obj,"deviceID", deviceID);
         field_to_json( Obj,"registrationId",registrationId);
+        field_to_json( Obj,"operatorId",operatorId);
     }
 
     bool SignupEntry::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -912,6 +913,7 @@ namespace OpenWifi::ProvObjects {
             field_from_json( Obj,"statusCode", statusCode);
             field_from_json( Obj,"deviceID", deviceID);
             field_from_json( Obj,"registrationId",registrationId);
+            field_from_json( Obj,"operatorId",operatorId);
             return true;
         } catch(...) {
 
@@ -994,6 +996,26 @@ namespace OpenWifi::ProvObjects {
         return false;
     }
 
+    void CompleteDeviceConfiguration::to_json(Poco::JSON::Object &Obj) const {
+        field_to_json( Obj,"configuration", configuration);
+        field_to_json( Obj,"rrm", rrm);
+        field_to_json( Obj,"firmwareRCOnly", firmwareRCOnly);
+        field_to_json( Obj,"firmwareUpgrade", firmwareUpgrade);
+    }
+
+    bool CompleteDeviceConfiguration::from_json(const Poco::JSON::Object::Ptr &Obj) {
+        try {
+            field_from_json( Obj,"configuration", configuration);
+            field_from_json( Obj,"rrm", rrm);
+            field_from_json( Obj,"firmwareRCOnly", firmwareRCOnly);
+            field_from_json( Obj,"firmwareUpgrade", firmwareUpgrade);
+            return true;
+        } catch(...) {
+
+        }
+        return false;
+    }
+
     void SubscriberDevice::to_json(Poco::JSON::Object &Obj) const {
         info.to_json(Obj);
         field_to_json( Obj,"serialNumber", serialNumber);
@@ -1013,6 +1035,8 @@ namespace OpenWifi::ProvObjects {
         field_to_json( Obj,"configuration", configuration);
         field_to_json( Obj,"suspended", suspended);
         field_to_json( Obj,"realMacAddress", realMacAddress);
+        field_to_json( Obj,"firmwareRCOnly", firmwareRCOnly);
+        field_to_json( Obj,"firmwareUpgrade", firmwareUpgrade);
     }
 
     bool SubscriberDevice::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -1035,6 +1059,8 @@ namespace OpenWifi::ProvObjects {
             field_from_json( Obj,"configuration", configuration);
             field_from_json( Obj,"suspended", suspended);
             field_from_json( Obj,"realMacAddress", realMacAddress);
+            field_from_json( Obj,"firmwareRCOnly", firmwareRCOnly);
+            field_from_json( Obj,"firmwareUpgrade", firmwareUpgrade);
             return true;
         } catch(...) {
 
@@ -1131,8 +1157,8 @@ namespace OpenWifi::ProvObjects {
         field_to_json(Obj,"title",title);
         field_to_json(Obj,"type",type);
         field_to_json(Obj,"success",success);
-        field_to_json(Obj,"errors",errors);
-        field_to_json(Obj,"warnings",warnings);
+        field_to_json(Obj,"error",error);
+        field_to_json(Obj,"warning",warning);
         field_to_json(Obj,"timeStamp",timeStamp);
         field_to_json(Obj,"details",details);
     }
@@ -1142,8 +1168,8 @@ namespace OpenWifi::ProvObjects {
             field_from_json(Obj,"title",title);
             field_from_json(Obj,"type",type);
             field_from_json(Obj,"success",success);
-            field_from_json(Obj,"errors",errors);
-            field_from_json(Obj,"warnings",warnings);
+            field_from_json(Obj,"error",error);
+            field_from_json(Obj,"warning",warning);
             field_from_json(Obj,"timeStamp",timeStamp);
             field_from_json(Obj,"details",details);
             return true;

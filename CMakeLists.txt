@@ -71,6 +71,7 @@ add_executable( owls
         src/framework/ConfigurationValidator.cpp
         src/framework/ConfigurationValidator.h
         src/framework/ow_constants.h
+        src/framework/WebSocketClientNotifications.h
         src/RESTAPI/RESTAPI_routers.cpp
         src/Daemon.cpp src/Daemon.h
         src/Dashboard.cpp src/Dashboard.h

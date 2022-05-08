@@ -41,6 +41,6 @@ namespace OpenWifi {
             S.to_json(Answer);
             return ReturnObject(Answer);
         }
-        return BadRequest(Error);
+        return BadRequest(RESTAPI::Errors::CouldNotPerformCommand);
      }
 }

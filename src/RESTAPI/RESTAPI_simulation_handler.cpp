@@ -54,7 +54,7 @@ namespace OpenWifi {
     void RESTAPI_simulation_handler::DoPost() {
 
         OWLSObjects::SimulationDetails  D;
-        auto Raw = ParseStream();
+        const auto &Raw = ParsedBody_;
         if(!D.from_json(Raw) ||
             D.name.empty() ||
             D.gateway.empty() ||
@@ -97,7 +97,7 @@ namespace OpenWifi {
 
     void RESTAPI_simulation_handler::DoPut() {
         OWLSObjects::SimulationDetails  D;
-        auto Raw = ParseStream();
+        const auto &Raw = ParsedBody_;
 
         if(!D.from_json(Raw) ||
             D.id.empty() ||

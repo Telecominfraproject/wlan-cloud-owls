@@ -46,7 +46,7 @@ namespace OpenWifi {
                 continue;
             }
 
-            uint64_t    Now = std::time(nullptr);
+            uint64_t    Now = OpenWifi::Now();
             if( (Now - SimStats()->GetStartTime()) > CurrentSim_.simulationLength ) {
                 std::string Error;
                 StopSim( SimStats()->Id(), Error );

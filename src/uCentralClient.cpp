@@ -47,7 +47,7 @@ namespace OpenWifi {
             SerialNumber_(std::move(SerialNumber))
             {
                 SetFirmware();
-                Active_ = UUID_ = std::time(nullptr);
+                Active_ = UUID_ = OpenWifi::Now();
                 srand(UUID_);
                 CreateClients( clients_lan, SimulationCoordinator()->GetSimulationInfo().minClients, SimulationCoordinator()->GetSimulationInfo().maxClients);
                 CreateClients( clients_2g, SimulationCoordinator()->GetSimulationInfo().minAssociations, SimulationCoordinator()->GetSimulationInfo().maxAssociations);

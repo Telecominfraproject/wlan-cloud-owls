@@ -6,7 +6,7 @@
 
 namespace OpenWifi {
     void OWLSDashboard::Create() {
-		uint64_t Now = std::time(nullptr);
+		uint64_t Now = OpenWifi::Now();
 
 		if(LastRun_==0 || (Now-LastRun_)>120) {
 			DB_.reset();

@@ -18,7 +18,7 @@ namespace OpenWifi {
             Status_.liveDevices++;
 
             if( (Status_.timeToFullDevices == 0) && (Status_.liveDevices == ExpectedDevices_) ) {
-                uint64_t Now = std::time(nullptr);
+                uint64_t Now = OpenWifi::Now();
                 Status_.timeToFullDevices = Now - Status_.startTime;
             }
         }
@@ -88,7 +88,7 @@ namespace OpenWifi {
             Status_.liveDevices = Status_.endTime = Status_.rx =
             Status_.tx = Status_.msgsTx = Status_.msgsRx = Status_.timeToFullDevices =
             Status_.errorDevices = 0;
-            Status_.startTime = std::time(nullptr);
+            Status_.startTime = OpenWifi::Now();
             Status_.owner = owner;
         }
 
@@ -96,7 +96,7 @@ namespace OpenWifi {
             std::lock_guard G(Mutex_);
             CollectInfo_ = false;
             Status_.state = "completed";
-            Status_.endTime = std::time(nullptr);
+            Status_.endTime = OpenWifi::Now();
         }
 
         inline void SetState(const std::string &S) {

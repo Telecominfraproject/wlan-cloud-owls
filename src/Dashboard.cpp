@@ -3,6 +3,7 @@
 //
 
 #include "Dashboard.h"
+#include "framework/MicroService.h"
 
 namespace OpenWifi {
     void OWLSDashboard::Create() {

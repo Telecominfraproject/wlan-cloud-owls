@@ -199,4 +199,53 @@ namespace OpenWifi::GWObjects {
 
 		void to_json(Poco::JSON::Object &Obj) const;
 	};
+
+	struct ScriptRequest {
+		uint64_t 	timeout=30;
+		std::string serialNumber;
+		std::string type;
+		std::string script;
+		std::string scriptId;
+		uint64_t 	when=0;
+		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
+	struct RadiusProxyServerEntry {
+		std::string name;
+		std::string ip;
+		uint16_t 	port=0;
+		uint64_t 	weight=0;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
+	struct RadiusProxyServerConfig {
+		std::string 	strategy;
+		bool 			monitor=false;
+		std::string 	monitorMethod;
+		std::vector<std::string>	methodParameters;
+		std::vector<RadiusProxyServerEntry>	servers;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
+	struct 	RadiusProxyPool {
+		std::string name;
+		std::string description;
+		RadiusProxyServerConfig	authConfig;
+		RadiusProxyServerConfig	acctConfig;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
+	struct RadiusProxyPoolList {
+		std::vector<RadiusProxyPool>	pools;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
 }

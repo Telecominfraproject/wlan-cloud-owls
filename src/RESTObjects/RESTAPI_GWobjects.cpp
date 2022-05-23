@@ -272,5 +272,100 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj,"capabilities", capabilities);
 	};
 
+	void ScriptRequest::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj,"serialNumber",serialNumber);
+		field_to_json(Obj,"timeout",timeout);
+		field_to_json(Obj,"type",type);
+		field_to_json(Obj,"script",script);
+		field_to_json(Obj,"scriptId",scriptId);
+		field_to_json(Obj,"when",when);
+	}
+
+	bool ScriptRequest::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj,"serialNumber",serialNumber);
+			field_from_json(Obj,"timeout",timeout);
+			field_from_json(Obj,"type",type);
+			field_from_json(Obj,"script",script);
+			field_from_json(Obj,"scriptId",scriptId);
+			field_from_json(Obj,"when",when);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+
+	}
+
+	void RadiusProxyPoolList::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj,"pools",pools);
+	}
+
+	bool RadiusProxyPoolList::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj,"pools",pools);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
+	void RadiusProxyPool::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj,"name",name);
+		field_to_json(Obj,"description",description);
+		field_to_json(Obj,"authConfig",authConfig);
+		field_to_json(Obj,"acctConfig",acctConfig);
+	}
+
+	bool RadiusProxyPool::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj,"name",name);
+			field_from_json(Obj,"description",description);
+			field_from_json(Obj,"authConfig",authConfig);
+			field_from_json(Obj,"acctConfig",acctConfig);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
+	void RadiusProxyServerConfig::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj,"policy",strategy);
+		field_to_json(Obj,"monitor",monitor);
+		field_to_json(Obj,"monitorMethod",monitorMethod);
+		field_to_json(Obj,"methodParameters",methodParameters);
+		field_to_json(Obj,"servers",servers);
+	}
+
+	bool RadiusProxyServerConfig::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj,"policy",strategy);
+			field_from_json(Obj,"monitor",monitor);
+			field_from_json(Obj,"monitorMethod",monitorMethod);
+			field_from_json(Obj,"methodParameters",methodParameters);
+			field_from_json(Obj,"servers",servers);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
+	void RadiusProxyServerEntry::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj,"name",name);
+		field_to_json(Obj,"ip",ip);
+		field_to_json(Obj,"port",port);
+		field_to_json(Obj,"weight",weight);
+	}
+
+	bool RadiusProxyServerEntry::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj,"name",name);
+			field_from_json(Obj,"ip",ip);
+			field_from_json(Obj,"port",port);
+			field_from_json(Obj,"weight",weight);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
 }
 

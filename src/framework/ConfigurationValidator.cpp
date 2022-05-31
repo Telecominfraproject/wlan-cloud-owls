@@ -13,9 +13,10 @@
 
 namespace OpenWifi {
 
-    static const std::string GitUCentralJSONSchemaFile{"https://raw.githubusercontent.com/blogic/ucentral-schema/main/ucentral.schema.json"};
+static const std::string GitUCentralJSONSchemaFile{
+	"https://raw.githubusercontent.com/blogic/ucentral-schema/main/ucentral.schema.json"};
 
-    static json DefaultUCentralSchema = R"(
+static json DefaultUCentralSchema = R"(
 
 {
 	"$id": "https://openwrt.org/ucentral.schema.json",
@@ -518,7 +519,7 @@ namespace OpenWifi {
 					"maximum": 4050
 				},
 				"proto": {
-					"decription": "The L2 vlan tag that shall be added (1q,1ad) ",
+					"decription": "The L2 vlan tag that shall be added (1q,1ad ) ",
 					"type": "string",
 					"enum": [
 						"802.1ad",
@@ -669,6 +670,47 @@ namespace OpenWifi {
 				}
 			}
 		},
+		"interface.ipv4.port-forward": {
+			"type": "object",
+			"properties": {
+				"protocol": {
+					"type": "string",
+					"enum": [
+						"tcp",
+						"udp",
+						"any"
+					],
+					"default": "any"
+				},
+				"external-port": {
+					"type": [
+						"integer",
+						"string"
+					],
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uc-portrange"
+				},
+				"internal-address": {
+					"type": "string",
+					"format": "ipv4",
+					"example": "0.0.0.120"
+				},
+				"internal-port": {
+					"type": [
+						"integer",
+						"string"
+					],
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uc-portrange"
+				}
+			},
+			"required": [
+				"external-port",
+				"internal-address"
+			]
+		},
 		"interface.ipv4": {
 			"type": "object",
 			"properties": {
@@ -722,6 +764,12 @@ namespace OpenWifi {
 					"items": {
 						"$ref": "#/$defs/interface.ipv4.dhcp-lease"
 					}
+				},
+				"port-forward": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/interface.ipv4.port-forward"
+					}
 				}
 			}
 		},
@@ -750,6 +798,96 @@ namespace OpenWifi {
 					"default": "::/0"
 				}
 			}
+		},
+		"interface.ipv6.port-forward": {
+			"type": "object",
+			"properties": {
+				"protocol": {
+					"type": "string",
+					"enum": [
+						"tcp",
+						"udp",
+						"any"
+					],
+					"default": "any"
+				},
+				"external-port": {
+					"type": [
+						"integer",
+						"string"
+					],
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uc-portrange"
+				},
+				"internal-address": {
+					"type": "string",
+					"format": "ipv6",
+					"example": "::1234:abcd"
+				},
+				"internal-port": {
+					"type": [
+						"integer",
+						"string"
+					],
+					"minimum": 0,
+					"maximum": 65535,
+					"format": "uc-portrange"
+				}
+			},
+			"required": [
+				"external-port",
+				"internal-address"
+			]
+		},
+		"interface.ipv6.traffic-allow": {
+			"type": "object",
+			"properties": {
+				"protocol": {
+					"type": "string",
+					"default": "any"
+				},
+				"source-address": {
+					"type": "string",
+					"format": "uc-cidr6",
+					"example": "2001:db8:1234:abcd::/64",
+					"default": "::/0"
+				},
+				"source-ports": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": [
+							"integer",
+							"string"
+						],
+						"minimum": 0,
+						"maximum": 65535,
+						"format": "uc-portrange"
+					}
+				},
+				"destination-address": {
+					"type": "string",
+					"format": "ipv6",
+					"example": "::1000"
+				},
+				"destination-ports": {
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": [
+							"integer",
+							"string"
+						],
+						"minimum": 0,
+						"maximum": 65535,
+						"format": "uc-portrange"
+					}
+				}
+			},
+			"required": [
+				"destination-address"
+			]
 		},
 		"interface.ipv6": {
 			"type": "object",
@@ -782,6 +920,18 @@ namespace OpenWifi {
 				},
 				"dhcpv6": {
 					"$ref": "#/$defs/interface.ipv6.dhcpv6"
+				},
+				"port-forward": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/interface.ipv6.port-forward"
+					}
+				},
+				"traffic-allow": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/interface.ipv6.traffic-allow"
+					}
 				}
 			}
 		},
@@ -866,7 +1016,7 @@ namespace OpenWifi {
 				},
 				"gateway-fqdn": {
 					"type": "string",
-					"format": "fqdn",
+					"format": "uc-fqdn",
 					"default": "ucentral.splash"
 				},
 				"max-clients": {
@@ -901,6 +1051,7 @@ namespace OpenWifi {
 						"psk",
 						"psk2",
 						"psk-mixed",
+						"psk2-radius",
 						"wpa",
 						"wpa2",
 						"wpa-mixed",
@@ -958,6 +1109,10 @@ namespace OpenWifi {
 			"type": "object",
 			"properties": {
 				"neighbor-reporting": {
+					"type": "boolean",
+					"default": false
+				},
+				"reduced-neighbor-reporting": {
 					"type": "boolean",
 					"default": false
 				},
@@ -1527,6 +1682,11 @@ namespace OpenWifi {
 					"decription": "This option allows embedding custom vendor specific IEs inside the beacons of a BSS in AP mode.",
 					"type": "string"
 				},
+				"fils-discovery-interval": {
+					"type": "integer",
+					"default": 20,
+					"maximum": 10000
+				},
 				"encryption": {
 					"$ref": "#/$defs/interface.ssid.encryption"
 				},
@@ -2087,6 +2247,10 @@ namespace OpenWifi {
 				"auto-channel": {
 					"type": "boolean",
 					"default": false
+				},
+				"ipv6": {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
@@ -2193,7 +2357,7 @@ namespace OpenWifi {
 									"properties": {
 										"fqdn": {
 											"type": "string",
-											"format": "fqdn"
+											"format": "uc-fqdn"
 										},
 										"suffix-matching": {
 											"type": "boolean",
@@ -2444,8 +2608,7 @@ namespace OpenWifi {
 		}
 	}
 }
-
-    )"_json;
+)"_json;
 
     class custom_error_handler : public nlohmann::json_schema::basic_error_handler
     {
@@ -2460,9 +2623,18 @@ namespace OpenWifi {
     void ConfigurationValidator::Init() {
         if(Initialized_)
             return;
+
         std::string GitSchema;
+		if(MicroService::instance().ConfigGetBool("ucentral.datamodel.internal",true)) {
+			RootSchema_ = DefaultUCentralSchema;
+			Logger().information("Using uCentral validation from built-in default.");
+			Initialized_ = Working_ = true;
+			return;
+		}
+
         try {
-            if(Utils::wgets(GitUCentralJSONSchemaFile, GitSchema)) {
+			auto GitURI = MicroService::instance().ConfigGetString("ucentral.datamodel.uri",GitUCentralJSONSchemaFile);
+            if(Utils::wgets(GitURI, GitSchema)) {
                 RootSchema_ = json::parse(GitSchema);
                 Logger().information("Using uCentral validation schema from GIT.");
             } else {
@@ -2528,6 +2700,17 @@ namespace OpenWifi {
         return IsCIDRv4(value) || IsCIDRv6(value);
     }
 
+    static inline bool IsPortRangeIsValid(const std::string &r) {
+        const auto ports = Poco::StringTokenizer("-",r,Poco::StringTokenizer::TOK_TRIM);
+
+        for(const auto &port:ports) {
+            uint32_t port_num = std::stoul(port);
+            if(port_num==0 || port_num>65535)
+                return false;
+        }
+        return true;
+    }
+
     void ConfigurationValidator::my_format_checker(const std::string &format, const std::string &value)
     {
         static const std::regex host_regex{"^(?=.{1,254}$)((?=[a-z0-9-]{1,63}\\.)(xn--+)?[a-z0-9]+(-[a-z0-9]+)*\\.)+[a-z]{2,63}$"};
@@ -2578,6 +2761,14 @@ namespace OpenWifi {
             } catch (...) {
             }
             throw std::invalid_argument(value + " is not a valid URI: should be something like https://hello.world.com.");
+        } else if(format == "uc-portrange") {
+            try {
+                if(IsPortRangeIsValid(value))
+                    return;
+                throw std::invalid_argument(value + " is not a valid port range: should an integer between 1-65535 or a port range like post-port.");
+            } catch (...) {
+            }
+            throw std::invalid_argument(value + " is not a valid port range: should an integer between 1-65535 or a port range like post-port.");
         } else if(format == "ip") {
             if (IsIP(value))
                 return;

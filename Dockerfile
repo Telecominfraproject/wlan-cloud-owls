@@ -8,8 +8,8 @@ RUN apk add --update --no-cache \
 
 FROM build-base AS poco-build
 
-ADD https://api.github.com/repos/stephb9959/poco/git/refs/heads/master version.json
-RUN git clone https://github.com/stephb9959/poco /poco
+ADD https://api.github.com/repos/AriliaWireless/poco/git/refs/tags/poco-tip-v1 version.json
+RUN git clone https://github.com/AriliaWireless/poco --branch poco-tip-v1 /poco
 
 WORKDIR /poco
 RUN mkdir cmake-build
@@ -20,8 +20,8 @@ RUN cmake --build . --target install
 
 FROM build-base AS cppkafka-build
 
-ADD https://api.github.com/repos/stephb9959/cppkafka/git/refs/heads/master version.json
-RUN git clone https://github.com/stephb9959/cppkafka /cppkafka
+ADD https://api.github.com/repos/AriliaWireless/cppkafka/git/refs/tags/tip-v1 version.json
+RUN git clone https://github.com/AriliaWireless/cppkafka --branch tip-v1 /cppkafka
 
 WORKDIR /cppkafka
 RUN mkdir cmake-build
@@ -32,8 +32,8 @@ RUN cmake --build . --target install
 
 FROM build-base AS fmtlib-build
 
-ADD https://api.github.com/repos/fmtlib/fmt/git/refs/heads/master version.json
-RUN git clone https://github.com/fmtlib/fmt /fmtlib
+ADD https://api.github.com/repos/fmtlib/fmt/git/refs/tags/9.0.0 version.json
+RUN git clone https://github.com/fmtlib/fmt --branch 9.0.0 /fmtlib
 
 WORKDIR /fmtlib
 RUN mkdir cmake-build

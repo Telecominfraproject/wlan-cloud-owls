@@ -21,7 +21,14 @@ namespace OpenWifi {
             M["params"]["serial"] = Client_->Serial();
             M["params"]["uuid"] = Client_->UUID();
             M["params"]["firmware"] = Client_->Firmware();
-            M["params"]["capabilities"] = SimulationCoordinator()->GetSimCapabilities();
+            auto TmpCapabilities = SimulationCoordinator()->GetSimCapabilities();
+            auto LabelMac = Utils::SerialNumberToInt(Client_->Serial());
+            auto LabelMacFormatted = Utils::SerialToMAC(Utils::IntToSerialNumber(LabelMac));
+            auto LabelLanMacFormatted = Utils::SerialToMAC(Utils::IntToSerialNumber(LabelMac+1));
+            TmpCapabilities["label_macaddr"] = LabelMac;
+            TmpCapabilities["macaddr"]["wan"] = LabelMac;
+            TmpCapabilities["macaddr"]["lan"] = LabelLanMacFormatted;
+            M["params"]["capabilities"] = TmpCapabilities;
             if(Client_->Send(to_string(M))) {
                 Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
                 Client_->AddEvent(ev_healthcheck, SimulationCoordinator()->GetSimulationInfo().healthCheckInterval);

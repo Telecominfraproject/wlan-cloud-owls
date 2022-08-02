@@ -55,6 +55,7 @@ namespace OpenWifi {
 
         OWLSObjects::SimulationDetails  D;
         const auto &Raw = ParsedBody_;
+
         if(!D.from_json(Raw) ||
             D.name.empty() ||
             D.gateway.empty() ||

@@ -5,7 +5,7 @@ if [ "$SELFSIGNED_CERTS" = 'true' ]; then
     update-ca-certificates
 fi
 
-if [[ "$TEMPLATE_CONFIG" = 'true' && ! -f "$OWLS_CONFIG"/owls.properties ]]; then
+if [[ "$TEMPLATE_CONFIG" = 'true' ]]; then
   ROOTCA=${ROOTCA:-"\$OWLS_ROOT/certs/root.pem"} \
   ISSUER=${ISSUER:-"\$OWLS_ROOT/certs/issuer.pem"} \
   CERT=${CERT:-"\$OWLS_ROOT/certs/device-cert.pem"} \

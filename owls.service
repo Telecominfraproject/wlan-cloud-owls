@@ -5,9 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-Environment="OWLS_ROOT=/home/admin/dev/ucentralsim"
-ExecStart=/home/admin/dev/ucentralsim/cmake-build/owls
-WorkingDirectory=/home/admin/dev/ucentralsim
+Environment="OWLS_ROOT=/home/admin/dev/wlan-cloud-owls"
+ExecStart=/home/admin/dev/wlan-cloud-owls/cmake-build/owls
+WorkingDirectory=/home/admin/dev/wlan-cloud-owls
 # ExecReload=/bin/kill -s HUP $MAINPID
 User=admin
 # TimeoutSec=0

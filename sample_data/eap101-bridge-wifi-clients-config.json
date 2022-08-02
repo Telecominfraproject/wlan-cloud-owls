@@ -1,0 +1,138 @@
+{
+    "interfaces": [
+        {
+            "ethernet": [
+                {
+                    "select-ports": [
+                        "WAN*",
+                        "LAN*"
+                    ]
+                }
+            ],
+            "ipv4": {
+                "addressing": "dynamic"
+            },
+            "ipv6": {
+                "addressing": "dynamic"
+            },
+            "name": "BowenNetwork",
+            "role": "upstream",
+            "services": [
+                "ssh",
+                "lldp",
+                "mdns"
+            ],
+            "ssids": [
+                {
+                    "bss-mode": "ap",
+                    "encryption": {
+                        "ieee80211w": "optional",
+                        "key": "snoopy99",
+                        "proto": "psk2"
+                    },
+                    "hidden-ssid": false,
+                    "isolate-clients": false,
+                    "maximum-clients": 64,
+                    "name": "petunia",
+                    "services": [],
+                    "wifi-bands": [
+                        "2G",
+                        "5G"
+                    ]
+                }
+            ]
+        }
+    ],
+    "metrics": {
+        "dhcp-snooping": {
+            "filters": [
+                "ack",
+                "discover"
+            ]
+        },
+        "health": {
+            "interval": 60
+        },
+        "statistics": {
+            "interval": 60,
+            "types": [
+                "ssids",
+                "lldp",
+                "clients"
+            ]
+        },
+        "wifi-frames": {
+            "filters": [
+                "probe",
+                "auth",
+                "assoc",
+                "disassoc",
+                "deauth",
+                "local-deauth",
+                "inactive-deauth",
+                "key-mismatch",
+                "beacon-report",
+                "radar-detected"
+            ]
+        }
+    },
+    "radios": [
+        {
+            "band": "2G",
+            "bandwidth": 20,
+            "beacon-interval": 100,
+            "channel": "auto",
+            "channel-mode": "HT",
+            "channel-width": 20,
+            "country": "CA",
+            "dtim-period": 2,
+            "he": {
+                "bss-color": 64
+            },
+            "legacy-rates": true,
+            "maximum-clients": 64,
+            "rates": {
+                "beacon": 5500
+            },
+            "tx-power": 23
+        },
+        {
+            "band": "5G",
+            "bandwidth": 20,
+            "beacon-interval": 100,
+            "channel": "auto",
+            "channel-mode": "HE",
+            "channel-width": 40,
+            "country": "CA",
+            "dtim-period": 2,
+            "maximum-clients": 64,
+            "tx-power": 23
+        }
+    ],
+    "services": {
+        "lldp": {
+            "describe": "Universe",
+            "location": "Universe"
+        },
+        "mdns": {
+            "enable": true
+        },
+        "wifi-steering": {
+            "assoc-steering": false,
+            "auto-channel": false,
+            "load-kick-threshold": 0,
+            "mode": "local",
+            "required-probe-snr": 0,
+            "required-roam-snr": 0,
+            "required-snr": 0
+        }
+    },
+    "unit": {
+        "leds-active": true,
+        "location": "Bowen Island",
+        "name": "Bowen Development AP",
+        "random-password": false,
+        "timezone": "UTC"
+    },
+    "uuid": 1656004318
+}

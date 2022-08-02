@@ -1,0 +1,343 @@
+{
+    "interfaces": [
+        {
+            "clients": [
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:6f8:f8ff:fefc:35b6"
+                    ],
+                    "mac": "04:f8:f8:fc:35:b6",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6db6"
+                    ],
+                    "mac": "90:3c:b3:b1:6d:b6",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6dd9"
+                    ],
+                    "mac": "90:3c:b3:b1:6d:d9",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6e1a"
+                    ],
+                    "mac": "90:3c:b3:b1:6e:1a",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6e97"
+                    ],
+                    "mac": "90:3c:b3:b1:6e:97",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6f55"
+                    ],
+                    "mac": "90:3c:b3:b1:6f:55",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6f82"
+                    ],
+                    "mac": "90:3c:b3:b1:6f:82",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6fb9"
+                    ],
+                    "mac": "90:3c:b3:b1:6f:b9",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:6ff5"
+                    ],
+                    "mac": "90:3c:b3:b1:6f:f5",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:7018"
+                    ],
+                    "mac": "90:3c:b3:b1:70:18",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:7045"
+                    ],
+                    "mac": "90:3c:b3:b1:70:45",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:7063"
+                    ],
+                    "mac": "90:3c:b3:b1:70:63",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:70db"
+                    ],
+                    "mac": "90:3c:b3:b1:70:db",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:70f4"
+                    ],
+                    "mac": "90:3c:b3:b1:70:f4",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:7108"
+                    ],
+                    "mac": "90:3c:b3:b1:71:08",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:7121"
+                    ],
+                    "mac": "90:3c:b3:b1:71:21",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:feb1:713a"
+                    ],
+                    "mac": "90:3c:b3:b1:71:3a",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:febb:1d55"
+                    ],
+                    "mac": "90:3c:b3:bb:1d:55",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:febb:1d8c"
+                    ],
+                    "mac": "90:3c:b3:bb:1d:8c",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:febb:1e04"
+                    ],
+                    "mac": "90:3c:b3:bb:1e:04",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:febb:1ee5"
+                    ],
+                    "mac": "90:3c:b3:bb:1e:e5",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv6_addresses": [
+                        "fe80:0:0:0:923c:b3ff:febb:1fc6"
+                    ],
+                    "mac": "90:3c:b3:bb:1f:c6",
+                    "ports": [
+                        "eth1"
+                    ]
+                },
+                {
+                    "ipv4_addresses": [
+                        "10.2.0.1"
+                    ],
+                    "ipv6_addresses": [
+                        "2604:3d08:9680:bd00:0:0:0:1"
+                    ],
+                    "mac": "e2:63:da:86:64:8e",
+                    "ports": [
+                        "eth1"
+                    ]
+                }
+            ],
+            "counters": {
+                "collisions": 0,
+                "multicast": 959051,
+                "rx_bytes": 509375241,
+                "rx_dropped": 0,
+                "rx_errors": 0,
+                "rx_packets": 2584770,
+                "tx_bytes": 26766409,
+                "tx_dropped": 0,
+                "tx_errors": 0,
+                "tx_packets": 73860
+            },
+            "location": "/interfaces/0",
+            "name": "up0v0",
+            "uptime": 529266
+        },
+        {
+            "counters": {
+                "collisions": 0,
+                "multicast": 0,
+                "rx_bytes": 0,
+                "rx_dropped": 0,
+                "rx_errors": 0,
+                "rx_packets": 0,
+                "tx_bytes": 6867692,
+                "tx_dropped": 0,
+                "tx_errors": 0,
+                "tx_packets": 32456
+            },
+            "dns_servers": [
+                "8.8.8.8"
+            ],
+            "ipv4": {
+                "addresses": [
+                    "192.168.1.1/24"
+                ]
+            },
+            "location": "/interfaces/1",
+            "name": "down1v0",
+            "ssids": [
+                {
+                    "bssid": "90:3c:b3:bb:1e:08",
+                    "iface": "wlan0",
+                    "location": "/interfaces/1/ssids/0",
+                    "mode": "ap",
+                    "phy": "platform/soc/c000000.wifi",
+                    "radio": {
+                        "$ref": "#/radios/0"
+                    },
+                    "ssid": "MegsLanTest"
+                },
+                {
+                    "bssid": "90:3c:b3:bb:1e:07",
+                    "iface": "wlan1",
+                    "location": "/interfaces/1/ssids/0",
+                    "mode": "ap",
+                    "phy": "platform/soc/c000000.wifi+1",
+                    "radio": {
+                        "$ref": "#/radios/1"
+                    },
+                    "ssid": "MegsLanTest"
+                }
+            ],
+            "uptime": 529266
+        }
+    ],
+    "link-state": {
+        "downstream": {
+            "eth1": {
+                "carrier": 0
+            },
+            "eth2": {
+                "carrier": 0
+            }
+        },
+        "upstream": {
+            "eth0": {
+                "carrier": 1,
+                "duplex": "full",
+                "speed": 1000
+            }
+        }
+    },
+    "lldp-peers": {
+        "downstream": {},
+        "upstream": {}
+    },
+    "radios": [
+        {
+            "active_ms": 529023340,
+            "busy_ms": 62617455,
+            "channel": 100,
+            "channel_width": "40",
+            "noise": -103,
+            "phy": "platform/soc/c000000.wifi",
+            "receive_ms": 5895,
+            "transmit_ms": 549423,
+            "tx_power": 0
+        },
+        {
+            "active_ms": 529083458,
+            "busy_ms": 93265272,
+            "channel": 6,
+            "channel_width": "20",
+            "noise": -98,
+            "phy": "platform/soc/c000000.wifi+1",
+            "receive_ms": 23258,
+            "transmit_ms": 2040130,
+            "tx_power": 0
+        }
+    ],
+    "unit": {
+        "load": [
+            0.004883,
+            0.00293,
+            0
+        ],
+        "localtime": 1659464802,
+        "memory": {
+            "buffered": 9588736,
+            "cached": 28291072,
+            "free": 798994432,
+            "total": 973131776
+        },
+        "uptime": 529331
+    },
+    "version": 1
+}

@@ -47,7 +47,7 @@ namespace OpenWifi {
             }
 
             uint64_t    Now = OpenWifi::Now();
-            if( (Now - SimStats()->GetStartTime()) > CurrentSim_.simulationLength ) {
+            if( CurrentSim_.simulationLength!=0 && (Now - SimStats()->GetStartTime()) > CurrentSim_.simulationLength ) {
                 std::string Error;
                 StopSim( SimStats()->Id(), Error );
             }
@@ -82,7 +82,7 @@ namespace OpenWifi {
     }
 
     static const nlohmann::json DefaultCapabilities = R"(
-    {"compatible":"linksys_ea8300","model":"Linksys EA8300 (Dallas) ","network":{"lan":["eth0"],"wan":["eth1"]},"platform":"ap","switch":{"switch0":{"enable":true,"ports":[{"device":"eth0","need_tag":false,"num":0,"want_untag":true},{"num":1,"role":"lan"},{"num":2,"role":"lan"},{"num":3,"role":"lan"},{"num":4,"role":"lan"}],"reset":true,"roles":[{"device":"eth0","ports":"1 2 3 4 0","role":"lan"}]}},"wifi":{"platform/soc/a000000.wifi":{"band":["2G"],"channels":[1,2,3,4,5,6,7,8,9,10,11],"frequencies":[2412,2417,2422,2427,2432,2437,2442,2447,2452,2457,2462],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865687986},"platform/soc/a800000.wifi":{"band":["5G"],"channels":[36,40,44,48,52,56,60,64],"frequencies":[5180,5200,5220,5240,5260,5280,5300,5320],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865687986},"soc/40000000.pci/pci0000:00/0000:00:00.0/0000:01:00.0":{"band":["5G"],"channels":[100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],"frequencies":[5500,5520,5540,5560,5580,5600,5620,5640,5660,5680,5700,5720,5745,5765,5785,5805,5825],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80"],"rx_ant":3,"tx_ant":3,"vht_capa":865696178}}}
+        {"compatible":"edgecore_eap101","label_macaddr":"90:3c:b3:bb:1e:04","macaddr":{"lan":"90:3c:b3:bb:1e:05","wan":"90:3c:b3:bb:1e:04"},"model":"EdgeCore EAP101","network":{"lan":["eth1","eth2"],"wan":["eth0"]},"platform":"ap","switch":{"switch0":{"enable":false,"reset":false}},"wifi":{"platform/soc/c000000.wifi":{"band":["5G"],"channels":[36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],"dfs_channels":[52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144],"frequencies":[5180,5200,5220,5240,5260,5280,5300,5320,5500,5520,5540,5560,5580,5600,5620,5640,5660,5680,5700,5720,5745,5765,5785,5805,5825],"he_mac_capa":[13,39432,4160],"he_phy_capa":[28700,34892,49439,1155,11265,0],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80","HE20","HE40","HE80","HE160","HE80+80"],"rx_ant":3,"tx_ant":3,"vht_capa":1939470770},"platform/soc/c000000.wifi+1":{"band":["2G"],"channels":[1,2,3,4,5,6,7,8,9,10,11],"frequencies":[2412,2417,2422,2427,2432,2437,2442,2447,2452,2457,2462],"he_mac_capa":[13,39432,4160],"he_phy_capa":[28674,34828,49439,1155,11265,0],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80","HE20","HE40"],"rx_ant":3,"tx_ant":3,"vht_capa":1939437970}}}
     )"_json;
 
     bool SimulationCoordinator::StartSim(const std::string &SimId, [[maybe_unused]] std::string & Id, std::string &Error, const std::string & Owner) {
@@ -235,7 +235,7 @@ namespace OpenWifi {
                             },
                             "name": "OpenWifi-test2",
                             "wifi-bands": [
-                                "2G"
+                                "2G", "5G"
                             ]
                         }
                     ]
@@ -296,7 +296,7 @@ namespace OpenWifi {
                         "beacon": 6000,
                         "multicast": 24000
                     },
-                    "tx-power": 10
+                    "tx-power": 23
                 },
                 {
                     "band": "5G",
@@ -319,7 +319,7 @@ namespace OpenWifi {
                         "beacon": 6000,
                         "multicast": 24000
                     },
-                    "tx-power": 10
+                    "tx-power": 23
                 }
             ],
             "services": {

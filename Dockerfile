@@ -44,8 +44,8 @@ RUN make install
 
 FROM build-base AS json-schema-validator-build
 
-ADD https://api.github.com/repos/pboettch/json-schema-validator/git/refs/heads/master version.json
-RUN git clone https://github.com/pboettch/json-schema-validator /json-schema-validator
+ADD https://api.github.com/repos/pboettch/json-schema-validator/git/refs/tags/2.1.0 version.json
+RUN git clone https://github.com/pboettch/json-schema-validator --branch 2.1.0 /json-schema-validator
 
 WORKDIR /json-schema-validator
 RUN mkdir cmake-build

@@ -38,26 +38,6 @@ namespace OpenWifi {
         return b;
     }
 
-    uCentralClient::uCentralClient(
-            Poco::Net::SocketReactor  & Reactor,
-            std::string SerialNumber,
-            Poco::Logger & Logger):
-            Reactor_(Reactor),
-            Logger_(Logger),
-            SerialNumber_(std::move(SerialNumber))
-            {
-                SetFirmware();
-                Active_ = UUID_ = OpenWifi::Now();
-                srand(UUID_);
-                CreateClients( clients_lan, SimulationCoordinator()->GetSimulationInfo().minClients, SimulationCoordinator()->GetSimulationInfo().maxClients);
-                CreateClients( clients_2g, SimulationCoordinator()->GetSimulationInfo().minAssociations, SimulationCoordinator()->GetSimulationInfo().maxAssociations);
-                CreateClients( clients_5g, SimulationCoordinator()->GetSimulationInfo().minAssociations, SimulationCoordinator()->GetSimulationInfo().maxAssociations);
-
-                mac_lan = MakeMac(SerialNumber_.c_str(), 0 );
-                mac_2g = MakeMac(SerialNumber_.c_str(), 1 );
-                mac_5g = MakeMac(SerialNumber_.c_str(), 2 );
-            }
-
     static std::string RandomMAC() {
         char b[64];
         sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x",  (int)MicroService::instance().Random(255),
@@ -93,78 +73,203 @@ namespace OpenWifi {
         return b;
     }
 
-    void uCentralClient::CreateClients(Clients &C, uint64_t min, uint64_t max) {
+    uCentralClient::uCentralClient(
+            Poco::Net::SocketReactor  & Reactor,
+            std::string SerialNumber,
+            Poco::Logger & Logger):
+            Reactor_(Reactor),
+            Logger_(Logger),
+            SerialNumber_(std::move(SerialNumber))
+            {
+                AllInterfaceNames_[ap_interface_types::upstream] = "up0v0";
+                AllInterfaceNames_[ap_interface_types::downstream] = "down0v0";
+
+                AllInterfaceRoles_[ap_interface_types::upstream] = "upstream";
+                AllInterfaceRoles_[ap_interface_types::downstream] = "downstream";
+
+                AllPortNames_[ap_interface_types::upstream] = "wan0";
+                AllPortNames_[ap_interface_types::downstream] = "eth0";
+
+                SetFirmware();
+                Active_ = UUID_ = OpenWifi::Now();
+                srand(UUID_);
+                mac_lan = MakeMac(SerialNumber_.c_str(), 0 );
+                CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(OpenWifi::Now());
+                UpdateConfiguration();
+            }
+
+    static int Find2GAutoChannel() {
+        return 11;
+    }
+
+    static int Find5GAutoChannel() {
+        return 36;
+    }
+
+    static int Find6GAutoChannel() {
+        return 147;
+    }
+
+    template <typename T> void AssignIfPresent(const nlohmann::json &doc,const char *name, T & Value, T default_value) {
+        if(doc.contains(name) && !doc[name].is_null())
+            Value = doc[name] ;
+        else
+            Value = default_value;
+    }
+
+    bool uCentralClient::FindInterfaceRole(const std::string &role, OpenWifi::ap_interface_types &interface) {
+        for(const auto &[interface_type,interface_name]:AllInterfaceRoles_) {
+            if(role==interface_name) {
+                interface = interface_type;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void uCentralClient::Reset() {
+
+        for(auto &[_,radio]:AllRadios_) {
+            radio.reset();
+        }
+
+        for(auto &[_,association_list]:AllAssociations_) {
+            for(auto &association:association_list) {
+                association.reset();
+            }
+        }
+
+        for(auto &[_,counter]:AllCounters_) {
+            counter.reset();
+        }
+    }
+
+    void uCentralClient::UpdateConfiguration() {
+        //  go through the config and harvest the SSID names, also update all the client stuff
+        auto Interfaces = CurrentConfig_["interfaces"];
+        AllAssociations_.clear();
+        AllLanClients_.clear();
+        AllRadios_.clear();
+        bssid_index=1;
+        for(const auto &interface:Interfaces) {
+            if(interface.contains("role")) {
+                ap_interface_types  current_interface_role=upstream;
+                if(FindInterfaceRole(interface["role"],current_interface_role)) {
+                    auto SSIDs = interface["ssids"];
+                    for (const auto &ssid: SSIDs) {
+                        for (const auto &band: ssid["bands"]) {
+                            auto ssidName = ssid["name"];
+                            if (band == "2G") {
+                                AllAssociations_[std::make_tuple(current_interface_role, ssidName,
+                                                                 radio_bands::band_2g)] = CreateAssociations(
+                                        Utils::SerialToMAC(Utils::IntToSerialNumber(
+                                                Utils::SerialNumberToInt(SerialNumber_) + bssid_index++)),
+                                        SimulationCoordinator()->GetSimulationInfo().minAssociations,
+                                        SimulationCoordinator()->GetSimulationInfo().maxAssociations);
+                            }
+                            if (band == "5G") {
+                                AllAssociations_[std::make_tuple(current_interface_role, ssidName,
+                                                                 radio_bands::band_5g)] = CreateAssociations(
+                                        Utils::SerialToMAC(Utils::IntToSerialNumber(
+                                                Utils::SerialNumberToInt(SerialNumber_) + bssid_index++)),
+                                        SimulationCoordinator()->GetSimulationInfo().minAssociations,
+                                        SimulationCoordinator()->GetSimulationInfo().maxAssociations);
+                            }
+                            if (band == "6G") {
+                                AllAssociations_[std::make_tuple(current_interface_role, ssidName,
+                                                                 radio_bands::band_6g)] = CreateAssociations(
+                                        Utils::SerialToMAC(Utils::IntToSerialNumber(
+                                                Utils::SerialNumberToInt(SerialNumber_) + bssid_index++)),
+                                        SimulationCoordinator()->GetSimulationInfo().minAssociations,
+                                        SimulationCoordinator()->GetSimulationInfo().maxAssociations);
+                            }
+                        }
+                    }
+                    FakeCounters F;
+                    AllCounters_[current_interface_role] = F;
+                }
+            }
+        }
+
+        AllLanClients_ = CreateLanClients(SimulationCoordinator()->GetSimulationInfo().minClients, SimulationCoordinator()->GetSimulationInfo().maxClients);
+
+        auto radios=CurrentConfig_["radios"];
+        uint index=0;
+        for(const auto &radio:radios) {
+            auto band=radio["band"];
+            FakeRadio   R;
+            radio_bands the_band{radio_bands::band_2g};
+            if(band=="2G") {
+                R.channel = std::stoull(to_string(radio["channel"]) == "auto" ? std::to_string(Find2GAutoChannel()) : to_string(radio["channel"]));
+            } else if(band=="5G") {
+                the_band = radio_bands::band_5g;
+                R.channel = std::stoull(to_string(radio["channel"]) == "auto" ? std::to_string(Find5GAutoChannel()) : to_string(radio["channel"]));
+            } else if(band=="6G") {
+                the_band = radio_bands::band_6g;
+                R.channel = std::stoull(to_string(radio["channel"]) == "auto" ? std::to_string(Find6GAutoChannel()) : to_string(radio["channel"]));
+            }
+            AssignIfPresent(radio,"tx_power",R.tx_power,(uint_fast64_t) 23);
+
+            if(index==0)
+                R.phy = "platform/soc/c000000.wifi";
+            else
+                R.phy = "platform/soc/c000000.wifi+" + std::to_string(index);
+            R.index = index;
+            AllRadios_[the_band] = R;
+            ++index;
+        }
+    }
+
+    FakeLanClients uCentralClient::CreateLanClients(uint64_t min, uint64_t max) {
+        FakeLanClients Clients;
         uint64_t Num = MicroService::instance().Random(min,max);
         for(uint64_t i=0;i<Num;i++) {
-            ClientInfo  CI{ .mac = RandomMAC(), .ipv4 = RandomIPv4(), .ipv6 = RandomIPv6() };
-            C.push_back(CI);
+            FakeLanClient  CI{ .mac = RandomMAC() };
+            CI.ipv4_addresses.push_back(RandomIPv4());
+            CI.ipv6_addresses.push_back(RandomIPv6());
+            CI.ports.push_back("eth0");
+            Clients.push_back(CI);
         }
+        return Clients;
     }
 
-    static void AddClients( nlohmann::json & ClientArray , const uCentralClient::Clients & clients) {
-        for(const auto &i:clients) {
-            nlohmann::json c;
-            c["ipv6_addresses"].push_back(i.ipv6);
-            c["ipv4_addresses"].push_back(i.ipv4);
-            c["mac"] = i.mac;
-            c["ports"].push_back("eth1");
-            ClientArray.push_back(c);
+    FakeAssociations uCentralClient::CreateAssociations(const std::string &bssid, uint64_t min, uint64_t max) {
+        FakeAssociations    res;
+
+        auto n = MicroService::instance().Random(min,max);
+        while(n) {
+            FakeAssociation FA;
+
+            FA.bssid = bssid;
+            FA.station = RandomMAC();
+            FA.ack_signal_average = local_random(-40,-60);
+            FA.ack_signal = FA.ack_signal_average;
+            FA.ipaddr_v4 = RandomIPv4();
+            FA.ipaddr_v6 = RandomIPv6();
+            FA.rssi = local_random(-40,-90);
+            res.push_back(FA);
+            --n;
         }
+        return res;
     }
 
-    static void AddCounters(nlohmann::json & d) {
-        d["counters"]["collisions"] = 0 ;
-        d["counters"]["multicast"] =  MicroService::instance().Random(30);
-        d["counters"]["rx_bytes"] = MicroService::instance().Random(25000);
-        d["counters"]["rx_dropped"] = 0 ;
-        d["counters"]["rx_errors"] = 0 ;
-        d["counters"]["rx_packets"] = MicroService::instance().Random(200);
-        d["counters"]["tx_bytes"] = MicroService::instance().Random(5000);
-        d["counters"]["tx_dropped"] = MicroService::instance().Random(7);
-        d["counters"]["tx_errors"] = MicroService::instance().Random(3);
-        d["counters"]["tx_packets"] = MicroService::instance().Random(50);
-    }
-
-    static void AddAssociations(const uCentralClient::Clients & C, nlohmann::json & J) {
-        nlohmann::json Arr;
-        for(const auto &i:C) {
-            nlohmann::json a;
-
-            a["bssid"] = i.mac;
-            a["station"] = i.mac;
-            a["connected"] = 7437;
-            a["inactive"] = 19;
-            a["rssi"] = -60;
-            a["rx_bytes"] = MicroService::instance().Random(5000,100000);
-            a["rx_packets"] = MicroService::instance().Random(50,600);
-            a["tx_bytes"] = MicroService::instance().Random(100,20000);
-            a["tx_duration"] = 36;
-            a["tx_failed"] = 0;
-            a["tx_offset"] = 0;
-            a["tx_packets"] = MicroService::instance().Random(200);
-            a["tx_retries"] = 0;
-            a["rx_rate"]["bitrate"] = 162000;
-            a["rx_rate"]["chwidth"] = 40;
-            a["rx_rate"]["mcs"] = 8;
-            a["rx_rate"]["nss"] = 1;
-            a["rx_rate"]["sgi"] = true;
-            a["rx_rate"]["vht"] = true;
-            a["tx_rate"]["bitrate"] = 200000;
-            a["tx_rate"]["chwidth"] = 40;
-            a["tx_rate"]["mcs"] = 8;
-            a["tx_rate"]["nss"] = 1;
-            a["tx_rate"]["sgi"] = true;
-            a["tx_rate"]["vht"] = true;
-
-            Arr.push_back(a);
+    nlohmann::json uCentralClient::CreateLinkState() {
+        nlohmann::json res;
+        for(const auto &[interface_type,_]:AllCounters_) {
+            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["carrier"] = 1 ;
+            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["duplex"] = "full" ;
+            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["speed"] = 1000 ;
         }
-        J["associations"] = Arr;
+        return res;
     }
 
     nlohmann::json uCentralClient::CreateState() {
         nlohmann::json S;
 
-        // unit
+        //  set the version
+        S["version"] = 1;
+
+        //  set the unit stuff
         auto now = OpenWifi::Now();
         S["unit"]["load"] = std::vector<double>{ (double)(MicroService::instance().Random(75)) /100.0 , (double)(MicroService::instance().Random(50))/100.0 , (double)(MicroService::instance().Random(25))/100.0 };
         S["unit"]["localtime"] = now;
@@ -174,90 +279,62 @@ namespace OpenWifi {
         S["unit"]["memory"]["cached"] = 29233152;
         S["unit"]["memory"]["free"] = 760164352;
 
-        S["radios"] = {
-                {
-                    {"active_ms", 7440626},
-                    {"busy_ms", 179311},
-                    {"channel", 157},
-                    {"channel_width", "40"},
-                    {"noise", -104},
-                    {"phy", "platform/soc/c000000.wifi"},
-                    {"receive_ms", 965},
-                    {"temperature", 40},
-                    {"transmit_ms", 26540},
-                    {"tx_power", 25}
-                },
-                {
-                    {"active_ms", 7439624},
-                    {"busy_ms", 710792},
-                    {"channel", 6},
-                    {"channel_width", "20"},
-                    {"noise", -99},
-                    {"phy", "platform/soc/c000000.wifi+1"},
-                    {"receive_ms", 72},
-                    {"temperature", 40},
-                    {"transmit_ms", 23818},
-                    {"tx_power", 23}
+        //  get all the radios out
+        for(auto &[_,radio]:AllRadios_) {
+            radio.next();
+            S["radios"].push_back(radio.to_json());
+        }
+
+        //  set the link state
+        S["link-state"] = CreateLinkState();
+
+        nlohmann::json all_interfaces;
+        for(const auto &ap_interface_type:{ap_interface_types::upstream,ap_interface_types::downstream}) {
+            if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
+                nlohmann::json current_interface;
+                nlohmann::json up_ssids;
+                uint64_t ssid_num = 0, interfaces = 0;
+                for (auto &[interface, associations]: AllAssociations_) {
+                    auto &[interface_type, ssid, band] = interface;
+                    if (interface_type == current_interface) {
+                        nlohmann::json association_list;
+                        std::string bssid;
+                        for (auto &association: associations) {
+                            association.next();
+                            bssid = association.bssid;
+                            association_list.push_back(association.to_json());
+                        }
+                        nlohmann::json ssid_info;
+                        ssid_info["associations"] = association_list;
+                        ssid_info["bssid"] = bssid;
+                        ssid_info["mode"] = "ap";
+                        ssid_info["name"] = ssid;
+                        ssid_info["phy"] = AllRadios_[band].phy;;
+                        ssid_info["location"] =
+                                "/interfaces/" + std::to_string(interfaces) + "/ssids/" + std::to_string(ssid_num++);
+                        ssid_info["radio"]["$ref"] = "#/radios/" + std::to_string(AllRadios_[band].index);
+                        ssid_info["name"] = AllInterfaceNames_[ap_interface_type];
+                        up_ssids.push_back(ssid_info);
+                    }
                 }
-        };
-        S["link-state"]["lan"]["eth1"]["carrier"] = 0;
-        S["link-state"]["lan"]["eth2"]["carrier"] = 0;
-        S["link-state"]["wan"]["eth0"]["carrier"] = 1;
-        S["link-state"]["wan"]["eth0"]["duplex"] = "full";
-        S["link-state"]["wan"]["eth0"]["speed"] = 1000;
-        nlohmann::json interface0;
+                current_interface["ssids"] = up_ssids;
+                AllCounters_[current_interface].next();
+                current_interface["counters"] = AllCounters_[current_interface].to_json();
 
-        nlohmann::json RFClients;
-        AddClients(RFClients, clients_2g);
-        AddClients(RFClients, clients_5g);
-
-        interface0["clients"] = RFClients;
-        interface0["location"] = "/interfaces/0";
-        interface0["name"] = "up0v0";
-        interface0["ipv4"]["addresses"].push_back("192.168.1.1/24");
-        interface0["ipv4"]["leasetime"]= 43200;
-        interface0["uptime"] = now - StartTime_;
-        AddCounters(interface0);
-        interface0["dns_servers"].push_back("192.168.88.1");
-        interface0["addresses"].push_back("192.168.88.91/24");
-
-        nlohmann::json ssid_5g;
-        ssid_5g["bssid"] = mac_5g;
-        AddCounters(ssid_5g);
-        ssid_5g["iface"] = "wlan0";
-        ssid_5g["mode"] = "ap";
-        ssid_5g["phy"] = "platform/soc/c000000.wifi";
-        ssid_5g["radio"]["$ref"] = "#/radios/0";
-        ssid_5g["ssid"] = "the5Gnetwork";
-        AddAssociations(clients_5g,ssid_5g);
-
-        nlohmann::json ssid_2g;
-        ssid_2g["bssid"] = mac_2g;
-        AddCounters(ssid_2g);
-        ssid_2g["iface"] = "wlan0";
-        ssid_2g["mode"] = "ap";
-        ssid_2g["phy"] = "platform/soc/c000000.wifi+1";
-        ssid_2g["radio"]["$ref"] = "#/radios/1";
-        ssid_2g["ssid"] = "the2Gnetwork";
-        AddAssociations(clients_2g,ssid_2g);
-
-        interface0["ssids"].push_back(ssid_5g);
-        interface0["ssids"].push_back(ssid_2g);
-
-        nlohmann::json interface1;
-        nlohmann::json LANClients;
-        AddClients(LANClients, clients_lan);
-        interface1["clients"] = LANClients;
-
-        AddCounters(interface1);
-        interface1["location"] = "/interfaces/1";
-        interface1["name"] = "down1v0";
-        interface1["uptime"] = now - StartTime_;
-        interface1["ipv4"]["addresses"].push_back("192.168.1.1/24");
-
-        S["interfaces"].push_back(interface0);
-        S["interfaces"].push_back(interface1);
-
+                //  if we have 2 interfaces, then the clients go to the downstream interface
+                //  if we only have 1 interface then this is bridged and therefore clients go on the upstream
+                if( (AllCounters_.size()==1 && ap_interface_type==ap_interface_types::upstream)    ||
+                    (AllCounters_.size()==2 && ap_interface_type==ap_interface_types::downstream)) {
+                    nlohmann::json state_lan_clients;
+                    for (const auto &lan_client: AllLanClients_) {
+                        state_lan_clients.push_back(lan_client.to_json());
+                    }
+                    current_interface["clients"] = state_lan_clients;
+                }
+                all_interfaces.push_back(current_interface);
+            }
+        }
+        S["interfaces"] = all_interfaces;
         return S;
     }
 
@@ -391,14 +468,24 @@ namespace OpenWifi {
 
         try {
             if (Params.contains("serial") &&
-            Params.contains("uuid") &&
-            Params.contains("config")) {
+                Params.contains("uuid") &&
+                Params.contains("config")) {
                 uint64_t When = Params.contains("when") ? (uint64_t) Params["when"] : 0;
                 auto Serial = Params["serial"];
                 uint64_t UUID = Params["uuid"];
                 auto Configuration = Params["config"];
                 CurrentConfig_ = Configuration;
                 UUID_ = Active_ = UUID ;
+
+                //  We need to digest the configuration and generate what we will need for
+                //  state messages.
+                auto Radios = CurrentConfig_["radios"];             //  array
+                auto Metrics = CurrentConfig_["metrics"];           //  object
+                auto Interfaces = CurrentConfig_["interfaces"];     //  array
+
+                HealthInterval_ = Metrics["health"]["interval"];
+                StatisticsInterval_ = Metrics["statistics"]["interval"];
+
 
                 //  prepare response...
                 nlohmann::json Answer;
@@ -444,6 +531,7 @@ namespace OpenWifi {
 
                 Logger_.information(fmt::format("reboot({}): done.",SerialNumber_));
                 Disconnect("Rebooting" , true);
+                Reset();
             } else {
                 Logger_.warning(fmt::format("reboot({}): Illegal command.",SerialNumber_));
             }
@@ -529,6 +617,10 @@ namespace OpenWifi {
                 SendObject(Answer);
 
                 Logger_.information(fmt::format("factory({}): done.",SerialNumber_));
+
+                CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(OpenWifi::Now());
+                UpdateConfiguration();
+
                 Disconnect("Factory reset", true);
             } else {
                 Logger_.warning(fmt::format("factory({}): Illegal command.",SerialNumber_));

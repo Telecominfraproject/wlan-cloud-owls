@@ -30,6 +30,7 @@ namespace OpenWifi {
             TmpCapabilities["macaddr"]["lan"] = LabelLanMacFormatted;
             M["params"]["capabilities"] = TmpCapabilities;
             if(Client_->Send(to_string(M))) {
+                Client_->Reset();
                 Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
                 Client_->AddEvent(ev_healthcheck, SimulationCoordinator()->GetSimulationInfo().healthCheckInterval);
                 Client_->AddEvent(ev_log, MicroService::instance().Random(120,200));
@@ -69,7 +70,7 @@ namespace OpenWifi {
             M["params"]["compress_64"] = Compressed;
 
             if(Client_->Send(to_string(M))) {
-                Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
+                Client_->AddEvent(ev_state, Client_->GetStateInterval() );
                 return true;
             }
         }
@@ -94,7 +95,7 @@ namespace OpenWifi {
             M["params"]["data"] = P;
 
             if(Client_->Send(to_string(M))) {
-                Client_->AddEvent(ev_healthcheck, SimulationCoordinator()->GetSimulationInfo().healthCheckInterval);
+                Client_->AddEvent(ev_healthcheck, Client_->GetHealthInterval() );
                 return true;
             }
         }

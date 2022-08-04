@@ -235,7 +235,7 @@ namespace OpenWifi {
                             },
                             "name": "OpenWifi-test2",
                             "wifi-bands": [
-                                "2G"
+                                "2G", "5G"
                             ]
                         }
                     ]

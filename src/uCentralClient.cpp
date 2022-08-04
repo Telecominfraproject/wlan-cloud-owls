@@ -146,19 +146,30 @@ namespace OpenWifi {
 
     void uCentralClient::UpdateConfiguration() {
         //  go through the config and harvest the SSID names, also update all the client stuff
+        std::cout << __LINE__ << std::endl;
         auto Interfaces = CurrentConfig_["interfaces"];
+        std::cout << __LINE__ << std::endl;
         AllAssociations_.clear();
         AllLanClients_.clear();
         AllRadios_.clear();
         bssid_index=1;
+        std::cout << __LINE__ << std::endl;
         for(const auto &interface:Interfaces) {
+            std::cout << __LINE__ << std::endl;
             if(interface.contains("role")) {
+                std::cout << __LINE__ << std::endl;
                 ap_interface_types  current_interface_role=upstream;
+                std::cout << __LINE__ << std::endl;
                 if(FindInterfaceRole(interface["role"],current_interface_role)) {
+                    std::cout << __LINE__ << std::endl;
                     auto SSIDs = interface["ssids"];
+                    std::cout << __LINE__ << std::endl;
                     for (const auto &ssid: SSIDs) {
+                        std::cout << __LINE__ << std::endl;
                         for (const auto &band: ssid["bands"]) {
+                            std::cout << __LINE__ << std::endl;
                             auto ssidName = ssid["name"];
+                            std::cout << __LINE__ << std::endl;
                             if (band == "2G") {
                                 AllAssociations_[std::make_tuple(current_interface_role, ssidName,
                                                                  radio_bands::band_2g)] = CreateAssociations(
@@ -167,6 +178,7 @@ namespace OpenWifi {
                                         SimulationCoordinator()->GetSimulationInfo().minAssociations,
                                         SimulationCoordinator()->GetSimulationInfo().maxAssociations);
                             }
+                            std::cout << __LINE__ << std::endl;
                             if (band == "5G") {
                                 AllAssociations_[std::make_tuple(current_interface_role, ssidName,
                                                                  radio_bands::band_5g)] = CreateAssociations(
@@ -175,6 +187,7 @@ namespace OpenWifi {
                                         SimulationCoordinator()->GetSimulationInfo().minAssociations,
                                         SimulationCoordinator()->GetSimulationInfo().maxAssociations);
                             }
+                            std::cout << __LINE__ << std::endl;
                             if (band == "6G") {
                                 AllAssociations_[std::make_tuple(current_interface_role, ssidName,
                                                                  radio_bands::band_6g)] = CreateAssociations(
@@ -185,20 +198,29 @@ namespace OpenWifi {
                             }
                         }
                     }
+                    std::cout << __LINE__ << std::endl;
                     FakeCounters F;
+                    std::cout << __LINE__ << std::endl;
                     AllCounters_[current_interface_role] = F;
+                    std::cout << __LINE__ << std::endl;
                 }
             }
         }
 
+        std::cout << __LINE__ << std::endl;
         AllLanClients_ = CreateLanClients(SimulationCoordinator()->GetSimulationInfo().minClients, SimulationCoordinator()->GetSimulationInfo().maxClients);
 
+        std::cout << __LINE__ << std::endl;
         auto radios=CurrentConfig_["radios"];
         uint index=0;
+        std::cout << __LINE__ << std::endl;
         for(const auto &radio:radios) {
+            std::cout << __LINE__ << std::endl;
             auto band=radio["band"];
+            std::cout << __LINE__ << std::endl;
             FakeRadio   R;
             radio_bands the_band{radio_bands::band_2g};
+            std::cout << __LINE__ << std::endl;
             if(band=="2G") {
                 R.channel = std::stoull(to_string(radio["channel"]) == "auto" ? std::to_string(Find2GAutoChannel()) : to_string(radio["channel"]));
             } else if(band=="5G") {

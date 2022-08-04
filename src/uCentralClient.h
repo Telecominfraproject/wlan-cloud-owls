@@ -111,6 +111,7 @@ namespace OpenWifi {
             res["ack_signal"] = ack_signal;
             res["ack_signal_average"] = ack_signal_average;
             res["bssid"] = bssid;
+            res["station"] = station;
             res["connected"] = connected;
             res["inactive"] = inactive;
             res["ipaddr_v4"] = ipaddr_v4;

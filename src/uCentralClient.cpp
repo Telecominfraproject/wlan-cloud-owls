@@ -146,30 +146,19 @@ namespace OpenWifi {
 
     void uCentralClient::UpdateConfiguration() {
         //  go through the config and harvest the SSID names, also update all the client stuff
-        std::cout << __LINE__ << std::endl;
         auto Interfaces = CurrentConfig_["interfaces"];
-        std::cout << __LINE__ << std::endl;
         AllAssociations_.clear();
         AllLanClients_.clear();
         AllRadios_.clear();
         bssid_index=1;
-        std::cout << __LINE__ << std::endl;
         for(const auto &interface:Interfaces) {
-            std::cout << __LINE__ << std::endl;
             if(interface.contains("role")) {
-                std::cout << __LINE__ << std::endl;
                 ap_interface_types  current_interface_role=upstream;
-                std::cout << __LINE__ << std::endl;
                 if(FindInterfaceRole(interface["role"],current_interface_role)) {
-                    std::cout << __LINE__ << std::endl;
                     auto SSIDs = interface["ssids"];
-                    std::cout << __LINE__ << std::endl;
                     for (const auto &ssid: SSIDs) {
-                        std::cout << __LINE__ << std::endl;
                         for (const auto &band: ssid["wifi-bands"]) {
-                            std::cout << __LINE__ << std::endl;
                             auto ssidName = ssid["name"];
-                            std::cout << __LINE__ << std::endl;
                             if (band == "2G") {
                                 AllAssociations_[std::make_tuple(current_interface_role, ssidName,
                                                                  radio_bands::band_2g)] = CreateAssociations(
@@ -178,7 +167,6 @@ namespace OpenWifi {
                                         SimulationCoordinator()->GetSimulationInfo().minAssociations,
                                         SimulationCoordinator()->GetSimulationInfo().maxAssociations);
                             }
-                            std::cout << __LINE__ << std::endl;
                             if (band == "5G") {
                                 AllAssociations_[std::make_tuple(current_interface_role, ssidName,
                                                                  radio_bands::band_5g)] = CreateAssociations(
@@ -187,7 +175,6 @@ namespace OpenWifi {
                                         SimulationCoordinator()->GetSimulationInfo().minAssociations,
                                         SimulationCoordinator()->GetSimulationInfo().maxAssociations);
                             }
-                            std::cout << __LINE__ << std::endl;
                             if (band == "6G") {
                                 AllAssociations_[std::make_tuple(current_interface_role, ssidName,
                                                                  radio_bands::band_6g)] = CreateAssociations(
@@ -198,31 +185,21 @@ namespace OpenWifi {
                             }
                         }
                     }
-                    std::cout << __LINE__ << std::endl;
                     FakeCounters F;
-                    std::cout << __LINE__ << std::endl;
                     AllCounters_[current_interface_role] = F;
-                    std::cout << __LINE__ << std::endl;
                 }
             }
         }
 
-        std::cout << __LINE__ << std::endl;
         AllLanClients_ = CreateLanClients(SimulationCoordinator()->GetSimulationInfo().minClients, SimulationCoordinator()->GetSimulationInfo().maxClients);
 
-        std::cout << __LINE__ << std::endl;
         auto radios=CurrentConfig_["radios"];
         uint index=0;
-        std::cout << __LINE__ << std::endl;
         for(const auto &radio:radios) {
-            std::cout << __LINE__ << std::endl;
             auto band=radio["band"];
-            std::cout << __LINE__ << std::endl;
             FakeRadio   R;
             radio_bands the_band{radio_bands::band_2g};
-            std::cout << __LINE__ << std::endl;
             std::uint64_t the_channel=Find2GAutoChannel();
-            std::cout << __LINE__ << std::endl;
             if(radio.contains("channel")) {
                 if(radio["channel"].is_string() && radio["channel"]=="auto") {
                     if(band=="2G")
@@ -235,7 +212,6 @@ namespace OpenWifi {
                     the_channel = radio["channel"];
                 }
             }
-            std::cout << __LINE__ << std::endl;
             R.channel = the_channel;
 
             if(band=="5G") {
@@ -243,18 +219,14 @@ namespace OpenWifi {
             } else if(band=="6G") {
                 the_band = radio_bands::band_6g;
             }
-            std::cout << __LINE__ << std::endl;
             AssignIfPresent(radio,"tx_power",R.tx_power,(uint_fast64_t) 23);
 
-            std::cout << __LINE__ << std::endl;
             if(index==0)
                 R.phy = "platform/soc/c000000.wifi";
             else
                 R.phy = "platform/soc/c000000.wifi+" + std::to_string(index);
-            std::cout << __LINE__ << std::endl;
             R.index = index;
             AllRadios_[the_band] = R;
-            std::cout << __LINE__ << std::endl;
             ++index;
         }
     }
@@ -306,11 +278,14 @@ namespace OpenWifi {
     nlohmann::json uCentralClient::CreateState() {
         nlohmann::json S;
 
+        std::cout << __LINE__ << std::endl;
         //  set the version
         S["version"] = 1;
+        std::cout << __LINE__ << std::endl;
 
         //  set the unit stuff
         auto now = OpenWifi::Now();
+        std::cout << __LINE__ << std::endl;
         S["unit"]["load"] = std::vector<double>{ (double)(MicroService::instance().Random(75)) /100.0 , (double)(MicroService::instance().Random(50))/100.0 , (double)(MicroService::instance().Random(25))/100.0 };
         S["unit"]["localtime"] = now;
         S["unit"]["uptime"] = now - StartTime_;
@@ -319,6 +294,7 @@ namespace OpenWifi {
         S["unit"]["memory"]["cached"] = 29233152;
         S["unit"]["memory"]["free"] = 760164352;
 
+        std::cout << __LINE__ << std::endl;
         //  get all the radios out
         for(auto &[_,radio]:AllRadios_) {
             radio.next();
@@ -334,11 +310,15 @@ namespace OpenWifi {
                 nlohmann::json current_interface;
                 nlohmann::json up_ssids;
                 uint64_t ssid_num = 0, interfaces = 0;
+                std::cout << __LINE__ << std::endl;
                 for (auto &[interface, associations]: AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
+                    std::cout << __LINE__ << std::endl;
                     if (interface_type == current_interface) {
+                        std::cout << __LINE__ << std::endl;
                         nlohmann::json association_list;
                         std::string bssid;
+                        std::cout << __LINE__ << std::endl;
                         for (auto &association: associations) {
                             association.next();
                             bssid = association.bssid;
@@ -357,24 +337,36 @@ namespace OpenWifi {
                         up_ssids.push_back(ssid_info);
                     }
                 }
+                std::cout << __LINE__ << std::endl;
                 current_interface["ssids"] = up_ssids;
+                std::cout << __LINE__ << std::endl;
                 AllCounters_[current_interface].next();
+                std::cout << __LINE__ << std::endl;
                 current_interface["counters"] = AllCounters_[current_interface].to_json();
+                std::cout << __LINE__ << std::endl;
 
                 //  if we have 2 interfaces, then the clients go to the downstream interface
                 //  if we only have 1 interface then this is bridged and therefore clients go on the upstream
+                std::cout << __LINE__ << std::endl;
                 if( (AllCounters_.size()==1 && ap_interface_type==ap_interface_types::upstream)    ||
                     (AllCounters_.size()==2 && ap_interface_type==ap_interface_types::downstream)) {
+                    std::cout << __LINE__ << std::endl;
                     nlohmann::json state_lan_clients;
+                    std::cout << __LINE__ << std::endl;
                     for (const auto &lan_client: AllLanClients_) {
+                        std::cout << __LINE__ << std::endl;
                         state_lan_clients.push_back(lan_client.to_json());
                     }
                     current_interface["clients"] = state_lan_clients;
                 }
+                std::cout << __LINE__ << std::endl;
                 all_interfaces.push_back(current_interface);
             }
+            std::cout << __LINE__ << std::endl;
         }
+        std::cout << __LINE__ << std::endl;
         S["interfaces"] = all_interfaces;
+        std::cout << __LINE__ << std::endl;
         return S;
     }
 

@@ -278,14 +278,11 @@ namespace OpenWifi {
     nlohmann::json uCentralClient::CreateState() {
         nlohmann::json S;
 
-        std::cout << __LINE__ << std::endl;
         //  set the version
         S["version"] = 1;
-        std::cout << __LINE__ << std::endl;
 
         //  set the unit stuff
         auto now = OpenWifi::Now();
-        std::cout << __LINE__ << std::endl;
         S["unit"]["load"] = std::vector<double>{ (double)(MicroService::instance().Random(75)) /100.0 , (double)(MicroService::instance().Random(50))/100.0 , (double)(MicroService::instance().Random(25))/100.0 };
         S["unit"]["localtime"] = now;
         S["unit"]["uptime"] = now - StartTime_;
@@ -294,7 +291,6 @@ namespace OpenWifi {
         S["unit"]["memory"]["cached"] = 29233152;
         S["unit"]["memory"]["free"] = 760164352;
 
-        std::cout << __LINE__ << std::endl;
         //  get all the radios out
         for(auto &[_,radio]:AllRadios_) {
             radio.next();
@@ -310,15 +306,11 @@ namespace OpenWifi {
                 nlohmann::json current_interface;
                 nlohmann::json up_ssids;
                 uint64_t ssid_num = 0, interfaces = 0;
-                std::cout << __LINE__ << std::endl;
                 for (auto &[interface, associations]: AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
-                    std::cout << __LINE__ << std::endl;
                     if (interface_type == ap_interface_type) {
-                        std::cout << __LINE__ << std::endl;
                         nlohmann::json association_list;
                         std::string bssid;
-                        std::cout << __LINE__ << std::endl;
                         for (auto &association: associations) {
                             association.next();
                             bssid = association.bssid;
@@ -337,39 +329,27 @@ namespace OpenWifi {
                         up_ssids.push_back(ssid_info);
                     }
                 }
-                std::cout << __LINE__ << std::endl;
                 current_interface["ssids"] = up_ssids;
-                std::cout << __LINE__ << std::endl;
                 AllCounters_[ap_interface_type].next();
-                std::cout << __LINE__ << std::endl;
                 current_interface["counters"] = AllCounters_[ap_interface_type].to_json();
-                std::cout << __LINE__ << std::endl;
 
                 //  if we have 2 interfaces, then the clients go to the downstream interface
                 //  if we only have 1 interface then this is bridged and therefore clients go on the upstream
-                std::cout << __LINE__ << std::endl;
                 if( (AllCounters_.size()==1 && ap_interface_type==ap_interface_types::upstream)    ||
                     (AllCounters_.size()==2 && ap_interface_type==ap_interface_types::downstream)) {
-                    std::cout << __LINE__ << std::endl;
                     nlohmann::json state_lan_clients;
-                    std::cout << __LINE__ << std::endl;
                     for (const auto &lan_client: AllLanClients_) {
-                        std::cout << __LINE__ << std::endl;
                         state_lan_clients.push_back(lan_client.to_json());
                     }
                     current_interface["clients"] = state_lan_clients;
                 }
                 current_interface["name"] = AllInterfaceNames_[ap_interface_type];
-                std::cout << __LINE__ << std::endl;
                 all_interfaces.push_back(current_interface);
             }
-            std::cout << __LINE__ << std::endl;
         }
-        std::cout << __LINE__ << std::endl;
         S["interfaces"] = all_interfaces;
-        std::cout << __LINE__ << std::endl << std::endl << std::endl;
-        std::cout << S << std::endl;
-        std::cout << std::endl << std::endl << std::endl;
+//        std::cout << S << std::endl;
+//        std::cout << std::endl << std::endl << std::endl;
 
         return S;
     }

@@ -366,7 +366,10 @@ namespace OpenWifi {
         }
         std::cout << __LINE__ << std::endl;
         S["interfaces"] = all_interfaces;
-        std::cout << __LINE__ << std::endl;
+        std::cout << __LINE__ << std::endl << std::endl << std::endl;
+        std::cout << S << std::endl;
+        std::cout << std::endl << std::endl << std::endl;
+
         return S;
     }
 

@@ -314,7 +314,7 @@ namespace OpenWifi {
                 for (auto &[interface, associations]: AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
                     std::cout << __LINE__ << std::endl;
-                    if (interface_type == current_interface) {
+                    if (interface_type == ap_interface_type) {
                         std::cout << __LINE__ << std::endl;
                         nlohmann::json association_list;
                         std::string bssid;
@@ -340,9 +340,9 @@ namespace OpenWifi {
                 std::cout << __LINE__ << std::endl;
                 current_interface["ssids"] = up_ssids;
                 std::cout << __LINE__ << std::endl;
-                AllCounters_[current_interface].next();
+                AllCounters_[ap_interface_type].next();
                 std::cout << __LINE__ << std::endl;
-                current_interface["counters"] = AllCounters_[current_interface].to_json();
+                current_interface["counters"] = AllCounters_[ap_interface_type].to_json();
                 std::cout << __LINE__ << std::endl;
 
                 //  if we have 2 interfaces, then the clients go to the downstream interface

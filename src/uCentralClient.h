@@ -215,7 +215,7 @@ namespace OpenWifi {
             res["noise"] = noise;
             res["temperature"] = temperature;
             res["channel"] = channel;
-            res["channel_width"] = channel_width;
+            res["channel_width"] = std::to_string(channel_width);
             res["tx_power"] = tx_power;
             res["phy"] = phy;
             return res;
@@ -223,7 +223,7 @@ namespace OpenWifi {
 
         void next() {
             temperature = 40 + local_random(-7,7);
-            noise = 95 + local_random(-3,3);
+            noise = -95 + local_random(-3,3);
             active_ms += local_random(100,2000);
             busy_ms += local_random(200,3000);
             receive_ms += local_random(500,1500);

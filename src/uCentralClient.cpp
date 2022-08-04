@@ -328,8 +328,8 @@ namespace OpenWifi {
                         ssid_info["associations"] = association_list;
                         ssid_info["bssid"] = bssid;
                         ssid_info["mode"] = "ap";
-                        ssid_info["name"] = ssid;
-                        ssid_info["phy"] = AllRadios_[band].phy;;
+                        ssid_info["ssid"] = ssid;
+                        ssid_info["phy"] = AllRadios_[band].phy;
                         ssid_info["location"] =
                                 "/interfaces/" + std::to_string(interfaces) + "/ssids/" + std::to_string(ssid_num++);
                         ssid_info["radio"]["$ref"] = "#/radios/" + std::to_string(AllRadios_[band].index);
@@ -359,6 +359,7 @@ namespace OpenWifi {
                     }
                     current_interface["clients"] = state_lan_clients;
                 }
+                current_interface["name"] = AllInterfaceNames_[ap_interface_type];
                 std::cout << __LINE__ << std::endl;
                 all_interfaces.push_back(current_interface);
             }

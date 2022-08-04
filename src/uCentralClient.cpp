@@ -221,23 +221,40 @@ namespace OpenWifi {
             FakeRadio   R;
             radio_bands the_band{radio_bands::band_2g};
             std::cout << __LINE__ << std::endl;
-            if(band=="2G") {
-                R.channel = std::stoull(to_string(radio["channel"]) == "auto" ? std::to_string(Find2GAutoChannel()) : to_string(radio["channel"]));
-            } else if(band=="5G") {
+            std::uint64_t the_channel=Find2GAutoChannel();
+            std::cout << __LINE__ << std::endl;
+            if(radio.contains("channel")) {
+                if(radio["channel"].is_string() && radio["channel"]=="auto") {
+                    if(band=="2G")
+                        the_channel = Find2GAutoChannel();
+                    else if(band=="5G")
+                        the_channel = Find5GAutoChannel();
+                    else if(band=="6G")
+                        the_channel = Find6GAutoChannel();
+                } else if(radio["channel"].is_number_integer()) {
+                    the_channel = radio["channel"];
+                }
+            }
+            std::cout << __LINE__ << std::endl;
+            R.channel = the_channel;
+
+            if(band=="5G") {
                 the_band = radio_bands::band_5g;
-                R.channel = std::stoull(to_string(radio["channel"]) == "auto" ? std::to_string(Find5GAutoChannel()) : to_string(radio["channel"]));
             } else if(band=="6G") {
                 the_band = radio_bands::band_6g;
-                R.channel = std::stoull(to_string(radio["channel"]) == "auto" ? std::to_string(Find6GAutoChannel()) : to_string(radio["channel"]));
             }
+            std::cout << __LINE__ << std::endl;
             AssignIfPresent(radio,"tx_power",R.tx_power,(uint_fast64_t) 23);
 
+            std::cout << __LINE__ << std::endl;
             if(index==0)
                 R.phy = "platform/soc/c000000.wifi";
             else
                 R.phy = "platform/soc/c000000.wifi+" + std::to_string(index);
+            std::cout << __LINE__ << std::endl;
             R.index = index;
             AllRadios_[the_band] = R;
+            std::cout << __LINE__ << std::endl;
             ++index;
         }
     }

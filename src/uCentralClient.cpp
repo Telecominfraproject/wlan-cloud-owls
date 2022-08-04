@@ -224,7 +224,8 @@ namespace OpenWifi {
         FakeLanClients Clients;
         uint64_t Num = MicroService::instance().Random(min,max);
         for(uint64_t i=0;i<Num;i++) {
-            FakeLanClient  CI{ .mac = RandomMAC() };
+            FakeLanClient  CI;
+            CI.mac = RandomMAC();
             CI.ipv4_addresses.push_back(RandomIPv4());
             CI.ipv6_addresses.push_back(RandomIPv6());
             CI.ports.push_back("eth0");

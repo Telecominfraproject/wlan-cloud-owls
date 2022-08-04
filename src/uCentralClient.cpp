@@ -254,8 +254,8 @@ namespace OpenWifi {
 
             FA.bssid = bssid;
             FA.station = RandomMAC();
-            FA.ack_signal_average = local_random(-40,-60);
-            FA.ack_signal = FA.ack_signal_average;
+            FA.ack_signal_avg = local_random(-40,-60);
+            FA.ack_signal = FA.ack_signal_avg;
             FA.ipaddr_v4 = RandomIPv4();
             FA.ipaddr_v6 = RandomIPv6();
             FA.rssi = local_random(-40,-90);

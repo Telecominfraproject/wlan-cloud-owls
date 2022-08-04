@@ -102,14 +102,14 @@ namespace OpenWifi {
                         tx_failed=0,
                         tx_packets=0,
                         tx_retries=0;
-        int64_t         ack_signal=-53,
-                        ack_signal_average=-53,
-                        rssi=-53;
+        int64_t         ack_signal=0,
+                        ack_signal_avg= local_random(-65,-75),
+                        rssi=local_random(-40,-85);
 
         [[nodiscard]] nlohmann::json  to_json() const {
             nlohmann::json res;
             res["ack_signal"] = ack_signal;
-            res["ack_signal_average"] = ack_signal_average;
+            res["ack_signal_avg"] = ack_signal_avg;
             res["bssid"] = bssid;
             res["station"] = station;
             res["connected"] = connected;
@@ -138,13 +138,25 @@ namespace OpenWifi {
             res["tx_rate"]["sgi"] = true;
             res["tx_rate"]["ht"] = true;
 
-            res["tid_stats"] = nlohmann::json::array();
+            nlohmann::json tid_stats;
+            nlohmann::json tid_stat;
+            tid_stat["rx_msdu"] = 0;
+            tid_stat["tx_msdu"] = 0;
+            tid_stat["tx_msdu_failed"] = 0;
+            tid_stat["tx_msdu_retries"] = 0;
+            tid_stats.push_back(tid_stat);
+            tid_stats.push_back(tid_stat);
+            tid_stats.push_back(tid_stat);
+            tid_stats.push_back(tid_stat);
+            tid_stats.push_back(tid_stat);
+
+            res["tid_stats"] = tid_stats;
 
             return res;
         }
 
         void next() {
-            ack_signal = ack_signal_average + local_random(-5,5);
+            ack_signal = ack_signal_avg + local_random(-5,5);
             connected += local_random(100,500);
             inactive += local_random(100,500);
             rssi += local_random(-2,2);
@@ -163,7 +175,7 @@ namespace OpenWifi {
         }
 
         void reset() {
-            ack_signal = ack_signal_average ;
+            ack_signal = ack_signal_avg ;
             connected = 0;
             inactive = 0;
 
@@ -205,6 +217,7 @@ namespace OpenWifi {
             res["channel"] = channel;
             res["channel_width"] = channel_width;
             res["tx_power"] = tx_power;
+            res["phy"] = phy;
             return res;
         }
 

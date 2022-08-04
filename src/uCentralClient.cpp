@@ -166,7 +166,7 @@ namespace OpenWifi {
                     std::cout << __LINE__ << std::endl;
                     for (const auto &ssid: SSIDs) {
                         std::cout << __LINE__ << std::endl;
-                        for (const auto &band: ssid["bands"]) {
+                        for (const auto &band: ssid["wifi-bands"]) {
                             std::cout << __LINE__ << std::endl;
                             auto ssidName = ssid["name"];
                             std::cout << __LINE__ << std::endl;

@@ -842,7 +842,7 @@ namespace OpenWifi {
                 SimStats()->AddOutMsg();
                 return true;
             } else {
-                Logger_.warning(fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
+                Logger_.warning(fmt::format("SEND({}): incomplete. Sent: {}", SerialNumber_, BytesSent));
             }
         } catch(const Poco::Exception &E) {
             Logger_.log(E);
@@ -874,7 +874,7 @@ namespace OpenWifi {
                 SimStats()->AddOutMsg();
                 return true;
             } else {
-                Logger_.warning(fmt::format("SEND({}): incomplete send object. Sent: {}", SerialNumber_, BytesSent));
+                Logger_.warning(fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
             }
         }
         catch(const Poco::Exception &E) {

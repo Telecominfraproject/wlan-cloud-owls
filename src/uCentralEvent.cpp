@@ -101,7 +101,7 @@ namespace OpenWifi {
         catch(const Poco::Exception &E) {
             Client_->Logger().log(E);
         }
-        Client_->Disconnect("Error whiel sending HealthCheck", true);
+        Client_->Disconnect("Error while sending HealthCheck", true);
         return false;
     }
 
@@ -150,7 +150,7 @@ namespace OpenWifi {
         catch(const Poco::Exception &E) {
             Client_->Logger().log(E);
         }
-        Client_->Disconnect("Error while sending CongifPendingEvent", true);
+        Client_->Disconnect("Error while sending ConfigPendingEvent", true);
         return false;
     }
 
@@ -171,7 +171,7 @@ namespace OpenWifi {
         catch(const Poco::Exception &E) {
             Client_->Logger().log(E);
         }
-        Client_->Disconnect("Error while sending a keepalive", true);
+        Client_->Disconnect("Error while sending keepalive", true);
         return false;
     };
 

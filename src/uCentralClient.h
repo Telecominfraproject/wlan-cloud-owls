@@ -103,8 +103,8 @@ namespace OpenWifi {
                         tx_packets=0,
                         tx_retries=0;
         int64_t         ack_signal=0,
-                        ack_signal_avg= local_random(-65,-75),
-                        rssi=local_random(-40,-85);
+                        ack_signal_avg=local_random(-65,-75),
+                        rssi=local_random(-40,-90);
 
         [[nodiscard]] nlohmann::json  to_json() const {
             nlohmann::json res;
@@ -367,8 +367,8 @@ namespace OpenWifi {
         uint64_t                    Version_=0;
         uint64_t                    StartTime_ = OpenWifi::Now();
         std::string                 mac_lan;
-        std::atomic_uint64_t        HealthInterval_=120;
-        std::atomic_uint64_t        StatisticsInterval_=120;
+        std::atomic_uint64_t        HealthInterval_=60;
+        std::atomic_uint64_t        StatisticsInterval_=60;
         uint64_t                    bssid_index=1;
 
         using interface_location = std::tuple<ap_interface_types, std::string, radio_bands>;

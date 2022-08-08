@@ -52,22 +52,21 @@ namespace OpenWifi {
             M["jsonrpc"] = "2.0";
             M["method"] = "state";
 
-            auto State = Client_->CreateState();
+            nlohmann::json ParamsObj;
+            ParamsObj["serial"] = Client_->Serial();
+            ParamsObj["uuid"] = Client_->UUID();
+            ParamsObj["state"] = Client_->CreateState();
 
-            nlohmann::json CPayload;
+            auto ParamsStr = to_string(ParamsObj);
 
-            CPayload["serial"] = Client_->Serial();
-            CPayload["uuid"] = Client_->UUID();
-            CPayload["state"] = State;
-
-            auto StateStr = to_string(CPayload);
-
-            unsigned long BufSize = StateStr.size() + 4000;
+            unsigned long BufSize = ParamsStr.size() + 4000;
             std::vector<Bytef> Buffer(BufSize);
-            compress(&Buffer[0], &BufSize, (Bytef *) StateStr.c_str(), StateStr.size());
-            auto Compressed = OpenWifi::Utils::base64encode(&Buffer[0], BufSize);
+            compress(&Buffer[0], &BufSize, (Bytef *) ParamsStr.c_str(), ParamsStr.size());
 
-            M["params"]["compress_64"] = Compressed;
+            auto CompressedBase64Encoded = OpenWifi::Utils::base64encode(&Buffer[0], BufSize);
+
+            M["params"]["compress_64"] = CompressedBase64Encoded;
+            M["params"]["compress_sz"] = ParamsStr.size();
 
             if(Client_->Send(to_string(M))) {
                 Client_->AddEvent(ev_state, Client_->GetStateInterval() );

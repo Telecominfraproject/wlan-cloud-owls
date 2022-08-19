@@ -112,7 +112,7 @@ COPY owls.properties.tmpl /
 COPY docker-entrypoint.sh /
 COPY wait-for-postgres.sh /
 RUN wget https://raw.githubusercontent.com/Telecominfraproject/wlan-cloud-ucentral-deploy/main/docker-compose/certs/restapi-ca.pem \
-    -O /usr/local/share/ca-certificates/restapi-ca-selfsigned.pem
+    -O /usr/local/share/ca-certificates/restapi-ca-selfsigned.crt
 
 COPY --from=owls-build /owls/cmake-build/owls /openwifi/owls
 COPY --from=cppkafka-build /cppkafka/cmake-build/src/lib/* /lib/

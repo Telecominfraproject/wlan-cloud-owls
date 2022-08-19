@@ -118,6 +118,8 @@ COPY --from=owls-build /owls/cmake-build/owls /openwifi/owls
 COPY --from=cppkafka-build /cppkafka/cmake-build/src/lib/* /lib/
 COPY --from=poco-build /poco/cmake-build/lib/* /lib/
 
+RUN ldconfig
+
 EXPOSE 16007 17007 16107
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

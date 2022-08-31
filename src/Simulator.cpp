@@ -94,7 +94,7 @@ namespace OpenWifi {
                         break;
 
                         case ev_healthcheck: {
-                            Logger_.information(fmt::format("healthcheck({}s): ", Client->Serial()));
+                            Logger_.information(fmt::format("healthcheck({}): ", Client->Serial()));
                             std::thread T([Client]() {
                                 Client->NextEvent(true);
                                 HealthCheckEvent E(Client);

@@ -310,14 +310,6 @@ namespace OpenWifi {
                 auto state_ue_clients=nlohmann::json::array();
                 for (auto &[interface, associations]: AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
-                    for(const auto &assoc:associations) {
-                        nlohmann::json ue;
-                        ue["mac"] = assoc.station;
-                        ue["ipv4_addresses"].push_back(assoc.ipaddr_v4);
-                        ue["ipv6_addresses"].push_back(assoc.ipaddr_v6);
-                        ue["ports"].push_back( interface_type==upstream ? "eth0" : "eth1");
-                        state_ue_clients.push_back(ue);
-                    }
                     if (interface_type == ap_interface_type) {
                         nlohmann::json association_list;
                         std::string bssid;
@@ -325,6 +317,13 @@ namespace OpenWifi {
                             association.next();
                             bssid = association.bssid;
                             association_list.push_back(association.to_json());
+                            nlohmann::json ue;
+                            ue["mac"] = association.station;
+                            ue["ipv4_addresses"].push_back(association.ipaddr_v4);
+                            ue["ipv6_addresses"].push_back(association.ipaddr_v6);
+                            ue["ports"].push_back( interface_type==upstream ? "eth0" : "eth1");
+                            std::cout << "Adding association info" << to_string(ue) << std::endl;
+                            state_ue_clients.push_back(ue);
                         }
                         nlohmann::json ssid_info;
                         ssid_info["associations"] = association_list;
@@ -348,7 +347,7 @@ namespace OpenWifi {
                 if( (AllCounters_.size()==1 && ap_interface_type==ap_interface_types::upstream)    ||
                     (AllCounters_.size()==2 && ap_interface_type==ap_interface_types::downstream)) {
                     nlohmann::json state_lan_clients;
-                    for (const auto &lan_client: AllLanClients_) {
+                    for(const auto &lan_client: AllLanClients_) {
                         state_lan_clients.push_back(lan_client.to_json());
                     }
                     for(const auto &ue_assoc:state_ue_clients) {

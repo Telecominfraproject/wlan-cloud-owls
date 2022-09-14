@@ -306,8 +306,18 @@ namespace OpenWifi {
                 nlohmann::json current_interface;
                 nlohmann::json up_ssids;
                 uint64_t ssid_num = 0, interfaces = 0;
+
+                auto state_ue_clients=nlohmann::json::array();
                 for (auto &[interface, associations]: AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
+                    for(const auto &assoc:associations) {
+                        nlohmann::json ue;
+                        ue["mac"] = assoc.station;
+                        ue["ipv4_addresses"].push_back(assoc.ipaddr_v4);
+                        ue["ipv6_addresses"].push_back(assoc.ipaddr_v6);
+                        ue["ports"].push_back( interface_type==upstream ? "eth0" : "eth1");
+                        state_ue_clients.push_back(ue);
+                    }
                     if (interface_type == ap_interface_type) {
                         nlohmann::json association_list;
                         std::string bssid;
@@ -340,6 +350,9 @@ namespace OpenWifi {
                     nlohmann::json state_lan_clients;
                     for (const auto &lan_client: AllLanClients_) {
                         state_lan_clients.push_back(lan_client.to_json());
+                    }
+                    for(const auto &ue_assoc:state_ue_clients) {
+                        state_lan_clients.push_back(ue_assoc);
                     }
                     current_interface["clients"] = state_lan_clients;
                 }

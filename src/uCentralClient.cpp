@@ -350,7 +350,7 @@ namespace OpenWifi {
                     for(const auto &lan_client: AllLanClients_) {
                         state_lan_clients.push_back(lan_client.to_json());
                     }
-                    std::cout << "Adding " << state_ue_clients.size() << " UE clients" << std::endl;
+                    // std::cout << "Adding " << state_ue_clients.size() << " UE clients" << std::endl;
                     for(const auto &ue_assoc:state_ue_clients) {
                         state_lan_clients.push_back(ue_assoc);
                     }

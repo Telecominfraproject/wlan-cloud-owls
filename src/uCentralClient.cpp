@@ -322,7 +322,7 @@ namespace OpenWifi {
                             ue["ipv4_addresses"].push_back(association.ipaddr_v4);
                             ue["ipv6_addresses"].push_back(association.ipaddr_v6);
                             ue["ports"].push_back( interface_type==upstream ? "eth0" : "eth1");
-                            std::cout << "Adding association info" << to_string(ue) << std::endl;
+                            // std::cout << "Adding association info" << to_string(ue) << std::endl;
                             state_ue_clients.push_back(ue);
                         }
                         nlohmann::json ssid_info;
@@ -350,6 +350,7 @@ namespace OpenWifi {
                     for(const auto &lan_client: AllLanClients_) {
                         state_lan_clients.push_back(lan_client.to_json());
                     }
+                    std::cout << "Adding " << state_ue_clients.size() << " UE clients" << std::endl;
                     for(const auto &ue_assoc:state_ue_clients) {
                         state_lan_clients.push_back(ue_assoc);
                     }

@@ -36,17 +36,25 @@ namespace OpenWifi {
 }
 
 int main(int argc, char **argv) {
-	try {
-		auto App = OpenWifi::Daemon::instance();
-		auto ExitCode =  App->run(argc, argv);
-		delete App;
+    int ExitCode;
+    try {
+        Poco::Net::SSLManager::instance().initializeServer(nullptr, nullptr, nullptr);
+        auto App = OpenWifi::Daemon::instance();
+        ExitCode =  App->run(argc, argv);
+        Poco::Net::SSLManager::instance().shutdown();
+    } catch (Poco::Exception &exc) {
+        ExitCode = Poco::Util::Application::EXIT_SOFTWARE;
+        std::cout << exc.displayText() << std::endl;
+    } catch (std::exception &exc) {
+        ExitCode = Poco::Util::Application::EXIT_TEMPFAIL;
+        std::cout << exc.what() << std::endl;
+    } catch (...) {
+        ExitCode = Poco::Util::Application::EXIT_TEMPFAIL;
+        std::cout << "Exception on closure" << std::endl;
+    }
 
-		return ExitCode;
-
-	} catch (Poco::Exception &exc) {
-		std::cerr << exc.displayText() << std::endl;
-		return Poco::Util::Application::EXIT_SOFTWARE;
-	}
+    std::cout << "Exitcode: " << ExitCode << std::endl;
+    return ExitCode;
 }
 
 // end of namespace

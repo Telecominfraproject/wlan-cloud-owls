@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 if [ "$SELFSIGNED_CERTS" = 'true' ]; then
@@ -53,7 +53,7 @@ if [ "$1" = '/openwifi/owls' -a "$(id -u)" = '0' ]; then
     if [ "$RUN_CHOWN" = 'true' ]; then
       chown -R "$OWLS_USER": "$OWLS_ROOT" "$OWLS_CONFIG"
     fi
-    exec su-exec "$OWLS_USER" "$@"
+    exec gosu "$OWLS_USER" "$@"
 fi
 
 exec "$@"

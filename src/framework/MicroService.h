@@ -3075,7 +3075,7 @@ namespace OpenWifi {
 
 	private:
 	    std::vector<std::unique_ptr<Poco::Net::HTTPServer>>   RESTServers_;
-	    Poco::ThreadPool	    Pool_{"x-rest",32,128};
+	    Poco::ThreadPool	    Pool_{"x-rest",8,128};
 	    RESTAPI_GenericServer   Server_;
 
         RESTAPI_ExtServer() noexcept:
@@ -3209,7 +3209,7 @@ namespace OpenWifi {
         const Poco::ThreadPool & Pool() { return Pool_; }
 	private:
 	    std::vector<std::unique_ptr<Poco::Net::HTTPServer>>   RESTServers_;
-	    Poco::ThreadPool	    Pool_{"i-rest",32,96};
+	    Poco::ThreadPool	    Pool_{"i-rest",4,64};
 	    RESTAPI_GenericServer   Server_;
 
         RESTAPI_IntServer() noexcept:
@@ -3406,7 +3406,7 @@ namespace OpenWifi {
         bool                        NoBuiltInCrypto_=false;
         Poco::JWT::Signer	        Signer_;
 		Poco::Logger				&Logger_;
-		Poco::ThreadPool				TimerPool_{"timer:pool",2,16};
+		Poco::ThreadPool				TimerPool_{"timer:pool",2,32};
 		std::unique_ptr<BusEventManager>	BusEventManager_;
     };
 
@@ -3602,14 +3602,14 @@ namespace OpenWifi {
                 FileChannel->setProperty("archive", "timestamp");
                 FileChannel->setProperty("path", LoggingLocation);
                 Poco::AutoPtr<Poco::AsyncChannel> Async_File(new Poco::AsyncChannel(FileChannel));
-				Poco::AutoPtr<Poco::AsyncChannel> Async_Muxer(new Poco::AsyncChannel(LogMuxer()));
-                Poco::AutoPtr<Poco::SplitterChannel> Splitter(new Poco::SplitterChannel);
-				Splitter->addChannel(Async_File);
-				Splitter->addChannel(Async_Muxer);
+				// Poco::AutoPtr<Poco::AsyncChannel> Async_Muxer(new Poco::AsyncChannel(LogMuxer()));
+                // Poco::AutoPtr<Poco::SplitterChannel> Splitter(new Poco::SplitterChannel);
+				// Splitter->addChannel(Async_File);
+				// Splitter->addChannel(Async_Muxer);
 				Poco::AutoPtr<Poco::PatternFormatter> Formatter(new Poco::PatternFormatter);
                 Formatter->setProperty("pattern", LoggingFormat);
                 Poco::AutoPtr<Poco::FormattingChannel> FormattingChannel(
-                        new Poco::FormattingChannel(Formatter, Splitter));
+                        new Poco::FormattingChannel(Formatter, Async_File));
                 Poco::Logger::root().setChannel(FormattingChannel);
             }
             auto Level = Poco::Logger::parseLevel(MicroService::instance().ConfigGetString("logging.level", "debug"));

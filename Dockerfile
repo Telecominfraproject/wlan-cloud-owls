@@ -104,7 +104,7 @@ RUN mkdir -p "$OWLS_ROOT" "$OWLS_CONFIG" && \
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     librdkafka++1 gosu gettext ca-certificates bash jq curl wget \
-    libmariadb-dev-compat libpq5 unixodbc
+    libmariadb-dev-compat libpq5 unixodbc postgresql-client
 
 COPY test_scripts/curl/cli /cli
 

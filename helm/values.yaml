@@ -97,7 +97,7 @@ resources: {}
   #  memory: 128Mi
 
 securityContext:
-  fsGroup: 101
+  fsGroup: 1000
 
 nodeSelector: {}
 

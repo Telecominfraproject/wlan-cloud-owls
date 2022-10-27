@@ -6,11 +6,11 @@
 //	Arilia Wireless Inc.
 //
 
-#ifndef UCENTRAL_UCENTRAL_H
-#define UCENTRAL_UCENTRAL_H
+#pragma once
 
 #include "Dashboard.h"
 #include "framework/MicroService.h"
+#include "framework/MicroServiceNames.h"
 
 namespace OpenWifi {
 
@@ -39,9 +39,5 @@ namespace OpenWifi {
     };
 
 	inline Daemon * Daemon() { return Daemon::instance(); }
-    inline void DaemonPostInitialization(Poco::Util::Application &self) {
-        Daemon()->PostInitialization(self);
-    }
+    void DaemonPostInitialization(Poco::Util::Application &self);
 }
-
-#endif //UCENTRAL_UCENTRAL_H

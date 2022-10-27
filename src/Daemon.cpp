@@ -11,6 +11,8 @@
 #include "StorageService.h"
 #include "SimStats.h"
 
+#include "Poco/Net/SSLManager.h"
+
 namespace OpenWifi {
 	class Daemon *Daemon::instance_ = nullptr;
 
@@ -33,6 +35,9 @@ namespace OpenWifi {
 	void Daemon::PostInitialization([[maybe_unused]] Poco::Util::Application &self) {
     }
 
+    void DaemonPostInitialization(Poco::Util::Application &self) {
+        Daemon()->PostInitialization(self);
+    }
 }
 
 int main(int argc, char **argv) {

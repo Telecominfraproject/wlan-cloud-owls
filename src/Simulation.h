@@ -2,13 +2,12 @@
 // Created by stephane bourque on 2021-11-03.
 //
 
-#ifndef OWLS_SIMULATION_H
-#define OWLS_SIMULATION_H
+#pragma once
 
 #include <chrono>
 #include <random>
 
-#include "framework/MicroService.h"
+#include "framework/SubSystemServer.h"
 #include "RESTObjects/RESTAPI_OWLSobjects.h"
 #include "Simulator.h"
 #include "nlohmann/json-schema.hpp"
@@ -74,5 +73,3 @@ namespace OpenWifi {
 
     inline SimulationCoordinator * SimulationCoordinator() { return SimulationCoordinator::instance(); }
 }
-
-#endif //OWLS_SIMULATION_H

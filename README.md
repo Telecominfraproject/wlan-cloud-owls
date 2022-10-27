@@ -3,7 +3,7 @@ This the OpenWifi Load Simulator for TIP 2.x. OWLS is a tool to help test platfo
 
 ## Before running a simulation
 ### Get a simulator key
-You must request a simulator from TIP for your simulator. This key will be for a serial number starting with the following digits: 53494d and will be a total of 12 hex-digits. This is your simulator ID. You will receive 1 archive file containing 4 files. You must rename cert.pem to device-cert.pem, and key.pem to device-key.pem. Copy both files in the `certs` directory of OWLS. You can safely delete the other 2 files.
+You must create a digicert certs for your simulator(this is using the same method used to create AP certs). The serial number for the simulator must start with the following digits: 53494d and will be a total of 12 hex-digits. This is your simulator ID. You will receive 1 archive file containing 4 files. You must rename cert.pem to device-cert.pem, and key.pem to device-key.pem. Copy both files in the `certs` directory of OWLS. You can safely delete the other 2 files.
 
 ### Prepare your OpenWifi Gateway
 You must be running a gateway version 2.4 or later. In your properties file, you should enter the following: 

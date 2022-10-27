@@ -6,14 +6,19 @@
 #include "StorageService.h"
 #include "SimStats.h"
 
+#include "framework/MicroServiceFuncs.h"
+#include "Poco/Environment.h"
+#include "framework/utils.h"
+#include "fmt/format.h"
+
 namespace OpenWifi {
 
     int SimulationCoordinator::Start() {
-        CASLocation_ = MicroService::instance().ConfigPath("ucentral.cas");
-        KeyFileName_ = MicroService::instance().ConfigPath("ucentral.key");
-        CertFileName_ = MicroService::instance().ConfigPath("ucentral.cert");
-        RootCAFileName_ = MicroService::instance().ConfigPath("ucentral.rootca");
-        std::string L = MicroService::instance().ConfigGetString("ucentral.security");
+        CASLocation_ = MicroServiceConfigPath("ucentral.cas","");
+        KeyFileName_ = MicroServiceConfigPath("ucentral.key","");
+        CertFileName_ = MicroServiceConfigPath("ucentral.cert","");
+        RootCAFileName_ = MicroServiceConfigPath("ucentral.rootca","");
+        std::string L = MicroServiceConfigGetString("ucentral.security","");
         if (L == "strict") {
             Level_ = Poco::Net::Context::VERIFY_STRICT;
         } else if (L == "none") {
@@ -46,7 +51,7 @@ namespace OpenWifi {
                 continue;
             }
 
-            uint64_t    Now = OpenWifi::Now();
+            uint64_t    Now = Utils::Now();
             if( CurrentSim_.simulationLength!=0 && (Now - SimStats()->GetStartTime()) > CurrentSim_.simulationLength ) {
                 std::string Error;
                 StopSim( SimStats()->Id(), Error );
@@ -130,7 +135,7 @@ namespace OpenWifi {
 
         StartSimulators();
         SimRunning_ = true ;
-        SimStats()->StartSim(MicroService::instance().CreateUUID(), SimId, CurrentSim_.devices, Owner);
+        SimStats()->StartSim(MicroServiceCreateUUID(), SimId, CurrentSim_.devices, Owner);
         return true;
     }
 

@@ -16,8 +16,12 @@
 #include "Poco/Net/SSLException.h"
 
 #include "uCentralClient.h"
+
+#include "framework/MicroServiceFuncs.h"
+
 #include "SimStats.h"
 #include "Simulation.h"
+#include "fmt/format.h"
 #include <nlohmann/json.hpp>
 
 using namespace std::chrono_literals;
@@ -40,36 +44,36 @@ namespace OpenWifi {
 
     static std::string RandomMAC() {
         char b[64];
-        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x",  (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255) );
+        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x",  (int) MicroServiceRandom(255),
+                (int)MicroServiceRandom(255),
+                (int)MicroServiceRandom(255),
+                (int)MicroServiceRandom(255),
+                (int)MicroServiceRandom(255),
+                (int)MicroServiceRandom(255) );
         return b;
     }
 
     static std::string RandomIPv4() {
         char b[64];
         sprintf(b,"%d.%d.%d.%d",
-                (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255),
-                (int)MicroService::instance().Random(255));
+                (int)MicroServiceRandom(255),
+                (int)MicroServiceRandom(255),
+                (int)MicroServiceRandom(255),
+                (int)MicroServiceRandom(255));
         return b;
     }
 
     static std::string RandomIPv6() {
         char b[128];
         sprintf(b,"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
-                (uint)MicroService::instance().Random(0x0ffff),
-                (uint)MicroService::instance().Random(0x0ffff),
-                (uint)MicroService::instance().Random(0x0ffff),
-                (uint)MicroService::instance().Random(0x0ffff),
-                (uint)MicroService::instance().Random(0x0ffff),
-                (uint)MicroService::instance().Random(0x0ffff),
-                (uint)MicroService::instance().Random(0x0ffff),
-                (uint)MicroService::instance().Random(0x0ffff) );
+                (uint)MicroServiceRandom(0x0ffff),
+                (uint)MicroServiceRandom(0x0ffff),
+                (uint)MicroServiceRandom(0x0ffff),
+                (uint)MicroServiceRandom(0x0ffff),
+                (uint)MicroServiceRandom(0x0ffff),
+                (uint)MicroServiceRandom(0x0ffff),
+                (uint)MicroServiceRandom(0x0ffff),
+                (uint)MicroServiceRandom(0x0ffff) );
         return b;
     }
 
@@ -91,10 +95,10 @@ namespace OpenWifi {
                 AllPortNames_[ap_interface_types::downstream] = "eth0";
 
                 SetFirmware();
-                Active_ = UUID_ = OpenWifi::Now();
+                Active_ = UUID_ = Utils::Now();
                 srand(UUID_);
                 mac_lan = MakeMac(SerialNumber_.c_str(), 0 );
-                CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(OpenWifi::Now());
+                CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
                 UpdateConfiguration();
             }
 
@@ -233,7 +237,7 @@ namespace OpenWifi {
 
     FakeLanClients uCentralClient::CreateLanClients(uint64_t min, uint64_t max) {
         FakeLanClients Clients;
-        uint64_t Num = MicroService::instance().Random(min,max);
+        uint64_t Num = MicroServiceRandom(min,max);
         for(uint64_t i=0;i<Num;i++) {
             FakeLanClient  CI;
             CI.mac = RandomMAC();
@@ -248,7 +252,7 @@ namespace OpenWifi {
     FakeAssociations uCentralClient::CreateAssociations(const std::string &bssid, uint64_t min, uint64_t max) {
         FakeAssociations    res;
 
-        auto n = MicroService::instance().Random(min,max);
+        auto n = MicroServiceRandom(min,max);
         while(n) {
             FakeAssociation FA;
 
@@ -282,8 +286,10 @@ namespace OpenWifi {
         S["version"] = 1;
 
         //  set the unit stuff
-        auto now = OpenWifi::Now();
-        S["unit"]["load"] = std::vector<double>{ (double)(MicroService::instance().Random(75)) /100.0 , (double)(MicroService::instance().Random(50))/100.0 , (double)(MicroService::instance().Random(25))/100.0 };
+        auto now = Utils::Now();
+        S["unit"]["load"] = std::vector<double>{ (double)(MicroServiceRandom(75)) /100.0 ,
+                                                 (double)(MicroServiceRandom(50))/100.0 ,
+                                                 (double)(MicroServiceRandom(25))/100.0 };
         S["unit"]["localtime"] = now;
         S["unit"]["uptime"] = now - StartTime_;
         S["unit"]["memory"]["total"] = 973139968;
@@ -379,7 +385,7 @@ namespace OpenWifi {
         Commands_.clear();
 
         if(Reconnect)
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroService::instance().Random(15) );
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroServiceRandom(15) );
 
         SimStats()->Disconnect();
     }
@@ -647,7 +653,7 @@ namespace OpenWifi {
 
                 Logger_.information(fmt::format("factory({}): done.",SerialNumber_));
 
-                CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(OpenWifi::Now());
+                CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
                 UpdateConfiguration();
 
                 Disconnect("Factory reset", true);
@@ -831,17 +837,17 @@ namespace OpenWifi {
         catch ( const Poco::Exception & E )
         {
             Logger_.warning(fmt::format("connecting({}): exception. {}",SerialNumber_,E.displayText()));
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroService::instance().Random(15));
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroServiceRandom(15));
         }
         catch ( const std::exception & E )
         {
             Logger_.warning(fmt::format("connecting({}): std::exception. {}",SerialNumber_,E.what()));
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroService::instance().Random(15));
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroServiceRandom(15));
         }
         catch ( ... )
         {
             Logger_.warning(fmt::format("connecting({}): unknown exception. {}",SerialNumber_));
-            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroService::instance().Random(15));
+            AddEvent(ev_reconnect,SimulationCoordinator()->GetSimulationInfo().reconnectInterval + MicroServiceRandom(15));
         }
     }
 

@@ -6,10 +6,10 @@
 #include "Poco/zlib.h"
 #include "nlohmann/json.hpp"
 
-#include "framework/MicroService.h"
-
 #include "uCentralEvent.h"
 #include "Simulation.h"
+
+#include "framework/MicroServiceFuncs.h"
 
 namespace OpenWifi {
 
@@ -33,7 +33,7 @@ namespace OpenWifi {
                 Client_->Reset();
                 Client_->AddEvent(ev_state, SimulationCoordinator()->GetSimulationInfo().stateInterval);
                 Client_->AddEvent(ev_healthcheck, SimulationCoordinator()->GetSimulationInfo().healthCheckInterval);
-                Client_->AddEvent(ev_log, MicroService::instance().Random(120,200));
+                Client_->AddEvent(ev_log, MicroServiceRandom(120,200));
                 Client_->AddEvent(ev_wsping, 60 * 5);
                 return true;
             }
@@ -117,7 +117,7 @@ namespace OpenWifi {
             M["params"]["log"] = LogLine_;
 
             if(Client_->Send(to_string(M))) {
-                Client_->AddEvent(ev_log, MicroService::instance().Random(300,600));
+                Client_->AddEvent(ev_log, MicroServiceRandom(300,600));
                 return true;
             }
         }

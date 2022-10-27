@@ -2,10 +2,11 @@
 // Created by stephane bourque on 2021-04-07.
 //
 
-#ifndef UCENTRALSIM_SIMSTATS_H
-#define UCENTRALSIM_SIMSTATS_H
+#pragma once
 
-#include "framework/MicroService.h"
+#include "framework/SubSystemServer.h"
+#include "framework/utils.h"
+
 #include "RESTObjects/RESTAPI_OWLSobjects.h"
 
 namespace OpenWifi {
@@ -18,7 +19,7 @@ namespace OpenWifi {
             Status_.liveDevices++;
 
             if( (Status_.timeToFullDevices == 0) && (Status_.liveDevices == ExpectedDevices_) ) {
-                uint64_t Now = OpenWifi::Now();
+                uint64_t Now = Utils::Now();
                 Status_.timeToFullDevices = Now - Status_.startTime;
             }
         }
@@ -88,7 +89,7 @@ namespace OpenWifi {
             Status_.liveDevices = Status_.endTime = Status_.rx =
             Status_.tx = Status_.msgsTx = Status_.msgsRx = Status_.timeToFullDevices =
             Status_.errorDevices = 0;
-            Status_.startTime = OpenWifi::Now();
+            Status_.startTime = Utils::Now();
             Status_.owner = owner;
         }
 
@@ -96,7 +97,7 @@ namespace OpenWifi {
             std::lock_guard G(Mutex_);
             CollectInfo_ = false;
             Status_.state = "completed";
-            Status_.endTime = OpenWifi::Now();
+            Status_.endTime = Utils::Now();
         }
 
         inline void SetState(const std::string &S) {
@@ -137,4 +138,3 @@ namespace OpenWifi {
     inline SimStats * SimStats() { return SimStats::instance(); }
 }
 
-#endif //UCENTRALSIM_SIMSTATS_H

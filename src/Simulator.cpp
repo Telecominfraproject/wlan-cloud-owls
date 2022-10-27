@@ -11,6 +11,8 @@
 #include "uCentralEvent.h"
 #include "SimStats.h"
 
+#include "fmt/format.h"
+
 namespace OpenWifi {
     void Simulator::Initialize(/*Poco::Logger &ClientLogger*/) {
         std::random_device  rd;

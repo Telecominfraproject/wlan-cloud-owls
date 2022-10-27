@@ -8,6 +8,7 @@
 
 #include "Poco/Net/HTTPCookie.h"
 #include "Poco/Net/NameValueCollection.h"
+#include "framework/MicroServiceFuncs.h"
 
 namespace OpenWifi {
 
@@ -67,7 +68,7 @@ namespace OpenWifi {
             return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
         }
 
-        D.id = MicroService::instance().CreateUUID();
+        D.id = MicroServiceCreateUUID();
         if(StorageService()->SimulationDB().CreateRecord(D)) {
             OWLSObjects::SimulationDetails  N;
             StorageService()->SimulationDB().GetRecord("id", D.id, N);

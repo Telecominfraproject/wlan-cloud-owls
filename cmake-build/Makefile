@@ -321,6 +321,102 @@ src/RESTAPI/RESTAPI_status_handler.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTAPI/RESTAPI_status_handler.cpp.s
 .PHONY : src/RESTAPI/RESTAPI_status_handler.cpp.s
 
+src/RESTObjects/RESTAPI_AnalyticsObjects.o: src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_AnalyticsObjects.o
+
+# target to build an object file
+src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.o
+
+src/RESTObjects/RESTAPI_AnalyticsObjects.i: src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_AnalyticsObjects.i
+
+# target to preprocess a source file
+src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.i
+
+src/RESTObjects/RESTAPI_AnalyticsObjects.s: src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_AnalyticsObjects.s
+
+# target to generate assembly for a file
+src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_AnalyticsObjects.cpp.s
+
+src/RESTObjects/RESTAPI_CertObjects.o: src/RESTObjects/RESTAPI_CertObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_CertObjects.o
+
+# target to build an object file
+src/RESTObjects/RESTAPI_CertObjects.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_CertObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_CertObjects.cpp.o
+
+src/RESTObjects/RESTAPI_CertObjects.i: src/RESTObjects/RESTAPI_CertObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_CertObjects.i
+
+# target to preprocess a source file
+src/RESTObjects/RESTAPI_CertObjects.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_CertObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_CertObjects.cpp.i
+
+src/RESTObjects/RESTAPI_CertObjects.s: src/RESTObjects/RESTAPI_CertObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_CertObjects.s
+
+# target to generate assembly for a file
+src/RESTObjects/RESTAPI_CertObjects.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_CertObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_CertObjects.cpp.s
+
+src/RESTObjects/RESTAPI_FMSObjects.o: src/RESTObjects/RESTAPI_FMSObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_FMSObjects.o
+
+# target to build an object file
+src/RESTObjects/RESTAPI_FMSObjects.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_FMSObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_FMSObjects.cpp.o
+
+src/RESTObjects/RESTAPI_FMSObjects.i: src/RESTObjects/RESTAPI_FMSObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_FMSObjects.i
+
+# target to preprocess a source file
+src/RESTObjects/RESTAPI_FMSObjects.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_FMSObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_FMSObjects.cpp.i
+
+src/RESTObjects/RESTAPI_FMSObjects.s: src/RESTObjects/RESTAPI_FMSObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_FMSObjects.s
+
+# target to generate assembly for a file
+src/RESTObjects/RESTAPI_FMSObjects.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_FMSObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_FMSObjects.cpp.s
+
+src/RESTObjects/RESTAPI_GWobjects.o: src/RESTObjects/RESTAPI_GWobjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_GWobjects.o
+
+# target to build an object file
+src/RESTObjects/RESTAPI_GWobjects.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_GWobjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_GWobjects.cpp.o
+
+src/RESTObjects/RESTAPI_GWobjects.i: src/RESTObjects/RESTAPI_GWobjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_GWobjects.i
+
+# target to preprocess a source file
+src/RESTObjects/RESTAPI_GWobjects.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_GWobjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_GWobjects.cpp.i
+
+src/RESTObjects/RESTAPI_GWobjects.s: src/RESTObjects/RESTAPI_GWobjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_GWobjects.s
+
+# target to generate assembly for a file
+src/RESTObjects/RESTAPI_GWobjects.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_GWobjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_GWobjects.cpp.s
+
 src/RESTObjects/RESTAPI_OWLSobjects.o: src/RESTObjects/RESTAPI_OWLSobjects.cpp.o
 .PHONY : src/RESTObjects/RESTAPI_OWLSobjects.o
 
@@ -344,6 +440,30 @@ src/RESTObjects/RESTAPI_OWLSobjects.s: src/RESTObjects/RESTAPI_OWLSobjects.cpp.s
 src/RESTObjects/RESTAPI_OWLSobjects.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_OWLSobjects.cpp.s
 .PHONY : src/RESTObjects/RESTAPI_OWLSobjects.cpp.s
+
+src/RESTObjects/RESTAPI_ProvObjects.o: src/RESTObjects/RESTAPI_ProvObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_ProvObjects.o
+
+# target to build an object file
+src/RESTObjects/RESTAPI_ProvObjects.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_ProvObjects.cpp.o
+.PHONY : src/RESTObjects/RESTAPI_ProvObjects.cpp.o
+
+src/RESTObjects/RESTAPI_ProvObjects.i: src/RESTObjects/RESTAPI_ProvObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_ProvObjects.i
+
+# target to preprocess a source file
+src/RESTObjects/RESTAPI_ProvObjects.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_ProvObjects.cpp.i
+.PHONY : src/RESTObjects/RESTAPI_ProvObjects.cpp.i
+
+src/RESTObjects/RESTAPI_ProvObjects.s: src/RESTObjects/RESTAPI_ProvObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_ProvObjects.s
+
+# target to generate assembly for a file
+src/RESTObjects/RESTAPI_ProvObjects.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_ProvObjects.cpp.s
+.PHONY : src/RESTObjects/RESTAPI_ProvObjects.cpp.s
 
 src/RESTObjects/RESTAPI_SecurityObjects.o: src/RESTObjects/RESTAPI_SecurityObjects.cpp.o
 .PHONY : src/RESTObjects/RESTAPI_SecurityObjects.o
@@ -441,29 +561,341 @@ src/StorageService.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/StorageService.cpp.s
 .PHONY : src/StorageService.cpp.s
 
-src/framework/ConfigurationValidator.o: src/framework/ConfigurationValidator.cpp.o
-.PHONY : src/framework/ConfigurationValidator.o
+src/framework/ALBserver.o: src/framework/ALBserver.cpp.o
+.PHONY : src/framework/ALBserver.o
 
 # target to build an object file
-src/framework/ConfigurationValidator.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/ConfigurationValidator.cpp.o
-.PHONY : src/framework/ConfigurationValidator.cpp.o
+src/framework/ALBserver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/ALBserver.cpp.o
+.PHONY : src/framework/ALBserver.cpp.o
 
-src/framework/ConfigurationValidator.i: src/framework/ConfigurationValidator.cpp.i
-.PHONY : src/framework/ConfigurationValidator.i
+src/framework/ALBserver.i: src/framework/ALBserver.cpp.i
+.PHONY : src/framework/ALBserver.i
 
 # target to preprocess a source file
-src/framework/ConfigurationValidator.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/ConfigurationValidator.cpp.i
-.PHONY : src/framework/ConfigurationValidator.cpp.i
+src/framework/ALBserver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/ALBserver.cpp.i
+.PHONY : src/framework/ALBserver.cpp.i
 
-src/framework/ConfigurationValidator.s: src/framework/ConfigurationValidator.cpp.s
-.PHONY : src/framework/ConfigurationValidator.s
+src/framework/ALBserver.s: src/framework/ALBserver.cpp.s
+.PHONY : src/framework/ALBserver.s
 
 # target to generate assembly for a file
-src/framework/ConfigurationValidator.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/ConfigurationValidator.cpp.s
-.PHONY : src/framework/ConfigurationValidator.cpp.s
+src/framework/ALBserver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/ALBserver.cpp.s
+.PHONY : src/framework/ALBserver.cpp.s
+
+src/framework/AuthClient.o: src/framework/AuthClient.cpp.o
+.PHONY : src/framework/AuthClient.o
+
+# target to build an object file
+src/framework/AuthClient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/AuthClient.cpp.o
+.PHONY : src/framework/AuthClient.cpp.o
+
+src/framework/AuthClient.i: src/framework/AuthClient.cpp.i
+.PHONY : src/framework/AuthClient.i
+
+# target to preprocess a source file
+src/framework/AuthClient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/AuthClient.cpp.i
+.PHONY : src/framework/AuthClient.cpp.i
+
+src/framework/AuthClient.s: src/framework/AuthClient.cpp.s
+.PHONY : src/framework/AuthClient.s
+
+# target to generate assembly for a file
+src/framework/AuthClient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/AuthClient.cpp.s
+.PHONY : src/framework/AuthClient.cpp.s
+
+src/framework/EventBusManager.o: src/framework/EventBusManager.cpp.o
+.PHONY : src/framework/EventBusManager.o
+
+# target to build an object file
+src/framework/EventBusManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/EventBusManager.cpp.o
+.PHONY : src/framework/EventBusManager.cpp.o
+
+src/framework/EventBusManager.i: src/framework/EventBusManager.cpp.i
+.PHONY : src/framework/EventBusManager.i
+
+# target to preprocess a source file
+src/framework/EventBusManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/EventBusManager.cpp.i
+.PHONY : src/framework/EventBusManager.cpp.i
+
+src/framework/EventBusManager.s: src/framework/EventBusManager.cpp.s
+.PHONY : src/framework/EventBusManager.s
+
+# target to generate assembly for a file
+src/framework/EventBusManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/EventBusManager.cpp.s
+.PHONY : src/framework/EventBusManager.cpp.s
+
+src/framework/KafkaManager.o: src/framework/KafkaManager.cpp.o
+.PHONY : src/framework/KafkaManager.o
+
+# target to build an object file
+src/framework/KafkaManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/KafkaManager.cpp.o
+.PHONY : src/framework/KafkaManager.cpp.o
+
+src/framework/KafkaManager.i: src/framework/KafkaManager.cpp.i
+.PHONY : src/framework/KafkaManager.i
+
+# target to preprocess a source file
+src/framework/KafkaManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/KafkaManager.cpp.i
+.PHONY : src/framework/KafkaManager.cpp.i
+
+src/framework/KafkaManager.s: src/framework/KafkaManager.cpp.s
+.PHONY : src/framework/KafkaManager.s
+
+# target to generate assembly for a file
+src/framework/KafkaManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/KafkaManager.cpp.s
+.PHONY : src/framework/KafkaManager.cpp.s
+
+src/framework/MicroService.o: src/framework/MicroService.cpp.o
+.PHONY : src/framework/MicroService.o
+
+# target to build an object file
+src/framework/MicroService.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/MicroService.cpp.o
+.PHONY : src/framework/MicroService.cpp.o
+
+src/framework/MicroService.i: src/framework/MicroService.cpp.i
+.PHONY : src/framework/MicroService.i
+
+# target to preprocess a source file
+src/framework/MicroService.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/MicroService.cpp.i
+.PHONY : src/framework/MicroService.cpp.i
+
+src/framework/MicroService.s: src/framework/MicroService.cpp.s
+.PHONY : src/framework/MicroService.s
+
+# target to generate assembly for a file
+src/framework/MicroService.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/MicroService.cpp.s
+.PHONY : src/framework/MicroService.cpp.s
+
+src/framework/MicroServiceFuncs.o: src/framework/MicroServiceFuncs.cpp.o
+.PHONY : src/framework/MicroServiceFuncs.o
+
+# target to build an object file
+src/framework/MicroServiceFuncs.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/MicroServiceFuncs.cpp.o
+.PHONY : src/framework/MicroServiceFuncs.cpp.o
+
+src/framework/MicroServiceFuncs.i: src/framework/MicroServiceFuncs.cpp.i
+.PHONY : src/framework/MicroServiceFuncs.i
+
+# target to preprocess a source file
+src/framework/MicroServiceFuncs.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/MicroServiceFuncs.cpp.i
+.PHONY : src/framework/MicroServiceFuncs.cpp.i
+
+src/framework/MicroServiceFuncs.s: src/framework/MicroServiceFuncs.cpp.s
+.PHONY : src/framework/MicroServiceFuncs.s
+
+# target to generate assembly for a file
+src/framework/MicroServiceFuncs.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/MicroServiceFuncs.cpp.s
+.PHONY : src/framework/MicroServiceFuncs.cpp.s
+
+src/framework/OpenAPIRequests.o: src/framework/OpenAPIRequests.cpp.o
+.PHONY : src/framework/OpenAPIRequests.o
+
+# target to build an object file
+src/framework/OpenAPIRequests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/OpenAPIRequests.cpp.o
+.PHONY : src/framework/OpenAPIRequests.cpp.o
+
+src/framework/OpenAPIRequests.i: src/framework/OpenAPIRequests.cpp.i
+.PHONY : src/framework/OpenAPIRequests.i
+
+# target to preprocess a source file
+src/framework/OpenAPIRequests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/OpenAPIRequests.cpp.i
+.PHONY : src/framework/OpenAPIRequests.cpp.i
+
+src/framework/OpenAPIRequests.s: src/framework/OpenAPIRequests.cpp.s
+.PHONY : src/framework/OpenAPIRequests.s
+
+# target to generate assembly for a file
+src/framework/OpenAPIRequests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/OpenAPIRequests.cpp.s
+.PHONY : src/framework/OpenAPIRequests.cpp.s
+
+src/framework/RESTAPI_ExtServer.o: src/framework/RESTAPI_ExtServer.cpp.o
+.PHONY : src/framework/RESTAPI_ExtServer.o
+
+# target to build an object file
+src/framework/RESTAPI_ExtServer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_ExtServer.cpp.o
+.PHONY : src/framework/RESTAPI_ExtServer.cpp.o
+
+src/framework/RESTAPI_ExtServer.i: src/framework/RESTAPI_ExtServer.cpp.i
+.PHONY : src/framework/RESTAPI_ExtServer.i
+
+# target to preprocess a source file
+src/framework/RESTAPI_ExtServer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_ExtServer.cpp.i
+.PHONY : src/framework/RESTAPI_ExtServer.cpp.i
+
+src/framework/RESTAPI_ExtServer.s: src/framework/RESTAPI_ExtServer.cpp.s
+.PHONY : src/framework/RESTAPI_ExtServer.s
+
+# target to generate assembly for a file
+src/framework/RESTAPI_ExtServer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_ExtServer.cpp.s
+.PHONY : src/framework/RESTAPI_ExtServer.cpp.s
+
+src/framework/RESTAPI_Handler.o: src/framework/RESTAPI_Handler.cpp.o
+.PHONY : src/framework/RESTAPI_Handler.o
+
+# target to build an object file
+src/framework/RESTAPI_Handler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_Handler.cpp.o
+.PHONY : src/framework/RESTAPI_Handler.cpp.o
+
+src/framework/RESTAPI_Handler.i: src/framework/RESTAPI_Handler.cpp.i
+.PHONY : src/framework/RESTAPI_Handler.i
+
+# target to preprocess a source file
+src/framework/RESTAPI_Handler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_Handler.cpp.i
+.PHONY : src/framework/RESTAPI_Handler.cpp.i
+
+src/framework/RESTAPI_Handler.s: src/framework/RESTAPI_Handler.cpp.s
+.PHONY : src/framework/RESTAPI_Handler.s
+
+# target to generate assembly for a file
+src/framework/RESTAPI_Handler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_Handler.cpp.s
+.PHONY : src/framework/RESTAPI_Handler.cpp.s
+
+src/framework/RESTAPI_IntServer.o: src/framework/RESTAPI_IntServer.cpp.o
+.PHONY : src/framework/RESTAPI_IntServer.o
+
+# target to build an object file
+src/framework/RESTAPI_IntServer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_IntServer.cpp.o
+.PHONY : src/framework/RESTAPI_IntServer.cpp.o
+
+src/framework/RESTAPI_IntServer.i: src/framework/RESTAPI_IntServer.cpp.i
+.PHONY : src/framework/RESTAPI_IntServer.i
+
+# target to preprocess a source file
+src/framework/RESTAPI_IntServer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_IntServer.cpp.i
+.PHONY : src/framework/RESTAPI_IntServer.cpp.i
+
+src/framework/RESTAPI_IntServer.s: src/framework/RESTAPI_IntServer.cpp.s
+.PHONY : src/framework/RESTAPI_IntServer.s
+
+# target to generate assembly for a file
+src/framework/RESTAPI_IntServer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/RESTAPI_IntServer.cpp.s
+.PHONY : src/framework/RESTAPI_IntServer.cpp.s
+
+src/framework/SubSystemServer.o: src/framework/SubSystemServer.cpp.o
+.PHONY : src/framework/SubSystemServer.o
+
+# target to build an object file
+src/framework/SubSystemServer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/SubSystemServer.cpp.o
+.PHONY : src/framework/SubSystemServer.cpp.o
+
+src/framework/SubSystemServer.i: src/framework/SubSystemServer.cpp.i
+.PHONY : src/framework/SubSystemServer.i
+
+# target to preprocess a source file
+src/framework/SubSystemServer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/SubSystemServer.cpp.i
+.PHONY : src/framework/SubSystemServer.cpp.i
+
+src/framework/SubSystemServer.s: src/framework/SubSystemServer.cpp.s
+.PHONY : src/framework/SubSystemServer.s
+
+# target to generate assembly for a file
+src/framework/SubSystemServer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/SubSystemServer.cpp.s
+.PHONY : src/framework/SubSystemServer.cpp.s
+
+src/framework/UI_WebSocketClientServer.o: src/framework/UI_WebSocketClientServer.cpp.o
+.PHONY : src/framework/UI_WebSocketClientServer.o
+
+# target to build an object file
+src/framework/UI_WebSocketClientServer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/UI_WebSocketClientServer.cpp.o
+.PHONY : src/framework/UI_WebSocketClientServer.cpp.o
+
+src/framework/UI_WebSocketClientServer.i: src/framework/UI_WebSocketClientServer.cpp.i
+.PHONY : src/framework/UI_WebSocketClientServer.i
+
+# target to preprocess a source file
+src/framework/UI_WebSocketClientServer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/UI_WebSocketClientServer.cpp.i
+.PHONY : src/framework/UI_WebSocketClientServer.cpp.i
+
+src/framework/UI_WebSocketClientServer.s: src/framework/UI_WebSocketClientServer.cpp.s
+.PHONY : src/framework/UI_WebSocketClientServer.s
+
+# target to generate assembly for a file
+src/framework/UI_WebSocketClientServer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/UI_WebSocketClientServer.cpp.s
+.PHONY : src/framework/UI_WebSocketClientServer.cpp.s
+
+src/framework/WebSocketClientNotification.o: src/framework/WebSocketClientNotification.cpp.o
+.PHONY : src/framework/WebSocketClientNotification.o
+
+# target to build an object file
+src/framework/WebSocketClientNotification.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/WebSocketClientNotification.cpp.o
+.PHONY : src/framework/WebSocketClientNotification.cpp.o
+
+src/framework/WebSocketClientNotification.i: src/framework/WebSocketClientNotification.cpp.i
+.PHONY : src/framework/WebSocketClientNotification.i
+
+# target to preprocess a source file
+src/framework/WebSocketClientNotification.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/WebSocketClientNotification.cpp.i
+.PHONY : src/framework/WebSocketClientNotification.cpp.i
+
+src/framework/WebSocketClientNotification.s: src/framework/WebSocketClientNotification.cpp.s
+.PHONY : src/framework/WebSocketClientNotification.s
+
+# target to generate assembly for a file
+src/framework/WebSocketClientNotification.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/WebSocketClientNotification.cpp.s
+.PHONY : src/framework/WebSocketClientNotification.cpp.s
+
+src/framework/utils.o: src/framework/utils.cpp.o
+.PHONY : src/framework/utils.o
+
+# target to build an object file
+src/framework/utils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/utils.cpp.o
+.PHONY : src/framework/utils.cpp.o
+
+src/framework/utils.i: src/framework/utils.cpp.i
+.PHONY : src/framework/utils.i
+
+# target to preprocess a source file
+src/framework/utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/utils.cpp.i
+.PHONY : src/framework/utils.cpp.i
+
+src/framework/utils.s: src/framework/utils.cpp.s
+.PHONY : src/framework/utils.s
+
+# target to generate assembly for a file
+src/framework/utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/utils.cpp.s
+.PHONY : src/framework/utils.cpp.s
 
 src/storage/storage_results.o: src/storage/storage_results.cpp.o
 .PHONY : src/storage/storage_results.o
@@ -594,9 +1026,24 @@ help:
 	@echo "... src/RESTAPI/RESTAPI_status_handler.o"
 	@echo "... src/RESTAPI/RESTAPI_status_handler.i"
 	@echo "... src/RESTAPI/RESTAPI_status_handler.s"
+	@echo "... src/RESTObjects/RESTAPI_AnalyticsObjects.o"
+	@echo "... src/RESTObjects/RESTAPI_AnalyticsObjects.i"
+	@echo "... src/RESTObjects/RESTAPI_AnalyticsObjects.s"
+	@echo "... src/RESTObjects/RESTAPI_CertObjects.o"
+	@echo "... src/RESTObjects/RESTAPI_CertObjects.i"
+	@echo "... src/RESTObjects/RESTAPI_CertObjects.s"
+	@echo "... src/RESTObjects/RESTAPI_FMSObjects.o"
+	@echo "... src/RESTObjects/RESTAPI_FMSObjects.i"
+	@echo "... src/RESTObjects/RESTAPI_FMSObjects.s"
+	@echo "... src/RESTObjects/RESTAPI_GWobjects.o"
+	@echo "... src/RESTObjects/RESTAPI_GWobjects.i"
+	@echo "... src/RESTObjects/RESTAPI_GWobjects.s"
 	@echo "... src/RESTObjects/RESTAPI_OWLSobjects.o"
 	@echo "... src/RESTObjects/RESTAPI_OWLSobjects.i"
 	@echo "... src/RESTObjects/RESTAPI_OWLSobjects.s"
+	@echo "... src/RESTObjects/RESTAPI_ProvObjects.o"
+	@echo "... src/RESTObjects/RESTAPI_ProvObjects.i"
+	@echo "... src/RESTObjects/RESTAPI_ProvObjects.s"
 	@echo "... src/RESTObjects/RESTAPI_SecurityObjects.o"
 	@echo "... src/RESTObjects/RESTAPI_SecurityObjects.i"
 	@echo "... src/RESTObjects/RESTAPI_SecurityObjects.s"
@@ -609,9 +1056,48 @@ help:
 	@echo "... src/StorageService.o"
 	@echo "... src/StorageService.i"
 	@echo "... src/StorageService.s"
-	@echo "... src/framework/ConfigurationValidator.o"
-	@echo "... src/framework/ConfigurationValidator.i"
-	@echo "... src/framework/ConfigurationValidator.s"
+	@echo "... src/framework/ALBserver.o"
+	@echo "... src/framework/ALBserver.i"
+	@echo "... src/framework/ALBserver.s"
+	@echo "... src/framework/AuthClient.o"
+	@echo "... src/framework/AuthClient.i"
+	@echo "... src/framework/AuthClient.s"
+	@echo "... src/framework/EventBusManager.o"
+	@echo "... src/framework/EventBusManager.i"
+	@echo "... src/framework/EventBusManager.s"
+	@echo "... src/framework/KafkaManager.o"
+	@echo "... src/framework/KafkaManager.i"
+	@echo "... src/framework/KafkaManager.s"
+	@echo "... src/framework/MicroService.o"
+	@echo "... src/framework/MicroService.i"
+	@echo "... src/framework/MicroService.s"
+	@echo "... src/framework/MicroServiceFuncs.o"
+	@echo "... src/framework/MicroServiceFuncs.i"
+	@echo "... src/framework/MicroServiceFuncs.s"
+	@echo "... src/framework/OpenAPIRequests.o"
+	@echo "... src/framework/OpenAPIRequests.i"
+	@echo "... src/framework/OpenAPIRequests.s"
+	@echo "... src/framework/RESTAPI_ExtServer.o"
+	@echo "... src/framework/RESTAPI_ExtServer.i"
+	@echo "... src/framework/RESTAPI_ExtServer.s"
+	@echo "... src/framework/RESTAPI_Handler.o"
+	@echo "... src/framework/RESTAPI_Handler.i"
+	@echo "... src/framework/RESTAPI_Handler.s"
+	@echo "... src/framework/RESTAPI_IntServer.o"
+	@echo "... src/framework/RESTAPI_IntServer.i"
+	@echo "... src/framework/RESTAPI_IntServer.s"
+	@echo "... src/framework/SubSystemServer.o"
+	@echo "... src/framework/SubSystemServer.i"
+	@echo "... src/framework/SubSystemServer.s"
+	@echo "... src/framework/UI_WebSocketClientServer.o"
+	@echo "... src/framework/UI_WebSocketClientServer.i"
+	@echo "... src/framework/UI_WebSocketClientServer.s"
+	@echo "... src/framework/WebSocketClientNotification.o"
+	@echo "... src/framework/WebSocketClientNotification.i"
+	@echo "... src/framework/WebSocketClientNotification.s"
+	@echo "... src/framework/utils.o"
+	@echo "... src/framework/utils.i"
+	@echo "... src/framework/utils.s"
 	@echo "... src/storage/storage_results.o"
 	@echo "... src/storage/storage_results.i"
 	@echo "... src/storage/storage_results.s"

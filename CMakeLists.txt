@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(owls VERSION 2.7.0)
+project(owls VERSION 2.8.1)
 
 # cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 -DMYSQL_ROOT_DIR=/usr/local/opt/mysql-client
 
@@ -68,11 +68,52 @@ add_executable( owls
         src/framework/OpenWifiTypes.h
         src/framework/orm.h
         src/framework/StorageClass.h
-        src/framework/ConfigurationValidator.cpp
-        src/framework/ConfigurationValidator.h
-        src/framework/ow_constants.h
-        src/framework/WebSocketClientNotifications.h
         src/framework/MicroServiceErrorHandler.h
+        src/framework/UI_WebSocketClientServer.cpp
+        src/framework/UI_WebSocketClientServer.h
+        src/framework/utils.h
+        src/framework/utils.cpp
+        src/framework/AppServiceRegistry.h
+        src/framework/SubSystemServer.cpp
+        src/framework/SubSystemServer.h
+        src/framework/RESTAPI_utils.h
+        src/framework/WebSocketClientNotification.cpp
+        src/framework/AuthClient.cpp
+        src/framework/AuthClient.h
+        src/framework/MicroServiceNames.h
+        src/framework/MicroServiceFuncs.h
+        src/framework/OpenAPIRequests.cpp
+        src/framework/OpenAPIRequests.h
+        src/framework/MicroServiceFuncs.cpp
+        src/framework/ALBserver.cpp
+        src/framework/ALBserver.h
+        src/framework/KafkaManager.cpp
+        src/framework/KafkaManager.h
+        src/framework/RESTAPI_RateLimiter.h
+        src/framework/WebSocketLogger.h
+        src/framework/RESTAPI_GenericServerAccounting.h
+        src/framework/CIDR.h
+        src/framework/RESTAPI_Handler.cpp
+        src/framework/RESTAPI_Handler.h
+        src/framework/RESTAPI_ExtServer.h
+        src/framework/RESTAPI_ExtServer.cpp
+        src/framework/RESTAPI_IntServer.cpp
+        src/framework/RESTAPI_IntServer.h
+        src/framework/RESTAPI_SystemCommand.h
+        src/framework/RESTAPI_WebSocketServer.h
+        src/framework/EventBusManager.cpp
+        src/framework/EventBusManager.h
+        src/framework/RESTAPI_PartHandler.h
+        src/framework/MicroService.cpp
+        src/framework/MicroServiceExtra.h
+        src/RESTObjects/RESTAPI_SecurityObjects.h src/RESTObjects/RESTAPI_SecurityObjects.cpp
+        src/RESTObjects/RESTAPI_GWobjects.h src/RESTObjects/RESTAPI_GWobjects.cpp
+        src/RESTObjects/RESTAPI_FMSObjects.h src/RESTObjects/RESTAPI_FMSObjects.cpp
+        src/RESTObjects/RESTAPI_CertObjects.cpp src/RESTObjects/RESTAPI_CertObjects.h
+        src/RESTObjects/RESTAPI_OWLSobjects.cpp src/RESTObjects/RESTAPI_OWLSobjects.h
+        src/RESTObjects/RESTAPI_ProvObjects.cpp src/RESTObjects/RESTAPI_ProvObjects.h
+        src/RESTObjects/RESTAPI_AnalyticsObjects.cpp src/RESTObjects/RESTAPI_AnalyticsObjects.h
+
         src/RESTAPI/RESTAPI_routers.cpp
         src/Daemon.cpp src/Daemon.h
         src/Dashboard.cpp src/Dashboard.h
@@ -82,8 +123,6 @@ add_executable( owls
         src/uCentralEvent.cpp src/uCentralEvent.h
         src/uCentralEventTypes.h
         src/SimStats.h
-        src/RESTObjects/RESTAPI_OWLSobjects.cpp src/RESTObjects/RESTAPI_OWLSobjects.h
-        src/RESTObjects/RESTAPI_SecurityObjects.cpp src/RESTObjects/RESTAPI_SecurityObjects.h
         src/RESTAPI/RESTAPI_deviceDashboardHandler.cpp src/RESTAPI/RESTAPI_deviceDashboardHandler.h
         src/StorageService.cpp src/StorageService.h src/storage/storage_simulations.cpp src/storage/storage_simulations.h src/storage/storage_results.cpp src/storage/storage_results.h src/RESTAPI/RESTAPI_simulation_handler.cpp src/RESTAPI/RESTAPI_simulation_handler.h src/RESTAPI/RESTAPI_results_handler.cpp src/RESTAPI/RESTAPI_results_handler.h src/RESTAPI/RESTAPI_status_handler.cpp src/RESTAPI/RESTAPI_status_handler.h src/RESTAPI/RESTAPI_operation_handler.cpp src/RESTAPI/RESTAPI_operation_handler.h src/Simulation.cpp src/Simulation.h)
 

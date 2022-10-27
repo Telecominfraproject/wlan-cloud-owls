@@ -7,6 +7,7 @@
 #include <mutex>
 #include <map>
 #include <tuple>
+#include <random>
 
 #include "Poco/Thread.h"
 #include "Poco/Net/SocketReactor.h"
@@ -16,9 +17,10 @@
 #include "Poco/Logger.h"
 #include "Poco/JSON/Object.h"
 
+#include "framework/utils.h"
+
 #include "uCentralEventTypes.h"
 #include "nlohmann/json.hpp"
-#include "framework/MicroService.h"
 
 namespace OpenWifi {
     struct CensusReport {
@@ -365,7 +367,7 @@ namespace OpenWifi {
         bool                        Connected_=false;
         bool                        KeepRedirector_=false;
         uint64_t                    Version_=0;
-        uint64_t                    StartTime_ = OpenWifi::Now();
+        uint64_t                    StartTime_ = Utils::Now();
         std::string                 mac_lan;
         std::atomic_uint64_t        HealthInterval_=60;
         std::atomic_uint64_t        StatisticsInterval_=60;

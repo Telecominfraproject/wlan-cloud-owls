@@ -71,13 +71,14 @@ add_executable( owls
         src/framework/MicroServiceErrorHandler.h
         src/framework/UI_WebSocketClientServer.cpp
         src/framework/UI_WebSocketClientServer.h
+        src/framework/UI_WebSocketClientNotifications.cpp
+        src/framework/UI_WebSocketClientNotifications.h
         src/framework/utils.h
         src/framework/utils.cpp
         src/framework/AppServiceRegistry.h
         src/framework/SubSystemServer.cpp
         src/framework/SubSystemServer.h
         src/framework/RESTAPI_utils.h
-        src/framework/WebSocketClientNotification.cpp
         src/framework/AuthClient.cpp
         src/framework/AuthClient.h
         src/framework/MicroServiceNames.h

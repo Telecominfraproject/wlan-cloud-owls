@@ -561,6 +561,30 @@ src/StorageService.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/StorageService.cpp.s
 .PHONY : src/StorageService.cpp.s
 
+src/UI_Owls_WebSocketNotifications.o: src/UI_Owls_WebSocketNotifications.cpp.o
+.PHONY : src/UI_Owls_WebSocketNotifications.o
+
+# target to build an object file
+src/UI_Owls_WebSocketNotifications.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/UI_Owls_WebSocketNotifications.cpp.o
+.PHONY : src/UI_Owls_WebSocketNotifications.cpp.o
+
+src/UI_Owls_WebSocketNotifications.i: src/UI_Owls_WebSocketNotifications.cpp.i
+.PHONY : src/UI_Owls_WebSocketNotifications.i
+
+# target to preprocess a source file
+src/UI_Owls_WebSocketNotifications.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/UI_Owls_WebSocketNotifications.cpp.i
+.PHONY : src/UI_Owls_WebSocketNotifications.cpp.i
+
+src/UI_Owls_WebSocketNotifications.s: src/UI_Owls_WebSocketNotifications.cpp.s
+.PHONY : src/UI_Owls_WebSocketNotifications.s
+
+# target to generate assembly for a file
+src/UI_Owls_WebSocketNotifications.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/UI_Owls_WebSocketNotifications.cpp.s
+.PHONY : src/UI_Owls_WebSocketNotifications.cpp.s
+
 src/framework/ALBserver.o: src/framework/ALBserver.cpp.o
 .PHONY : src/framework/ALBserver.o
 
@@ -825,6 +849,30 @@ src/framework/SubSystemServer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/SubSystemServer.cpp.s
 .PHONY : src/framework/SubSystemServer.cpp.s
 
+src/framework/UI_WebSocketClientNotifications.o: src/framework/UI_WebSocketClientNotifications.cpp.o
+.PHONY : src/framework/UI_WebSocketClientNotifications.o
+
+# target to build an object file
+src/framework/UI_WebSocketClientNotifications.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/UI_WebSocketClientNotifications.cpp.o
+.PHONY : src/framework/UI_WebSocketClientNotifications.cpp.o
+
+src/framework/UI_WebSocketClientNotifications.i: src/framework/UI_WebSocketClientNotifications.cpp.i
+.PHONY : src/framework/UI_WebSocketClientNotifications.i
+
+# target to preprocess a source file
+src/framework/UI_WebSocketClientNotifications.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/UI_WebSocketClientNotifications.cpp.i
+.PHONY : src/framework/UI_WebSocketClientNotifications.cpp.i
+
+src/framework/UI_WebSocketClientNotifications.s: src/framework/UI_WebSocketClientNotifications.cpp.s
+.PHONY : src/framework/UI_WebSocketClientNotifications.s
+
+# target to generate assembly for a file
+src/framework/UI_WebSocketClientNotifications.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/UI_WebSocketClientNotifications.cpp.s
+.PHONY : src/framework/UI_WebSocketClientNotifications.cpp.s
+
 src/framework/UI_WebSocketClientServer.o: src/framework/UI_WebSocketClientServer.cpp.o
 .PHONY : src/framework/UI_WebSocketClientServer.o
 
@@ -848,30 +896,6 @@ src/framework/UI_WebSocketClientServer.s: src/framework/UI_WebSocketClientServer
 src/framework/UI_WebSocketClientServer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/UI_WebSocketClientServer.cpp.s
 .PHONY : src/framework/UI_WebSocketClientServer.cpp.s
-
-src/framework/WebSocketClientNotification.o: src/framework/WebSocketClientNotification.cpp.o
-.PHONY : src/framework/WebSocketClientNotification.o
-
-# target to build an object file
-src/framework/WebSocketClientNotification.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/WebSocketClientNotification.cpp.o
-.PHONY : src/framework/WebSocketClientNotification.cpp.o
-
-src/framework/WebSocketClientNotification.i: src/framework/WebSocketClientNotification.cpp.i
-.PHONY : src/framework/WebSocketClientNotification.i
-
-# target to preprocess a source file
-src/framework/WebSocketClientNotification.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/WebSocketClientNotification.cpp.i
-.PHONY : src/framework/WebSocketClientNotification.cpp.i
-
-src/framework/WebSocketClientNotification.s: src/framework/WebSocketClientNotification.cpp.s
-.PHONY : src/framework/WebSocketClientNotification.s
-
-# target to generate assembly for a file
-src/framework/WebSocketClientNotification.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/framework/WebSocketClientNotification.cpp.s
-.PHONY : src/framework/WebSocketClientNotification.cpp.s
 
 src/framework/utils.o: src/framework/utils.cpp.o
 .PHONY : src/framework/utils.o
@@ -1056,6 +1080,9 @@ help:
 	@echo "... src/StorageService.o"
 	@echo "... src/StorageService.i"
 	@echo "... src/StorageService.s"
+	@echo "... src/UI_Owls_WebSocketNotifications.o"
+	@echo "... src/UI_Owls_WebSocketNotifications.i"
+	@echo "... src/UI_Owls_WebSocketNotifications.s"
 	@echo "... src/framework/ALBserver.o"
 	@echo "... src/framework/ALBserver.i"
 	@echo "... src/framework/ALBserver.s"
@@ -1089,12 +1116,12 @@ help:
 	@echo "... src/framework/SubSystemServer.o"
 	@echo "... src/framework/SubSystemServer.i"
 	@echo "... src/framework/SubSystemServer.s"
+	@echo "... src/framework/UI_WebSocketClientNotifications.o"
+	@echo "... src/framework/UI_WebSocketClientNotifications.i"
+	@echo "... src/framework/UI_WebSocketClientNotifications.s"
 	@echo "... src/framework/UI_WebSocketClientServer.o"
 	@echo "... src/framework/UI_WebSocketClientServer.i"
 	@echo "... src/framework/UI_WebSocketClientServer.s"
-	@echo "... src/framework/WebSocketClientNotification.o"
-	@echo "... src/framework/WebSocketClientNotification.i"
-	@echo "... src/framework/WebSocketClientNotification.s"
 	@echo "... src/framework/utils.o"
 	@echo "... src/framework/utils.i"
 	@echo "... src/framework/utils.s"

@@ -2,8 +2,7 @@
 // Created by stephane bourque on 2021-03-13.
 //
 
-#ifndef UCENTRAL_CLNT_SIMULATOR_H
-#define UCENTRAL_CLNT_SIMULATOR_H
+#pragma once
 
 #include <string>
 #include <map>
@@ -45,5 +44,3 @@ namespace OpenWifi {
         std::string                                             State_{"stopped"};
     };
 }
-
-#endif //UCENTRAL_CLNT_SIMULATOR_H

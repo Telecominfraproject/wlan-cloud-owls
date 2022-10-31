@@ -5,13 +5,14 @@
 #include <random>
 
 #include "Poco/Logger.h"
-#include "Poco/Message.h"
 
 #include "Simulator.h"
 #include "uCentralEvent.h"
 #include "SimStats.h"
 
 #include "fmt/format.h"
+
+#include "UI_Owls_WebSocketNotifications.h"
 
 namespace OpenWifi {
     void Simulator::Initialize(/*Poco::Logger &ClientLogger*/) {
@@ -195,6 +196,11 @@ namespace OpenWifi {
                         break;
                     }
                 }
+
+                WebSocketNotificationSimulationUpdate_t Notification;
+                SimStats()->GetCurrent(Notification.content);
+                WebSocketNotificationSimulationUpdate(Notification);
+
             } catch ( const Poco::Exception & E) {
                 Logger_.warning(fmt::format("SIMULATOR({}): Crashed. Poco exception:{}",Index_,E.displayText()));
             } catch ( const std::exception & E ) {

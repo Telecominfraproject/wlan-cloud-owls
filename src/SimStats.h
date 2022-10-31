@@ -32,8 +32,8 @@ namespace OpenWifi {
             }
         }
 
-        static SimStats * instance() {
-            static auto * instance_ = new SimStats;
+        static auto instance() {
+            static auto instance_ = new SimStats;
             return instance_;
         }
 

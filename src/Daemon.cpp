@@ -12,6 +12,7 @@
 #include "SimStats.h"
 
 #include "Poco/Net/SSLManager.h"
+#include "UI_Owls_WebSocketNotifications.h"
 
 namespace OpenWifi {
 	class Daemon *Daemon::instance_ = nullptr;
@@ -37,6 +38,7 @@ namespace OpenWifi {
 
     void DaemonPostInitialization(Poco::Util::Application &self) {
         Daemon()->PostInitialization(self);
+        OWLSNotifications::Register();
     }
 }
 

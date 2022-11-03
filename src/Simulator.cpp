@@ -197,9 +197,9 @@ namespace OpenWifi {
                     }
                 }
 
-                WebSocketNotificationSimulationUpdate_t Notification;
+                OWLSNotifications::SimulationUpdate_t Notification;
                 SimStats()->GetCurrent(Notification.content);
-                WebSocketNotificationSimulationUpdate(Notification);
+                OWLSNotifications::SimulationUpdate(Notification);
 
             } catch ( const Poco::Exception & E) {
                 Logger_.warning(fmt::format("SIMULATOR({}): Crashed. Poco exception:{}",Index_,E.displayText()));

@@ -13,6 +13,7 @@
 
 #include "Poco/Net/SSLManager.h"
 #include "UI_Owls_WebSocketNotifications.h"
+#include "framework/UI_WebSocketClientServer.h"
 
 namespace OpenWifi {
 	class Daemon *Daemon::instance_ = nullptr;
@@ -27,7 +28,8 @@ namespace OpenWifi {
 								   SubSystemVec{
 			                            SimStats(),
 			                            StorageService(),
-			                            SimulationCoordinator()
+			                            SimulationCoordinator(),
+                                        UI_WebSocketClientServer()
 			});
 		}
 		return instance_;

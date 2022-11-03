@@ -8,6 +8,7 @@
 #include "Poco/FormattingChannel.h"
 #include "Poco/AsyncChannel.h"
 #include "Poco/NullChannel.h"
+#include "Poco/SplitterChannel.h"
 #include "Poco/Net/HTTPStreamFactory.h"
 #include "Poco/Net/HTTPSStreamFactory.h"
 #include "Poco/Net/FTPSStreamFactory.h"
@@ -26,7 +27,7 @@
 #include "framework/RESTAPI_ExtServer.h"
 #include "framework/RESTAPI_IntServer.h"
 #include "framework/utils.h"
-
+#include "framework/WebSocketLogger.h"
 
 namespace OpenWifi {
 
@@ -193,6 +194,8 @@ namespace OpenWifi {
 			auto LoggingFormat = MicroService::instance().ConfigGetString("logging.format",
 																		  "%Y-%m-%d %H:%M:%S.%i %s: [%p][thr:%I] %t");
 			auto UseAsyncLogs_ = MicroService::instance().ConfigGetBool("logging.asynch",false);
+			auto DisableWebSocketLogging = MicroService::instance().ConfigGetBool("logging.websocket",false);
+
 			if (LoggingDestination == "null") {
 				Poco::AutoPtr<Poco::NullChannel> DevNull(new Poco::NullChannel);
 				Poco::Logger::root().setChannel(DevNull);
@@ -240,25 +243,62 @@ namespace OpenWifi {
 				Poco::AutoPtr<Poco::FileChannel> FileChannel(new Poco::FileChannel);
 				FileChannel->setProperty("rotation", "10 M");
 				FileChannel->setProperty("archive", "timestamp");
+				FileChannel->setProperty("purgeCount", "10");
 				FileChannel->setProperty("path", LoggingLocation);
 				if(UseAsyncLogs_) {
+					std::cout << __LINE__ << std::endl;
 					Poco::AutoPtr<Poco::AsyncChannel> Async_File(
 						new Poco::AsyncChannel(FileChannel));
+					std::cout << __LINE__ << std::endl;
 					Poco::AutoPtr<Poco::PatternFormatter> Formatter(new Poco::PatternFormatter);
+					std::cout << __LINE__ << std::endl;
 					Formatter->setProperty("pattern", LoggingFormat);
+					std::cout << __LINE__ << std::endl;
 					Poco::AutoPtr<Poco::FormattingChannel> FormattingChannel(
 						new Poco::FormattingChannel(Formatter, Async_File));
-					Poco::Logger::root().setChannel(FormattingChannel);
+					std::cout << __LINE__ << std::endl;
+					if(DisableWebSocketLogging) {
+						std::cout << __LINE__ << std::endl;
+						Poco::Logger::root().setChannel(FormattingChannel);
+					} else {
+						std::cout << __LINE__ << std::endl;
+						Poco::AutoPtr<WebSocketLogger>			WSLogger(new WebSocketLogger);
+						Poco::AutoPtr<Poco::SplitterChannel>	Splitter(new Poco::SplitterChannel);
+						Splitter->addChannel(WSLogger);
+						Splitter->addChannel(FormattingChannel);
+						std::cout << __LINE__ << std::endl;
+						Poco::Logger::root().setChannel(Splitter);
+					}
+
 				} else {
 					Poco::AutoPtr<Poco::PatternFormatter> Formatter(new Poco::PatternFormatter);
 					Formatter->setProperty("pattern", LoggingFormat);
 					Poco::AutoPtr<Poco::FormattingChannel> FormattingChannel(
 						new Poco::FormattingChannel(Formatter, FileChannel));
-					Poco::Logger::root().setChannel(FormattingChannel);
+					if(DisableWebSocketLogging) {
+						std::cout << __LINE__ << std::endl;
+						Poco::Logger::root().setChannel(FormattingChannel);
+					} else {
+						std::cout << __LINE__ << std::endl;
+						Poco::AutoPtr<Poco::SplitterChannel>	Splitter(new Poco::SplitterChannel);
+						Poco::AutoPtr<WebSocketLogger>			WSLogger(new WebSocketLogger);
+						Splitter->addChannel(WSLogger);
+						Splitter->addChannel(FormattingChannel);
+						std::cout << __LINE__ << std::endl;
+						Poco::Logger::root().setChannel(Splitter);
+					}
+					std::cout << __LINE__ << std::endl;
 				}
 			}
 			auto Level = Poco::Logger::parseLevel(MicroService::instance().ConfigGetString("logging.level", "debug"));
 			Poco::Logger::root().setLevel(Level);
+
+			if(!DisableWebSocketLogging) {
+				static const UI_WebSocketClientServer::NotificationTypeIdVec Notifications = {
+					{1, "log"}};
+
+				UI_WebSocketClientServer()->RegisterNotifications(Notifications);
+			}
 		}
 	}
 
@@ -627,6 +667,17 @@ namespace OpenWifi {
 			return T.toString();
 		} else {
 			return Signer_.sign(T,Algo);
+		}
+	}
+
+	void MicroService::DeleteOverrideConfiguration() {
+		Poco::File	F(DataDir_ + ExtraConfigurationFilename);
+
+		try {
+			if(F.exists())
+				F.remove();
+		} catch (...) {
+
 		}
 	}
 

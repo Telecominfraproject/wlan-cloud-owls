@@ -44,7 +44,7 @@ namespace OpenWifi {
 
     static std::string RandomMAC() {
         char b[64];
-        sprintf(b,"%02x:%02x:%02x:%02x:%02x:%02x",  (int) MicroServiceRandom(255),
+        snprintf(b,sizeof(b),"%02x:%02x:%02x:%02x:%02x:%02x",  (int) MicroServiceRandom(255),
                 (int)MicroServiceRandom(255),
                 (int)MicroServiceRandom(255),
                 (int)MicroServiceRandom(255),
@@ -55,7 +55,7 @@ namespace OpenWifi {
 
     static std::string RandomIPv4() {
         char b[64];
-        sprintf(b,"%d.%d.%d.%d",
+        snprintf(b,sizeof(b),"%d.%d.%d.%d",
                 (int)MicroServiceRandom(255),
                 (int)MicroServiceRandom(255),
                 (int)MicroServiceRandom(255),
@@ -65,7 +65,7 @@ namespace OpenWifi {
 
     static std::string RandomIPv6() {
         char b[128];
-        sprintf(b,"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+        snprintf(b,sizeof(b),"%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
                 (uint)MicroServiceRandom(0x0ffff),
                 (uint)MicroServiceRandom(0x0ffff),
                 (uint)MicroServiceRandom(0x0ffff),

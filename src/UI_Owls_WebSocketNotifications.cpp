@@ -5,16 +5,23 @@
 #include "UI_Owls_WebSocketNotifications.h"
 #include "framework/UI_WebSocketClientServer.h"
 
-namespace OpenWifi {
+namespace OpenWifi::OWLSNotifications {
 
-    void WebSocketNotificationSimulationUpdate( WebSocketNotificationSimulationUpdate_t &N) {
-        N.type = "owls_simulation_update";
+    void SimulationUpdate( SimulationUpdate_t &N) {
+        N.type_id = 1000;
         UI_WebSocketClientServer()->SendNotification(N);
     }
 
-    void WebSocketNotificationSimulationUpdate( const std::string & User, WebSocketNotificationSimulationUpdate_t &N) {
-        N.type = "owls_simulation_update";
+    void SimulationUpdate( const std::string & User, SimulationUpdate_t &N) {
+        N.type_id = 1000;
         UI_WebSocketClientServer()->SendUserNotification(User,N);
     }
 
+    void Register() {
+        static const UI_WebSocketClientServer::NotificationTypeIdVec Notifications = {
+                { 1000, "owls_simulation_update" }
+        };
+
+        UI_WebSocketClientServer()->RegisterNotifications(Notifications);
+    }
 } // OpenWifi

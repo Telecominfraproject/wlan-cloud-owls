@@ -25,7 +25,7 @@ namespace OpenWifi {
 
 	void UI_WebSocketClientServer::NewClient(Poco::Net::WebSocket & WS, const std::string &Id, const std::string &UserName ) {
 
-        std::lock_guard G(Mutex_);
+        std::lock_guard G(LocalMutex_);
         auto Client = std::make_unique<UI_WebSocketClientInfo>(WS,Id, UserName);
         auto ClientSocket = Client->WS_->impl()->sockfd();
 
@@ -89,7 +89,8 @@ namespace OpenWifi {
 		GoogleApiKey_ = MicroServiceConfigGetString("google.apikey","");
 		GeoCodeEnabled_ = !GoogleApiKey_.empty();
 		ReactorThread_.start(Reactor_);
-		Thr_.start(*this);
+		ReactorThread_.setName("ws:ui-reactor");
+		// Thr_.start(*this);
 		return 0;
 	};
 
@@ -100,8 +101,8 @@ namespace OpenWifi {
 			Reactor_.stop();
 			ReactorThread_.join();
 			Running_ = false;
-			Thr_.wakeUp();
-			Thr_.join();
+			// Thr_.wakeUp();
+			// Thr_.join();
             poco_information(Logger(),"Stopped...");
 		}
 	};

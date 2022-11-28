@@ -50,6 +50,8 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj,"entity", entity);
 		field_to_json(Obj,"modified", modified);
 		field_to_json(Obj,"locale", locale);
+		field_to_json(Obj,"restrictedDevice", restrictedDevice);
+
 	}
 
 	void Device::to_json_with_status(Poco::JSON::Object &Obj) const {
@@ -70,6 +72,7 @@ namespace OpenWifi::GWObjects {
 			field_to_json(Obj,"verifiedCertificate", "NO_CERTIFICATE");
 			field_to_json(Obj,"associations_2G", (uint64_t) 0);
 			field_to_json(Obj,"associations_5G", (uint64_t) 0);
+			field_to_json(Obj,"associations_6G", (uint64_t) 0);
 		}
 #endif
 	}
@@ -89,6 +92,7 @@ namespace OpenWifi::GWObjects {
 			field_from_json(Obj,"subscriber", subscriber);
 			field_from_json(Obj,"entity", entity);
 			field_from_json(Obj,"locale", locale);
+			field_from_json(Obj,"restrictedDevice", restrictedDevice);
 			return true;
 		} catch (const Poco::Exception &E) {
 		}
@@ -199,6 +203,7 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj,"lastContact", LastContact);
 		field_to_json(Obj,"associations_2G", Associations_2G);
 		field_to_json(Obj,"associations_5G", Associations_5G);
+		field_to_json(Obj,"associations_6G", Associations_6G);
 		field_to_json(Obj,"webSocketClients", webSocketClients);
 		field_to_json(Obj,"websocketPackets", websocketPackets);
 		field_to_json(Obj,"kafkaClients", kafkaClients);
@@ -208,6 +213,7 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj,"sessionId", sessionId);
 		field_to_json(Obj,"connectionCompletionTime", connectionCompletionTime);
 		field_to_json(Obj,"totalConnectionTime", Utils::Now() - started);
+		field_to_json(Obj,"certificateExpiryDate", certificateExpiryDate);
 
 		switch(VerifiedCertificate) {
 			case NO_CERTIFICATE:
@@ -298,9 +304,12 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj,"serialNumber",serialNumber);
 		field_to_json(Obj,"timeout",timeout);
 		field_to_json(Obj,"type",type);
-		field_to_json(Obj,"script",script);
 		field_to_json(Obj,"scriptId",scriptId);
+		field_to_json(Obj,"script",script);
 		field_to_json(Obj,"when",when);
+		field_to_json(Obj,"signature", signature);
+		field_to_json(Obj,"deferred", deferred);
+		field_to_json(Obj,"uri", uri);
 	}
 
 	bool ScriptRequest::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -311,6 +320,9 @@ namespace OpenWifi::GWObjects {
 			field_from_json(Obj,"script",script);
 			field_from_json(Obj,"scriptId",scriptId);
 			field_from_json(Obj,"when",when);
+			field_from_json(Obj,"signature", signature);
+			field_from_json(Obj,"deferred", deferred);
+			field_from_json(Obj,"uri", uri);
 			return true;
 		} catch (const Poco::Exception &E) {
 		}
@@ -412,5 +424,56 @@ namespace OpenWifi::GWObjects {
 		}
 		return false;
 	}
+
+	void ScriptEntry::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj,"id", id);
+		field_to_json(Obj,"name", name);
+		field_to_json(Obj,"description", description);
+		field_to_json(Obj,"uri", uri);
+		field_to_json(Obj,"content", content);
+		field_to_json(Obj,"version", version);
+		field_to_json(Obj,"type", type);
+		field_to_json(Obj,"created", created);
+		field_to_json(Obj,"modified", modified);
+		field_to_json(Obj,"author", author);
+		field_to_json(Obj,"restricted", restricted);
+		field_to_json(Obj,"deferred", deferred);
+		field_to_json(Obj,"timeout", timeout);
+	}
+
+	bool ScriptEntry::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj,"id", id);
+			field_from_json(Obj,"name", name);
+			field_from_json(Obj,"description", description);
+			field_from_json(Obj,"uri", uri);
+			field_from_json(Obj,"content", content);
+			field_from_json(Obj,"version", version);
+			field_from_json(Obj,"type", type);
+			field_from_json(Obj,"created", created);
+			field_from_json(Obj,"modified", modified);
+			field_from_json(Obj,"author", author);
+			field_from_json(Obj,"restricted", restricted);
+			field_from_json(Obj,"deferred", deferred);
+			field_from_json(Obj,"timeout", timeout);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
+	void ScriptEntryList::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj,"scripts",scripts);
+	}
+
+	bool ScriptEntryList::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj,"scripts",scripts);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
 }
 

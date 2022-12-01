@@ -231,7 +231,9 @@ namespace OpenWifi::RESTAPI::Errors {
 	static const struct msg DeviceIsRestricted{1151,"Device is protected by regulation. This function is not allowed."};
 	static const struct msg InvalidURI{1152,"Invalid URI."};
 	static const struct msg InvalidScriptSelection{1153,"Only script or scriptId must be specified. Not both."};
-}
+
+	static const struct msg NoDeviceStatisticsYet{1154,"Device statistics not available yet."};
+	}
 
 
 
@@ -524,6 +526,63 @@ namespace OpenWifi::uCentralProtocol::Events {
 			return ET_VENUEBROADCAST;
 		return ET_UNKNOWN;
 	};
+}
+
+namespace OpenWifi::APCommands {
+	enum class Commands:uint8_t {
+		capabilities,
+		logs,
+		healthchecks,
+		statistics,
+		status,
+		rtty,
+		configure,
+		upgrade,
+		reboot,
+		factory,
+		leds,
+		trace,
+		request,
+		wifiscan,
+		eventqueue,
+		telemetry,
+		ping,
+		script,
+		unknown
+	};
+
+	inline static const std::vector<const char *> uCentralAPCommands {
+		RESTAPI::Protocol::CAPABILITIES,
+		RESTAPI::Protocol::LOGS,
+		RESTAPI::Protocol::HEALTHCHECKS,
+		RESTAPI::Protocol::STATISTICS,
+		RESTAPI::Protocol::STATUS,
+		RESTAPI::Protocol::RTTY,
+		RESTAPI::Protocol::CONFIGURE,
+		RESTAPI::Protocol::UPGRADE,
+		RESTAPI::Protocol::REBOOT,
+		RESTAPI::Protocol::FACTORY,
+		RESTAPI::Protocol::LEDS,
+		RESTAPI::Protocol::TRACE,
+		RESTAPI::Protocol::REQUEST,
+		RESTAPI::Protocol::WIFISCAN,
+		RESTAPI::Protocol::EVENTQUEUE,
+		RESTAPI::Protocol::TELEMETRY,
+		RESTAPI::Protocol::PING,
+		RESTAPI::Protocol::SCRIPT};
+
+	inline const char * to_string(Commands Cmd) {
+		return uCentralAPCommands[(uint8_t)Cmd];
+	}
+
+	inline Commands to_apcommand(const char *cmd) {
+		for(auto i=(uint8_t)Commands::capabilities;i!=(uint8_t)Commands::unknown;++i) {
+			if(strcmp(uCentralAPCommands[i],cmd)==0)
+				return (Commands)i;
+		}
+		return Commands::unknown;
+	}
+
 }
 
 namespace OpenWifi::Provisioning::DeviceClass {

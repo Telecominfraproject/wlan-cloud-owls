@@ -25,6 +25,8 @@
 #include "Poco/StringTokenizer.h"
 #include "StorageClass.h"
 
+#include "fmt/format.h"
+
 namespace ORM {
 
     enum FieldType {
@@ -137,7 +139,7 @@ namespace ORM {
         return Result;
     }
 
-    template <typename T, typename... Args> std::string WHERE_AND_(std::string Result, const char *fieldName, const T &Value, Args... args) {
+    template <typename T, typename... Args> std::string WHERE_AND_(std::string Result, const char *fieldName, const T & Value, Args... args) {
         if constexpr(std::is_same_v<T,std::string>)
         {
             if(!Value.empty()) {
@@ -149,12 +151,34 @@ namespace ORM {
                 Result += Escape(Value);
                 Result += "'";
             }
-        } else {
+            return WHERE_AND_(Result,args...);
+        } else if constexpr(std::is_same_v<T, const char *>) {
+            if(*Value!=0) {
+                if(!Result.empty())
+                    Result += " and ";
+                Result += fieldName;
+                Result += '=';
+                Result += "'";
+                Result += Escape(Value);
+                Result += "'";
+            }
+            return WHERE_AND_(Result,args...);
+        } else if constexpr (std::is_same_v<T,bool>) {
+            if(!Result.empty())
+                Result += " and ";
+            Result += fieldName;
+            Result += '=';
+            Result += Value ? "true" : "false";
+            return WHERE_AND_(Result,args...);
+        } else if constexpr (std::is_arithmetic_v<T>) {
             if(!Result.empty())
                 Result += " and ";
             Result += fieldName ;
             Result += '=';
             Result += std::to_string(Value);
+            return WHERE_AND_(Result,args...);
+        } else {
+            assert(false);
         }
         return WHERE_AND_(Result,args...);
     }
@@ -483,15 +507,13 @@ namespace ORM {
             return false;
         }
 
-        template<typename... Args> bool GetRecordExt(RecordType & T , Args... args) {
+        bool GetRecord(RecordType & T , const std::string &WhereClause) {
             try {
                 Poco::Data::Session     Session = Pool_.get();
                 Poco::Data::Statement   Select(Session);
                 RecordTuple             RT;
 
-                auto WhereClause = WHERE_AND(args...);
-
-                std::string St = "select " + SelectFields_ + " from " + TableName_ + WhereClause + " limit 1";
+                std::string St = "select " + SelectFields_ + " from " + TableName_ + " where " + WhereClause + " limit 1";
 
                 Select  << ConvertParams(St) ,
                         Poco::Data::Keywords::into(RT);
@@ -532,6 +554,21 @@ namespace ORM {
                     Convert(RT,R);
                     return true;
                 }
+                return true;
+            } catch (const Poco::Exception &E) {
+                Logger_.log(E);
+            }
+            return false;
+        }
+
+        template <typename T> bool Join(const std::string &statement, std::vector<T> &records) {
+            try {
+                Poco::Data::Session     Session = Pool_.get();
+                Poco::Data::Statement   Select(Session);
+
+                Select  << statement ,
+                        Poco::Data::Keywords::into(records);
+                Select.execute();
                 return true;
             } catch (const Poco::Exception &E) {
                 Logger_.log(E);

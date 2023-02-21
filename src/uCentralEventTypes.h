@@ -8,21 +8,21 @@
 #include <mutex>
 
 enum uCentralEventType {
-    ev_none,
-    ev_reconnect,
-    ev_connect,
-    ev_state,
-    ev_healthcheck,
-    ev_log,
-    ev_crashlog,
-    ev_configpendingchange,
-    ev_keepalive,
-    ev_reboot,
-    ev_disconnect,
-    ev_wsping
+	ev_none,
+	ev_reconnect,
+	ev_connect,
+	ev_state,
+	ev_healthcheck,
+	ev_log,
+	ev_crashlog,
+	ev_configpendingchange,
+	ev_keepalive,
+	ev_reboot,
+	ev_disconnect,
+	ev_wsping
 };
 
 using my_mutex = std::recursive_mutex;
 using my_guard = std::lock_guard<my_mutex>;
 
-#endif //UCENTRAL_CLNT_UCENTRALEVENTTYPES_H
+#endif // UCENTRAL_CLNT_UCENTRALEVENTTYPES_H

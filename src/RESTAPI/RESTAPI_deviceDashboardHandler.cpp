@@ -9,8 +9,8 @@
 namespace OpenWifi {
 	void RESTAPI_deviceDashboardHandler::DoGet() {
 		Daemon()->GetDashboard().Create();
-		Poco::JSON::Object	Answer;
+		Poco::JSON::Object Answer;
 		Daemon()->GetDashboard().Report().to_json(Answer);
 		ReturnObject(Answer);
 	}
-}
+} // namespace OpenWifi

@@ -5,105 +5,117 @@
 #ifndef UCENTRAL_CLNT_UCENTRALEVENT_H
 #define UCENTRAL_CLNT_UCENTRALEVENT_H
 
-#include "uCentralClient.h"
 #include "Poco/JSON/Object.h"
-
-#include "uCentralEventTypes.h"
 #include "uCentralClient.h"
+
+#include "uCentralClient.h"
+#include "uCentralEventTypes.h"
 
 namespace OpenWifi {
-    class uCentralEvent {
-    public:
-        explicit uCentralEvent(std::shared_ptr<uCentralClient> Client ) : Client_(std::move(Client)) {}
-        virtual bool Send() = 0;
+	class uCentralEvent {
+	  public:
+		explicit uCentralEvent(std::shared_ptr<uCentralClient> Client)
+			: Client_(std::move(Client)) {}
+		virtual bool Send() = 0;
 
-    protected:
-        bool SendObject( Poco::JSON::Object & Obj);
-        std::shared_ptr<uCentralClient> Client_;
-    };
+	  protected:
+		bool SendObject(Poco::JSON::Object &Obj);
+		std::shared_ptr<uCentralClient> Client_;
+	};
 
-    class ConnectEvent : public uCentralEvent {
-    public:
-        explicit ConnectEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	class ConnectEvent : public uCentralEvent {
+	  public:
+		explicit ConnectEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
 
-    class StateEvent : public uCentralEvent {
-    public:
-        explicit StateEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	  private:
+	};
 
-    class HealthCheckEvent : public uCentralEvent {
-    public:
-        explicit HealthCheckEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	class StateEvent : public uCentralEvent {
+	  public:
+		explicit StateEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
 
-    class LogEvent : public uCentralEvent {
-    public:
-        explicit LogEvent(std::shared_ptr<uCentralClient> Client,std::string LogLine, uint64_t Severity)
-        :  uCentralEvent(std::move(Client)), LogLine_(std::move(LogLine)), Severity_(Severity) {};
-        bool Send() override;
-    private:
-        std::string     LogLine_;
-        uint64_t        Severity_;
-    };
+	  private:
+	};
 
-    class CrashLogEvent : public uCentralEvent {
-    public:
-        explicit CrashLogEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	class HealthCheckEvent : public uCentralEvent {
+	  public:
+		explicit HealthCheckEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
 
-    class ConfigChangePendingEvent : public uCentralEvent {
-    public:
-        explicit ConfigChangePendingEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	  private:
+	};
 
-    class KeepAliveEvent : public uCentralEvent {
-    public:
-        explicit KeepAliveEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	class LogEvent : public uCentralEvent {
+	  public:
+		explicit LogEvent(std::shared_ptr<uCentralClient> Client, std::string LogLine,
+						  uint64_t Severity)
+			: uCentralEvent(std::move(Client)), LogLine_(std::move(LogLine)), Severity_(Severity){};
+		bool Send() override;
 
-    class RebootEvent : public uCentralEvent {
-    public:
-        explicit RebootEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	  private:
+		std::string LogLine_;
+		uint64_t Severity_;
+	};
 
-    class DisconnectEvent : public uCentralEvent {
-    public:
-        explicit DisconnectEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	class CrashLogEvent : public uCentralEvent {
+	  public:
+		explicit CrashLogEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
 
-    class WSPingEvent : public uCentralEvent {
-    public:
-        explicit WSPingEvent(std::shared_ptr<uCentralClient> Client )
-        :uCentralEvent(std::move(Client)) {};
-        bool Send() override;
-    private:
-    };
+	  private:
+	};
 
-}
+	class ConfigChangePendingEvent : public uCentralEvent {
+	  public:
+		explicit ConfigChangePendingEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
 
-#endif //UCENTRAL_CLNT_UCENTRALEVENT_H
+	  private:
+	};
+
+	class KeepAliveEvent : public uCentralEvent {
+	  public:
+		explicit KeepAliveEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
+
+	  private:
+	};
+
+	class RebootEvent : public uCentralEvent {
+	  public:
+		explicit RebootEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
+
+	  private:
+	};
+
+	class DisconnectEvent : public uCentralEvent {
+	  public:
+		explicit DisconnectEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
+
+	  private:
+	};
+
+	class WSPingEvent : public uCentralEvent {
+	  public:
+		explicit WSPingEvent(std::shared_ptr<uCentralClient> Client)
+			: uCentralEvent(std::move(Client)){};
+		bool Send() override;
+
+	  private:
+	};
+
+} // namespace OpenWifi
+
+#endif // UCENTRAL_CLNT_UCENTRALEVENT_H

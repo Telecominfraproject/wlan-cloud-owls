@@ -11,25 +11,26 @@
 namespace OpenWifi {
 
 	int Storage::Start() {
-		std::lock_guard		Guard(Mutex_);
+		std::lock_guard Guard(Mutex_);
 		Logger().notice("Starting.");
 
 		StorageClass::Start();
 
-		SimulationDB_ = std::make_unique<OpenWifi::SimulationDB>(dbType_,*Pool_, Logger());
+		SimulationDB_ = std::make_unique<OpenWifi::SimulationDB>(dbType_, *Pool_, Logger());
 		SimulationDB_->Create();
-		SimulationResultsDB_ = std::make_unique<OpenWifi::SimulationResultsDB>(dbType_,*Pool_, Logger());
+		SimulationResultsDB_ =
+			std::make_unique<OpenWifi::SimulationResultsDB>(dbType_, *Pool_, Logger());
 		SimulationResultsDB_->Create();
 
-        return 0;
-    }
+		return 0;
+	}
 
 	void Storage::Stop() {
-	    std::lock_guard		Guard(Mutex_);
-        Logger().notice("Stopping.");
+		std::lock_guard Guard(Mutex_);
+		Logger().notice("Stopping.");
 
-	    StorageClass::Stop();
-    }
-}
+		StorageClass::Stop();
+	}
+} // namespace OpenWifi
 
 // namespace

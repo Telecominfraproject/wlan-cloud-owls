@@ -7,11 +7,11 @@
 #include "SimStats.h"
 
 namespace OpenWifi {
-    void RESTAPI_status_handler::DoGet() {
-        OWLSObjects::SimulationStatus   S;
-        SimStats()->GetCurrent(S);
-        Poco::JSON::Object  Answer;
-        S.to_json(Answer);
-        ReturnObject(Answer);
-    }
-}
+	void RESTAPI_status_handler::DoGet() {
+		OWLSObjects::SimulationStatus S;
+		SimStats()->GetCurrent(S);
+		Poco::JSON::Object Answer;
+		S.to_json(Answer);
+		ReturnObject(Answer);
+	}
+} // namespace OpenWifi

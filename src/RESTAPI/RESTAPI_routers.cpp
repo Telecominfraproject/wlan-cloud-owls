@@ -13,26 +13,20 @@
 
 namespace OpenWifi {
 
-    Poco::Net::HTTPRequestHandler * RESTAPI_ExtRouter(const std::string &Path, RESTAPIHandler::BindingMap &Bindings,
-                                                            Poco::Logger & L, RESTAPI_GenericServerAccounting & S, uint64_t TransactionId) {
-        return  RESTAPI_Router<
-                    RESTAPI_system_command,
-                    RESTAPI_deviceDashboardHandler,
-                    RESTAPI_operation_handler,
-                    RESTAPI_results_handler,
-                    RESTAPI_simulation_handler,
-                    RESTAPI_status_handler,
-                    RESTAPI_webSocketServer
-                >(Path,Bindings,L, S, TransactionId);
-    }
+	Poco::Net::HTTPRequestHandler *
+	RESTAPI_ExtRouter(const std::string &Path, RESTAPIHandler::BindingMap &Bindings,
+					  Poco::Logger &L, RESTAPI_GenericServerAccounting &S, uint64_t TransactionId) {
+		return RESTAPI_Router<RESTAPI_system_command, RESTAPI_deviceDashboardHandler,
+							  RESTAPI_operation_handler, RESTAPI_results_handler,
+							  RESTAPI_simulation_handler, RESTAPI_status_handler,
+							  RESTAPI_webSocketServer>(Path, Bindings, L, S, TransactionId);
+	}
 
-    Poco::Net::HTTPRequestHandler * RESTAPI_IntRouter(const std::string &Path, RESTAPIHandler::BindingMap &Bindings,
-                                                            Poco::Logger & L, RESTAPI_GenericServerAccounting & S, uint64_t TransactionId) {
-        return RESTAPI_Router_I<
-                RESTAPI_operation_handler,
-                RESTAPI_results_handler,
-                RESTAPI_simulation_handler,
-                RESTAPI_system_command
-            >(Path, Bindings, L, S, TransactionId);
-    }
-}
+	Poco::Net::HTTPRequestHandler *
+	RESTAPI_IntRouter(const std::string &Path, RESTAPIHandler::BindingMap &Bindings,
+					  Poco::Logger &L, RESTAPI_GenericServerAccounting &S, uint64_t TransactionId) {
+		return RESTAPI_Router_I<RESTAPI_operation_handler, RESTAPI_results_handler,
+								RESTAPI_simulation_handler, RESTAPI_system_command>(
+			Path, Bindings, L, S, TransactionId);
+	}
+} // namespace OpenWifi

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(owls VERSION 2.9.0)
+project(owls VERSION 2.10.0)
 
 # cmake .. -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 -DMYSQL_ROOT_DIR=/usr/local/opt/mysql-client
 
@@ -46,7 +46,6 @@ find_package(ZLIB REQUIRED)
 find_package(fmt REQUIRED)
 find_package(CppKafka REQUIRED)
 find_package(nlohmann_json  REQUIRED)
-find_package(nlohmann_json_schema_validator REQUIRED)
 find_package(Poco REQUIRED COMPONENTS Crypto Net Util JWT NetSSL Data DataSQLite DataPostgreSQL DataMySQL)
 
 include_directories(/usr/local/include  /usr/local/opt/openssl/include src include/kafka /usr/local/opt/mysql-client/include)
@@ -133,5 +132,4 @@ target_link_libraries(owls PRIVATE
         ${MySQL_LIBRARIES}
         ${ZLIB_LIBRARIES}
         fmt::fmt
-        CppKafka::cppkafka
-        nlohmann_json_schema_validator)
+        CppKafka::cppkafka)

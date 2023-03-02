@@ -10,7 +10,6 @@
 #include "RESTObjects/RESTAPI_OWLSobjects.h"
 #include "Simulator.h"
 #include "framework/SubSystemServer.h"
-#include "nlohmann/json-schema.hpp"
 
 namespace OpenWifi {
 

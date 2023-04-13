@@ -4,18 +4,19 @@
 
 #include "RESTAPI_operation_handler.h"
 #include "SimStats.h"
-#include "Simulation.h"
+#include "SimulationCoordinator.h"
 
 namespace OpenWifi {
 	void RESTAPI_operation_handler::DoPost() {
 
+        auto Id = GetBinding("id","");
+
+        if(Id.empty()) {
+            return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
+        }
+
 		std::string Op;
 		if (!HasParameter("operation", Op) || (Op != "start" && Op != "stop" && Op != "cancel")) {
-			return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
-		}
-
-		std::string Id;
-		if (HasParameter("id", Id) && Op == "start") {
 			return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 		}
 
@@ -35,7 +36,7 @@ namespace OpenWifi {
 
 		if (Error.empty()) {
 			OWLSObjects::SimulationStatus S;
-			SimStats()->GetCurrent(S);
+			SimStats()->GetCurrent(Id,S);
 			Poco::JSON::Object Answer;
 			S.to_json(Answer);
 			return ReturnObject(Answer);

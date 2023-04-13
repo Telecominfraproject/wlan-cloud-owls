@@ -52,6 +52,8 @@ include_directories(/usr/local/include  /usr/local/opt/openssl/include src inclu
 
 configure_file(src/ow_version.h.in ${PROJECT_SOURCE_DIR}/src/ow_version.h @ONLY)
 
+add_definitions(-DPOCO_LOG_DEBUG="1")
+
 add_compile_options(-Wall -Wextra)
 if(ASAN)
     add_compile_options(-fsanitize=address)
@@ -117,14 +119,14 @@ add_executable( owls
         src/RESTAPI/RESTAPI_routers.cpp
         src/Daemon.cpp src/Daemon.h
         src/Dashboard.cpp src/Dashboard.h
-        src/uCentralClient.cpp
-        src/uCentralClient.h
-        src/Simulator.cpp src/Simulator.h
-        src/uCentralEvent.cpp src/uCentralEvent.h
-        src/uCentralEventTypes.h
+        src/OWLSclient.cpp
+        src/OWLSclient.h
+        src/SimulationRunner.cpp src/SimulationRunner.h
+#        src/OWLSevent.cpp src/OWLSevent.h
+        src/OWLSdefinitions.h
         src/SimStats.h
         src/RESTAPI/RESTAPI_deviceDashboardHandler.cpp src/RESTAPI/RESTAPI_deviceDashboardHandler.h
-        src/StorageService.cpp src/StorageService.h src/storage/storage_simulations.cpp src/storage/storage_simulations.h src/storage/storage_results.cpp src/storage/storage_results.h src/RESTAPI/RESTAPI_simulation_handler.cpp src/RESTAPI/RESTAPI_simulation_handler.h src/RESTAPI/RESTAPI_results_handler.cpp src/RESTAPI/RESTAPI_results_handler.h src/RESTAPI/RESTAPI_status_handler.cpp src/RESTAPI/RESTAPI_status_handler.h src/RESTAPI/RESTAPI_operation_handler.cpp src/RESTAPI/RESTAPI_operation_handler.h src/Simulation.cpp src/Simulation.h src/UI_Owls_WebSocketNotifications.cpp src/UI_Owls_WebSocketNotifications.h)
+        src/StorageService.cpp src/StorageService.h src/storage/storage_simulations.cpp src/storage/storage_simulations.h src/storage/storage_results.cpp src/storage/storage_results.h src/RESTAPI/RESTAPI_simulation_handler.cpp src/RESTAPI/RESTAPI_simulation_handler.h src/RESTAPI/RESTAPI_results_handler.cpp src/RESTAPI/RESTAPI_results_handler.h src/RESTAPI/RESTAPI_status_handler.cpp src/RESTAPI/RESTAPI_status_handler.h src/RESTAPI/RESTAPI_operation_handler.cpp src/RESTAPI/RESTAPI_operation_handler.h src/SimulationCoordinator.cpp src/SimulationCoordinator.h src/UI_Owls_WebSocketNotifications.cpp src/UI_Owls_WebSocketNotifications.h src/OWLS_utils.h src/MockElements.h src/libs/ctpl_stl.h src/libs/Cron.h src/libs/InterruptableSleep.h src/libs/Scheduler.h src/OWLSscheduler.cpp src/OWLSscheduler.h src/OWLS_EstablishConnection.cpp src/OWLS_Reconnect.cpp src/OWLS_Connect.cpp src/OWLSclientEvents.h src/OWLS_State.cpp src/OWLS_HealthCheck.cpp src/OWLS_Log.cpp src/OWLS_Update.cpp src/OWLS_WSPing.cpp src/OWLS_KeepAlive.cpp src/OWLS_Disconnect.cpp src/OWLS_PendingConfig.cpp src/OWLS_CrashLog.cpp src/CensusReport.h)
 
 target_link_libraries(owls PRIVATE
         ${Poco_LIBRARIES}

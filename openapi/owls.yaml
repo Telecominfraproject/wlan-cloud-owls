@@ -499,31 +499,34 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
-  /status:
+  /status/{id}:
     get:
       tags:
         - Status
       operationId: getStatusOfRunningSimulation
+
+      parameters:
+        - in: path
+          schema:
+            type: string
+          required: true
+
       responses:
         200:
           $ref: '#/components/schemas/SimulationStatus'
 
-  /operation:
+  /operation/{id}:
     post:
       tags:
         - Operations
       operationId: createARunningSimulation
       parameters:
-        - in: query
+        - in: path
           name: id
           schema:
             type: string
             format: uuid
-        - in: query
-          name: simulationId
-          schema:
-            type: string
-            format: uuid
+          required: true
         - in: query
           name: operation
           schema:

@@ -178,6 +178,16 @@ namespace OpenWifi {
             return stats_hint->second.liveDevices;
         }
 
+        inline void GetAllSimulations(std::vector<OWLSObjects::SimulationStatus> & Statuses) {
+            Statuses.clear();
+
+            std::lock_guard G(Mutex_);
+
+            for(const auto &[id,status]:Status_) {
+                Statuses.emplace_back(status);
+            }
+        }
+
 	  private:
         std::map<std::string,OWLSObjects::SimulationStatus>     Status_;
 

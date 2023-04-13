@@ -510,10 +510,16 @@ paths:
           schema:
             type: string
           required: true
+          example: Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'
 
       responses:
         200:
-          $ref: '#/components/schemas/SimulationStatus'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimulationStatus'
 
   /operation/{id}:
     post:

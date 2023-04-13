@@ -6,6 +6,9 @@
 #include <iostream>
 #include <sys/time.h>
 #include <thread>
+#include <tuple>
+
+#include "OWLS_utils.h"
 
 #include "Poco/NObserver.h"
 #include "Poco/Net/Context.h"
@@ -15,96 +18,108 @@
 #include "Poco/Net/SSLException.h"
 #include "Poco/URI.h"
 
-#include "uCentralClient.h"
+#include "OWLSclient.h"
 
 #include "framework/MicroServiceFuncs.h"
 
 #include "SimStats.h"
-#include "Simulation.h"
+#include "SimulationCoordinator.h"
 #include "fmt/format.h"
 #include <nlohmann/json.hpp>
+#include "OWLSscheduler.h"
 
 using namespace std::chrono_literals;
 
 namespace OpenWifi {
 
-	static std::string MakeMac(const char *S, int offset) {
-		char b[256];
+	OWLSclient::OWLSclient(Poco::Net::SocketReactor &Reactor, std::string SerialNumber,
+                           Poco::Logger &Logger, SimulationRunner *runner)
+		: Reactor_(Reactor), Logger_(Logger), SerialNumber_(std::move(SerialNumber)),
+          Memory_(1),
+          Load_(1),
+          Runner_(runner) {
 
-		int j = 0, i = 0;
-		for (int k = 0; k < 6; ++k) {
-			b[j++] = S[i++];
-			b[j++] = S[i++];
-			b[j++] = ':';
-		}
-		b[--j] = 0;
-		b[--j] = '0' + offset;
-		return b;
-	}
-
-	static std::string RandomMAC() {
-		char b[64];
-		snprintf(b, sizeof(b), "%02x:%02x:%02x:%02x:%02x:%02x", (int)MicroServiceRandom(255),
-				 (int)MicroServiceRandom(255), (int)MicroServiceRandom(255),
-				 (int)MicroServiceRandom(255), (int)MicroServiceRandom(255),
-				 (int)MicroServiceRandom(255));
-		return b;
-	}
-
-	static std::string RandomIPv4() {
-		char b[64];
-		snprintf(b, sizeof(b), "%d.%d.%d.%d", (int)MicroServiceRandom(255),
-				 (int)MicroServiceRandom(255), (int)MicroServiceRandom(255),
-				 (int)MicroServiceRandom(255));
-		return b;
-	}
-
-	static std::string RandomIPv6() {
-		char b[128];
-		snprintf(b, sizeof(b), "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
-				 (uint)MicroServiceRandom(0x0ffff), (uint)MicroServiceRandom(0x0ffff),
-				 (uint)MicroServiceRandom(0x0ffff), (uint)MicroServiceRandom(0x0ffff),
-				 (uint)MicroServiceRandom(0x0ffff), (uint)MicroServiceRandom(0x0ffff),
-				 (uint)MicroServiceRandom(0x0ffff), (uint)MicroServiceRandom(0x0ffff));
-		return b;
-	}
-
-	uCentralClient::uCentralClient(Poco::Net::SocketReactor &Reactor, std::string SerialNumber,
-								   Poco::Logger &Logger)
-		: Reactor_(Reactor), Logger_(Logger), SerialNumber_(std::move(SerialNumber)) {
 		AllInterfaceNames_[ap_interface_types::upstream] = "up0v0";
 		AllInterfaceNames_[ap_interface_types::downstream] = "down0v0";
 
 		AllInterfaceRoles_[ap_interface_types::upstream] = "upstream";
 		AllInterfaceRoles_[ap_interface_types::downstream] = "downstream";
 
-		AllPortNames_[ap_interface_types::upstream] = "wan0";
-		AllPortNames_[ap_interface_types::downstream] = "eth0";
+		AllPortNames_[ap_interface_types::upstream] = "eth0";
+		AllPortNames_[ap_interface_types::downstream] = "eth1";
 
 		SetFirmware();
 		Active_ = UUID_ = Utils::Now();
 		srand(UUID_);
-		mac_lan = MakeMac(SerialNumber_.c_str(), 0);
+		mac_lan = OWLSutils::MakeMac(SerialNumber_.c_str(), 0);
 		CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
 		UpdateConfiguration();
+        Valid_ = true;
 	}
 
-	static int Find2GAutoChannel() { return 11; }
+    void OWLSclient::CreateLanClients(uint64_t min, uint64_t max) {
+        AllLanClients_.clear();
+        uint64_t Num = MicroServiceRandom(min, max);
+        for (uint64_t i = 0; i < Num; i++) {
+            MockLanClient CI;
+            CI.mac = OWLSutils::RandomMAC();
+            CI.ipv4_addresses.push_back(OWLSutils::RandomIPv4());
+            CI.ipv6_addresses.push_back(OWLSutils::RandomIPv6());
+            CI.ports.emplace_back("eth1");
+            AllLanClients_.push_back(CI);
+        }
+        Load_.SetSize(AllLanClients_.size()+CountAssociations());
+        Memory_.SetSize(AllLanClients_.size()+CountAssociations());
+    }
 
-	static int Find5GAutoChannel() { return 36; }
+    void OWLSclient::CreateAssociations(const interface_location_t &interface, const std::string &bssid, uint64_t min,
+                                        uint64_t max) {
+        auto interface_hint = AllAssociations_.find(interface);
+        if(interface_hint==end(AllAssociations_)) {
+            bool inserted;
+            std::pair<associations_map_t::iterator,bool> insertion_res(interface_hint,inserted);
+            insertion_res = AllAssociations_.insert(std::make_pair(interface,MockAssociations {}));
+        }
 
-	static int Find6GAutoChannel() { return 147; }
+        interface_hint->second.clear();
+        auto NumberOfAssociations = MicroServiceRandom(min, max);
+        while (NumberOfAssociations) {
+            MockAssociation FA;
+            FA.bssid = bssid;
+            FA.station = OWLSutils::RandomMAC();
+            FA.ack_signal_avg = OWLSutils::local_random(-40, -60);
+            FA.ack_signal = FA.ack_signal_avg;
+            FA.ipaddr_v4 = OWLSutils::RandomIPv4();
+            FA.ipaddr_v6 = OWLSutils::RandomIPv6();
+            FA.rssi = OWLSutils::local_random(-40, -90);
+            interface_hint->second.push_back(FA);
+            --NumberOfAssociations;
+        }
+        Load_.SetSize(AllLanClients_.size()+CountAssociations());
+        Memory_.SetSize(AllLanClients_.size()+CountAssociations());
+    }
 
-	template <typename T>
-	void AssignIfPresent(const nlohmann::json &doc, const char *name, T &Value, T default_value) {
-		if (doc.contains(name) && !doc[name].is_null())
-			Value = doc[name];
-		else
-			Value = default_value;
-	}
+    void OWLSclient::Update() {
+        Memory_.next();
+        Load_.next();
+        for(auto &[_,radio]:AllRadios_) {
+            radio.next();
+        }
+        for(auto &[_,counters]:AllCounters_) {
+            counters.next();
+        }
+        for(auto &[_,associations]:AllAssociations_) {
+            for(auto &association:associations) {
+                association.next();
+            }
+        }
+        for(auto &lan_client:AllLanClients_) {
+            lan_client.next();
+        }
+    }
 
-	bool uCentralClient::FindInterfaceRole(const std::string &role,
-										   OpenWifi::ap_interface_types &interface) {
+    bool OWLSclient::FindInterfaceRole(const std::string &role,
+                                       OpenWifi::ap_interface_types &interface) {
 		for (const auto &[interface_type, interface_name] : AllInterfaceRoles_) {
 			if (role == interface_name) {
 				interface = interface_type;
@@ -114,7 +129,7 @@ namespace OpenWifi {
 		return false;
 	}
 
-	void uCentralClient::Reset() {
+	void OWLSclient::Reset() {
 
 		for (auto &[_, radio] : AllRadios_) {
 			radio.reset();
@@ -131,7 +146,7 @@ namespace OpenWifi {
 		}
 	}
 
-	void uCentralClient::UpdateConfiguration() {
+	void OWLSclient::UpdateConfiguration() {
 		//  go through the config and harvest the SSID names, also update all the client stuff
 		auto Interfaces = CurrentConfig_["interfaces"];
 		AllAssociations_.clear();
@@ -147,129 +162,83 @@ namespace OpenWifi {
 						for (const auto &band : ssid["wifi-bands"]) {
 							auto ssidName = ssid["name"];
 							if (band == "2G") {
-								AllAssociations_[std::make_tuple(current_interface_role, ssidName,
-																 radio_bands::band_2g)] =
-									CreateAssociations(Utils::SerialToMAC(Utils::IntToSerialNumber(
+									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
+                                                                       radio_bands::band_2g), Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),
-													   SimulationCoordinator()
-														   ->GetSimulationInfo()
-														   .minAssociations,
-													   SimulationCoordinator()
-														   ->GetSimulationInfo()
-														   .maxAssociations);
+                                                       Runner_->Details().minAssociations,
+                                                       Runner_->Details().maxAssociations);
 							}
 							if (band == "5G") {
-								AllAssociations_[std::make_tuple(current_interface_role, ssidName,
-																 radio_bands::band_5g)] =
-									CreateAssociations(Utils::SerialToMAC(Utils::IntToSerialNumber(
+									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
+                                                                       radio_bands::band_5g), Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),
-													   SimulationCoordinator()
-														   ->GetSimulationInfo()
-														   .minAssociations,
-													   SimulationCoordinator()
-														   ->GetSimulationInfo()
-														   .maxAssociations);
+                                                       Runner_->Details().minAssociations,
+                                                       Runner_->Details().maxAssociations);
 							}
 							if (band == "6G") {
-								AllAssociations_[std::make_tuple(current_interface_role, ssidName,
-																 radio_bands::band_6g)] =
-									CreateAssociations(Utils::SerialToMAC(Utils::IntToSerialNumber(
+									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
+                                                                       radio_bands::band_6g),
+                                                       Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),
-													   SimulationCoordinator()
-														   ->GetSimulationInfo()
-														   .minAssociations,
-													   SimulationCoordinator()
-														   ->GetSimulationInfo()
-														   .maxAssociations);
+                                                       Runner_->Details().minAssociations,
+                                                       Runner_->Details().maxAssociations);
 							}
 						}
 					}
-					FakeCounters F;
+					MockCounters F;
 					AllCounters_[current_interface_role] = F;
 				}
 			}
 		}
 
-		AllLanClients_ = CreateLanClients(SimulationCoordinator()->GetSimulationInfo().minClients,
-										  SimulationCoordinator()->GetSimulationInfo().maxClients);
+		CreateLanClients(Runner_->Details().minClients, Runner_->Details().maxClients);
 
 		auto radios = CurrentConfig_["radios"];
 		uint index = 0;
 		for (const auto &radio : radios) {
 			auto band = radio["band"];
-			FakeRadio R;
-			radio_bands the_band{radio_bands::band_2g};
-			std::uint64_t the_channel = Find2GAutoChannel();
-			if (radio.contains("channel")) {
-				if (radio["channel"].is_string() && radio["channel"] == "auto") {
-					if (band == "2G")
-						the_channel = Find2GAutoChannel();
-					else if (band == "5G")
-						the_channel = Find5GAutoChannel();
-					else if (band == "6G")
-						the_channel = Find6GAutoChannel();
-				} else if (radio["channel"].is_number_integer()) {
-					the_channel = radio["channel"];
-				}
-			}
-			R.channel = the_channel;
+			MockRadio R;
 
-			if (band == "5G") {
-				the_band = radio_bands::band_5g;
-			} else if (band == "6G") {
-				the_band = radio_bands::band_6g;
+            R.band.push_back(band);
+            if (band == "2G") {
+                R.radioBands = radio_bands::band_2g;
+            } else if (band == "5G") {
+                R.radioBands = radio_bands::band_5g;
+            } else if (band == "6G") {
+                R.radioBands =  radio_bands::band_6g;
+            }
+
+            if(radio.contains("channel-width") && radio["channel-width"].is_number_integer())
+                R.channel_width = radio["channel-width"];
+            else
+                R.channel_width = 20;
+
+			if ((!radio.contains("channel"))
+                ||  (radio.contains("channel") && radio["channel"].is_string() && radio["channel"] == "auto")
+                ||  (!radio["channel"].is_number_integer())) {
+                R.channel = OWLSutils::FindAutoChannel(R.radioBands, R.channel_width);
+            } else if (radio["channel"].is_number_integer()) {
+                R.channel = radio["channel"];
 			}
-			AssignIfPresent(radio, "tx_power", R.tx_power, (uint_fast64_t)23);
+
+            OWLSutils::FillinFrequencies(R.channel, R.radioBands, R.channel_width, R.channels, R.frequency);
+
+			OWLSutils::AssignIfPresent(radio, "tx_power", R.tx_power, (uint_fast64_t)23);
 
 			if (index == 0)
 				R.phy = "platform/soc/c000000.wifi";
 			else
 				R.phy = "platform/soc/c000000.wifi+" + std::to_string(index);
 			R.index = index;
-			AllRadios_[the_band] = R;
+			AllRadios_[R.radioBands] = R;
 			++index;
 		}
 	}
 
-	FakeLanClients uCentralClient::CreateLanClients(uint64_t min, uint64_t max) {
-		FakeLanClients Clients;
-		uint64_t Num = MicroServiceRandom(min, max);
-		for (uint64_t i = 0; i < Num; i++) {
-			FakeLanClient CI;
-			CI.mac = RandomMAC();
-			CI.ipv4_addresses.push_back(RandomIPv4());
-			CI.ipv6_addresses.push_back(RandomIPv6());
-			CI.ports.push_back("eth0");
-			Clients.push_back(CI);
-		}
-		return Clients;
-	}
-
-	FakeAssociations uCentralClient::CreateAssociations(const std::string &bssid, uint64_t min,
-														uint64_t max) {
-		FakeAssociations res;
-
-		auto n = MicroServiceRandom(min, max);
-		while (n) {
-			FakeAssociation FA;
-
-			FA.bssid = bssid;
-			FA.station = RandomMAC();
-			FA.ack_signal_avg = local_random(-40, -60);
-			FA.ack_signal = FA.ack_signal_avg;
-			FA.ipaddr_v4 = RandomIPv4();
-			FA.ipaddr_v6 = RandomIPv6();
-			FA.rssi = local_random(-40, -90);
-			res.push_back(FA);
-			--n;
-		}
-		return res;
-	}
-
-	nlohmann::json uCentralClient::CreateLinkState() {
+	nlohmann::json OWLSclient::CreateLinkState() {
 		nlohmann::json res;
 		for (const auto &[interface_type, _] : AllCounters_) {
 			res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["carrier"] = 1;
@@ -280,7 +249,7 @@ namespace OpenWifi {
 		return res;
 	}
 
-	nlohmann::json uCentralClient::CreateState() {
+	nlohmann::json OWLSclient::CreateState() {
 		nlohmann::json S;
 
 		//  set the version
@@ -288,15 +257,11 @@ namespace OpenWifi {
 
 		//  set the unit stuff
 		auto now = Utils::Now();
-		S["unit"]["load"] = std::vector<double>{(double)(MicroServiceRandom(75)) / 100.0,
-												(double)(MicroServiceRandom(50)) / 100.0,
-												(double)(MicroServiceRandom(25)) / 100.0};
+		S["unit"] += Memory_.to_json();
+        S["unit"] += Load_.to_json();
 		S["unit"]["localtime"] = now;
 		S["unit"]["uptime"] = now - StartTime_;
-		S["unit"]["memory"]["total"] = 973139968;
-		S["unit"]["memory"]["buffered"] = 10129408;
-		S["unit"]["memory"]["cached"] = 29233152;
-		S["unit"]["memory"]["free"] = 760164352;
+        S["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};
 
 		//  get all the radios out
 		for (auto &[_, radio] : AllRadios_) {
@@ -315,7 +280,7 @@ namespace OpenWifi {
 				nlohmann::json up_ssids;
 				uint64_t ssid_num = 0, interfaces = 0;
 
-				auto state_ue_clients = nlohmann::json::array();
+				auto ue_clients = nlohmann::json::array();
 				for (auto &[interface, associations] : AllAssociations_) {
 					auto &[interface_type, ssid, band] = interface;
 					if (interface_type == ap_interface_type) {
@@ -329,9 +294,12 @@ namespace OpenWifi {
 							ue["mac"] = association.station;
 							ue["ipv4_addresses"].push_back(association.ipaddr_v4);
 							ue["ipv6_addresses"].push_back(association.ipaddr_v6);
-							ue["ports"].push_back(interface_type == upstream ? "eth0" : "eth1");
-							// std::cout << "Adding association info" << to_string(ue) << std::endl;
-							state_ue_clients.push_back(ue);
+                            if(interface_type==upstream)
+							    ue["ports"].push_back("wwan0");
+                            else
+                                ue["ports"].push_back("wlan0");
+                            ue["last_seen"] = 0 ;
+                            ue_clients.push_back(ue);
 						}
 						nlohmann::json ssid_info;
 						ssid_info["associations"] = association_list;
@@ -364,8 +332,8 @@ namespace OpenWifi {
 					}
 					// std::cout << "Adding " << state_ue_clients.size() << " UE clients" <<
 					// std::endl;
-					for (const auto &ue_assoc : state_ue_clients) {
-						state_lan_clients.push_back(ue_assoc);
+					for (const auto &ue_client : ue_clients) {
+						state_lan_clients.push_back(ue_client);
 					}
 					current_interface["clients"] = state_lan_clients;
 				}
@@ -380,14 +348,15 @@ namespace OpenWifi {
 		return S;
 	}
 
-	void uCentralClient::Disconnect(const char *Reason, bool Reconnect) {
+/*
+	void OWLSclient::Disconnect(const char *Reason, bool Reconnect) {
 		std::lock_guard G(Mutex_);
 		Logger_.debug(fmt::format("DEVICE({}): disconnecting because '{}'", SerialNumber_,
 								  std::string{Reason}));
 		if (Connected_) {
 			Reactor_.removeEventHandler(
-				*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(
-						  *this, &uCentralClient::OnSocketReadable));
+				*WS_, Poco::NObserver<OWLSclient, Poco::Net::ReadableNotification>(
+						  *this, &OWLSclient::OnSocketReadable));
 			(*WS_).close();
 		}
 
@@ -395,13 +364,14 @@ namespace OpenWifi {
 		Commands_.clear();
 
 		if (Reconnect)
+            OWLSscheduler()->Ref().in(std::chrono::seconds(OWLSutils::local_random(3,15)), OWLSclientEvents::Reconnect, Client );
 			AddEvent(ev_reconnect, SimulationCoordinator()->GetSimulationInfo().reconnectInterval +
 									   MicroServiceRandom(15));
 
 		SimStats()->Disconnect();
 	}
 
-	void uCentralClient::DoCensus(CensusReport &Census) {
+	void OWLSclient::DoCensus(CensusReport &Census) {
 		std::lock_guard G(Mutex_);
 
 		for (const auto i : Commands_)
@@ -442,10 +412,13 @@ namespace OpenWifi {
 			case ev_wsping:
 				Census.ev_wsping++;
 				break;
+            case ev_update:
+                Census.ev_update++;
+                    break;
 			}
 	}
 
-	void uCentralClient::OnSocketReadable(
+	void OWLSclient::OnSocketReadable(
 		[[maybe_unused]] const Poco::AutoPtr<Poco::Net::ReadableNotification> &pNf) {
 		std::lock_guard G(Mutex_);
 
@@ -501,7 +474,7 @@ namespace OpenWifi {
 		Disconnect("Exception caught during data reception", true);
 	}
 
-	void uCentralClient::ProcessCommand(nlohmann::json &Vars) {
+	void OWLSclient::ProcessCommand(nlohmann::json &Vars) {
 
 		std::string Method = Vars["method"];
 
@@ -526,8 +499,8 @@ namespace OpenWifi {
 			Logger_.warning(fmt::format("COMMAND({}): unknown method '{}'", SerialNumber_, Method));
 		}
 	}
-
-	void uCentralClient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
+*/
+	void OWLSclient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 
 		try {
@@ -571,7 +544,7 @@ namespace OpenWifi {
 		}
 	}
 
-	void uCentralClient::DoReboot(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoReboot(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial")) {
@@ -591,7 +564,6 @@ namespace OpenWifi {
 				SendObject(Answer);
 
 				Logger_.information(fmt::format("reboot({}): done.", SerialNumber_));
-				Disconnect("Rebooting", true);
 				Reset();
 			} else {
 				Logger_.warning(fmt::format("reboot({}): Illegal command.", SerialNumber_));
@@ -619,7 +591,7 @@ namespace OpenWifi {
 		return p;
 	}
 
-	void uCentralClient::DoUpgrade(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoUpgrade(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("uri")) {
@@ -643,7 +615,6 @@ namespace OpenWifi {
 
 				SendObject(Answer);
 				Logger_.information(fmt::format("upgrade({}): from URI={}.", SerialNumber_, URI));
-				Disconnect("Doing an upgrade", true);
 			} else {
 				Logger_.warning(fmt::format("upgrade({}): Illegal command.", SerialNumber_));
 			}
@@ -653,7 +624,7 @@ namespace OpenWifi {
 		}
 	}
 
-	void uCentralClient::DoFactory(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoFactory(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("keep_redirector")) {
@@ -680,8 +651,6 @@ namespace OpenWifi {
 
 				CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
 				UpdateConfiguration();
-
-				Disconnect("Factory reset", true);
 			} else {
 				Logger_.warning(fmt::format("factory({}): Illegal command.", SerialNumber_));
 			}
@@ -691,7 +660,7 @@ namespace OpenWifi {
 		}
 	}
 
-	void uCentralClient::DoLEDs(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoLEDs(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("pattern")) {
@@ -722,7 +691,7 @@ namespace OpenWifi {
 		}
 	}
 
-	void uCentralClient::DoPerform(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoPerform(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("command") &&
@@ -756,7 +725,7 @@ namespace OpenWifi {
 		}
 	}
 
-	void uCentralClient::DoTrace(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoTrace(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("duration") &&
@@ -796,93 +765,14 @@ namespace OpenWifi {
 		}
 	}
 
-	void uCentralClient::EstablishConnection() {
-		Poco::URI uri(SimulationCoordinator()->GetSimulationInfo().gateway);
-
-		Poco::Net::Context::Params P;
-
-		P.verificationMode = Poco::Net::Context::VERIFY_STRICT;
-		P.verificationDepth = 9;
-		P.caLocation = SimulationCoordinator()->GetCasLocation();
-		P.loadDefaultCAs = false;
-		P.certificateFile = SimulationCoordinator()->GetCertFileName();
-		P.privateKeyFile = SimulationCoordinator()->GetKeyFileName();
-		P.cipherList = "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH";
-		P.dhUse2048Bits = true;
-
-		auto Context = new Poco::Net::Context(Poco::Net::Context::CLIENT_USE, P);
-		Poco::Crypto::X509Certificate Cert(SimulationCoordinator()->GetCertFileName());
-		Poco::Crypto::X509Certificate Root(SimulationCoordinator()->GetRootCAFileName());
-
-		Context->useCertificate(Cert);
-		Context->addChainCertificate(Root);
-
-		Context->addCertificateAuthority(Root);
-
-		if (SimulationCoordinator()->GetLevel() == Poco::Net::Context::VERIFY_STRICT) {
-		}
-
-		Poco::Crypto::RSAKey Key("", SimulationCoordinator()->GetKeyFileName(), "");
-		Context->usePrivateKey(Key);
-
-		SSL_CTX *SSLCtx = Context->sslContext();
-		if (!SSL_CTX_check_private_key(SSLCtx)) {
-			std::cout << "Wrong Certificate: " << SimulationCoordinator()->GetCertFileName()
-					  << " for " << SimulationCoordinator()->GetKeyFileName() << std::endl;
-		}
-
-		if (SimulationCoordinator()->GetLevel() == Poco::Net::Context::VERIFY_STRICT) {
-		}
-
-		Poco::Net::HTTPSClientSession Session(uri.getHost(), uri.getPort(), Context);
-		Poco::Net::HTTPRequest Request(Poco::Net::HTTPRequest::HTTP_GET, "/?encoding=text",
-									   Poco::Net::HTTPMessage::HTTP_1_1);
-		Request.set("origin", "http://www.websocket.org");
-		Poco::Net::HTTPResponse Response;
-
-		Logger_.information(fmt::format("connecting({}): host={} port={}", SerialNumber_,
-										uri.getHost(), uri.getPort()));
-
-		std::lock_guard guard(Mutex_);
-
-		try {
-			WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);
-			(*WS_).setKeepAlive(true);
-			(*WS_).setReceiveTimeout(Poco::Timespan());
-			(*WS_).setSendTimeout(Poco::Timespan(20, 0));
-			(*WS_).setNoDelay(true);
-			Reactor_.addEventHandler(
-				*WS_, Poco::NObserver<uCentralClient, Poco::Net::ReadableNotification>(
-						  *this, &uCentralClient::OnSocketReadable));
-			Connected_ = true;
-
-			AddEvent(ev_connect, 1);
-			SimStats()->Connect();
-		} catch (const Poco::Exception &E) {
-			Logger_.warning(
-				fmt::format("connecting({}): exception. {}", SerialNumber_, E.displayText()));
-			AddEvent(ev_reconnect, SimulationCoordinator()->GetSimulationInfo().reconnectInterval +
-									   MicroServiceRandom(15));
-		} catch (const std::exception &E) {
-			Logger_.warning(
-				fmt::format("connecting({}): std::exception. {}", SerialNumber_, E.what()));
-			AddEvent(ev_reconnect, SimulationCoordinator()->GetSimulationInfo().reconnectInterval +
-									   MicroServiceRandom(15));
-		} catch (...) {
-			Logger_.warning(fmt::format("connecting({}): unknown exception. {}", SerialNumber_));
-			AddEvent(ev_reconnect, SimulationCoordinator()->GetSimulationInfo().reconnectInterval +
-									   MicroServiceRandom(15));
-		}
-	}
-
-	bool uCentralClient::Send(const std::string &Cmd) {
+	bool OWLSclient::Send(const std::string &Cmd) {
 		std::lock_guard guard(Mutex_);
 
 		try {
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
 			if (BytesSent == Cmd.size()) {
-				SimStats()->AddTX(Cmd.size());
-				SimStats()->AddOutMsg();
+				SimStats()->AddTX(Runner_->Id(),Cmd.size());
+				SimStats()->AddOutMsg(Runner_->Id());
 				return true;
 			} else {
 				Logger_.warning(
@@ -894,7 +784,7 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool uCentralClient::SendWSPing() {
+	bool OWLSclient::SendWSPing() {
 		std::lock_guard guard(Mutex_);
 
 		try {
@@ -907,15 +797,15 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool uCentralClient::SendObject(nlohmann::json &O) {
+	bool OWLSclient::SendObject(nlohmann::json &O) {
 		std::lock_guard guard(Mutex_);
 
 		try {
 			auto M = to_string(O);
 			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
 			if (BytesSent == M.size()) {
-				SimStats()->AddTX(BytesSent);
-				SimStats()->AddOutMsg();
+				SimStats()->AddTX(Runner_->Id(),BytesSent);
+				SimStats()->AddOutMsg(Runner_->Id());
 				return true;
 			} else {
 				Logger_.warning(
@@ -927,9 +817,9 @@ namespace OpenWifi {
 		return false;
 	}
 
-	static const uint64_t million = 1000000;
+/*	static const uint64_t million = 1000000;
 
-	void uCentralClient::AddEvent(uCentralEventType E, uint64_t InSeconds) {
+	void OWLSclient::AddEvent(OWLSeventType E, uint64_t InSeconds) {
 		std::lock_guard guard(Mutex_);
 
 		timeval curTime{0, 0};
@@ -943,7 +833,7 @@ namespace OpenWifi {
 		Commands_[NextCommand] = E;
 	}
 
-	uCentralEventType uCentralClient::NextEvent(bool Remove) {
+	OWLSeventType OWLSclient::NextEvent(bool Remove) {
 		std::lock_guard guard(Mutex_);
 
 		if (Commands_.empty())
@@ -955,7 +845,7 @@ namespace OpenWifi {
 		uint64_t Now = (curTime.tv_sec * million) + curTime.tv_usec;
 
 		if (EventTime < Now) {
-			uCentralEventType E = Commands_.begin()->second;
+			OWLSeventType E = Commands_.begin()->second;
 			if (Remove)
 				Commands_.erase(Commands_.begin());
 			return E;
@@ -963,4 +853,5 @@ namespace OpenWifi {
 
 		return ev_none;
 	}
+ */
 } // namespace OpenWifi

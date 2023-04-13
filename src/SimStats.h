@@ -14,22 +14,31 @@ namespace OpenWifi {
 	class SimStats : public SubSystemServer {
 
 	  public:
-		inline void Connect() {
+		inline void Connect(const std::string &id) {
 			std::lock_guard G(Mutex_);
-			Status_.liveDevices++;
 
-			if ((Status_.timeToFullDevices == 0) && (Status_.liveDevices == ExpectedDevices_)) {
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            stats_hint->second.liveDevices++;
+
+			if ((stats_hint->second.timeToFullDevices == 0) && (stats_hint->second.liveDevices == stats_hint->second.expectedDevices)) {
 				uint64_t Now = Utils::Now();
-				Status_.timeToFullDevices = Now - Status_.startTime;
+                stats_hint->second.timeToFullDevices = Now - stats_hint->second.startTime;
 			}
 		}
 
-		inline void Disconnect() {
-			if (CollectInfo_) {
-				std::lock_guard G(Mutex_);
-				if (Status_.liveDevices)
-					Status_.liveDevices--;
-			}
+		inline void Disconnect(const std::string &id) {
+            std::lock_guard G(Mutex_);
+
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+
+            if (stats_hint->second.liveDevices)
+                stats_hint->second.liveDevices--;
 		}
 
 		static auto instance() {
@@ -37,97 +46,143 @@ namespace OpenWifi {
 			return instance_;
 		}
 
-		inline void AddRX(uint64_t N) {
-			if (CollectInfo_) {
-				std::lock_guard G(Mutex_);
-				Status_.rx += N;
-			}
+		inline void AddRX(const std::string &id, uint64_t N) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            stats_hint->second.rx += N;
 		}
 
-		inline void AddOutMsg() {
-			if (CollectInfo_) {
-				std::lock_guard G(Mutex_);
-				Status_.msgsTx++;
-			}
+		inline void AddOutMsg(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            stats_hint->second.msgsTx++;
 		}
 
-		inline void AddInMsg() {
-			if (CollectInfo_) {
-				std::lock_guard G(Mutex_);
-				Status_.msgsRx++;
-			}
+		inline void AddInMsg(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            stats_hint->second.msgsRx++;
 		}
 
-		inline void AddTX(uint64_t N) {
-			if (CollectInfo_) {
-				std::lock_guard G(Mutex_);
-				Status_.tx += N;
-			}
+		inline void AddTX(const std::string &id, uint64_t N) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            stats_hint->second.tx += N;
 		}
 
-		inline void GetCurrent(OWLSObjects::SimulationStatus &S) {
+		inline void GetCurrent(const std::string &id, OWLSObjects::SimulationStatus &S) {
 			std::lock_guard G(Mutex_);
-			S = Status_;
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            S = stats_hint->second;
 		}
 
 		inline int Start() final {
-			Reset();
 			return 0;
 		}
 
-		inline void Stop() {}
+		inline void Stop() {
+
+        }
 
 		inline void StartSim(const std::string &id, const std::string &simid, uint64_t Devices,
 							 const std::string &owner) {
 			std::lock_guard G(Mutex_);
-			CollectInfo_ = true;
-			ExpectedDevices_ = Devices;
-			Status_.id = id;
-			Status_.simulationId = simid;
-			Status_.state = "running";
-			Status_.liveDevices = Status_.endTime = Status_.rx = Status_.tx = Status_.msgsTx =
-				Status_.msgsRx = Status_.timeToFullDevices = Status_.errorDevices = 0;
-			Status_.startTime = Utils::Now();
-			Status_.owner = owner;
+            auto & CurrentStatus = Status_[id];
+
+			CurrentStatus.expectedDevices = Devices;
+            CurrentStatus.id = id;
+            CurrentStatus.simulationId = simid;
+            CurrentStatus.state = "running";
+            CurrentStatus.liveDevices = CurrentStatus.endTime = CurrentStatus.rx = CurrentStatus.tx = CurrentStatus.msgsTx =
+            CurrentStatus.msgsRx = CurrentStatus.timeToFullDevices = CurrentStatus.errorDevices = 0;
+            CurrentStatus.startTime = Utils::Now();
+            CurrentStatus.owner = owner;
 		}
 
-		inline void EndSim() {
-			std::lock_guard G(Mutex_);
-			CollectInfo_ = false;
-			Status_.state = "completed";
-			Status_.endTime = Utils::Now();
+		inline void EndSim(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+			stats_hint->second.state = "completed";
+            stats_hint->second.endTime = Utils::Now();
 		}
 
-		inline void SetState(const std::string &S) {
-			std::lock_guard G(Mutex_);
-			Status_.state = S;
+		inline void SetState(const std::string &id, const std::string &S) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            stats_hint->second.state = S;
 		}
 
-		[[nodiscard]] inline const std::string &GetState() {
-			std::lock_guard G(Mutex_);
-			return Status_.state;
+		[[nodiscard]] inline std::string GetState(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return "";
+            }
+			return stats_hint->second.state;
 		}
 
-		[[nodiscard]] inline const std::string &Id() const { return Status_.id; }
+		inline void Reset(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
 
-		inline void Reset() {
-			ExpectedDevices_ = Status_.liveDevices = Status_.tx = Status_.msgsRx = Status_.msgsTx =
-				Status_.rx = Status_.endTime = Status_.errorDevices = Status_.startTime =
-					Status_.timeToFullDevices = 0;
-			Status_.simulationId = Status_.id = Status_.state = "";
+            stats_hint->second.liveDevices =
+            stats_hint->second.rx =
+            stats_hint->second.tx =
+            stats_hint->second.msgsRx =
+            stats_hint->second.msgsTx =
+            stats_hint->second.errorDevices =
+            stats_hint->second.startTime =
+            stats_hint->second.endTime = 0;
+            stats_hint->second.state = "idle";
 		}
 
-		[[nodiscard]] inline uint64_t GetStartTime() const { return Status_.startTime; }
+		[[nodiscard]] inline uint64_t GetStartTime(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return 0;
+            }
+            return stats_hint->second.startTime;
+        }
 
-		[[nodiscard]] inline uint64_t GetLiveDevices() const { return Status_.liveDevices; }
+		[[nodiscard]] inline uint64_t GetLiveDevices(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return 0;
+            }
+            return stats_hint->second.liveDevices;
+        }
 
 	  private:
-		OWLSObjects::SimulationStatus Status_;
-		uint64_t ExpectedDevices_ = 0;
-		std::atomic_bool CollectInfo_ = false;
+        std::map<std::string,OWLSObjects::SimulationStatus>     Status_;
 
 		SimStats() noexcept : SubSystemServer("SimStats", "SIM-STATS", "stats") {}
 	};
 
-	inline SimStats *SimStats() { return SimStats::instance(); }
+	inline auto SimStats() { return SimStats::instance(); }
 } // namespace OpenWifi

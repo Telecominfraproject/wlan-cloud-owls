@@ -92,6 +92,7 @@ namespace OpenWifi::OWLSObjects {
 		field_to_json(Obj, "endTime", endTime);
 		field_to_json(Obj, "errorDevices", errorDevices);
 		field_to_json(Obj, "owner", owner);
+        field_to_json(Obj, "expectedDevices", expectedDevices);
 	}
 
 	void Dashboard::to_json([[maybe_unused]] Poco::JSON::Object &Obj) const {}

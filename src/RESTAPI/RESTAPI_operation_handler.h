@@ -16,7 +16,7 @@ namespace OpenWifi {
 							 std::vector<std::string>{Poco::Net::HTTPRequest::HTTP_POST,
 													  Poco::Net::HTTPRequest::HTTP_OPTIONS},
 							 Server, TransactionId, Internal) {}
-		static auto PathName() { return std::list<std::string>{"/api/v1/operation"}; }
+		static auto PathName() { return std::list<std::string>{"/api/v1/operation/{id}"}; }
 		void DoGet() final{};
 		void DoPost() final;
 		void DoPut() final{};

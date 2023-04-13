@@ -8,8 +8,15 @@
 
 namespace OpenWifi {
 	void RESTAPI_status_handler::DoGet() {
+
+        auto id = GetBinding("id","");
+
+        if(id.empty()) {
+            return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
+        }
+
 		OWLSObjects::SimulationStatus S;
-		SimStats()->GetCurrent(S);
+		SimStats()->GetCurrent(id,S);
 		Poco::JSON::Object Answer;
 		S.to_json(Answer);
 		ReturnObject(Answer);

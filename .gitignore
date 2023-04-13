@@ -45,3 +45,4 @@ helm/charts/*
 
 # Logs
 test_scripts/curl/*.json
+/src/ow_version.h

@@ -57,6 +57,7 @@ namespace OpenWifi::OWLSObjects {
 		uint64_t endTime;
 		uint64_t errorDevices;
 		std::string owner;
+        uint64_t expectedDevices;
 
 		void to_json(Poco::JSON::Object &Obj) const;
 	};

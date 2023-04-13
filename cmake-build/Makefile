@@ -177,6 +177,342 @@ src/Dashboard.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/Dashboard.cpp.s
 .PHONY : src/Dashboard.cpp.s
 
+src/OWLS_Connect.o: src/OWLS_Connect.cpp.o
+.PHONY : src/OWLS_Connect.o
+
+# target to build an object file
+src/OWLS_Connect.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Connect.cpp.o
+.PHONY : src/OWLS_Connect.cpp.o
+
+src/OWLS_Connect.i: src/OWLS_Connect.cpp.i
+.PHONY : src/OWLS_Connect.i
+
+# target to preprocess a source file
+src/OWLS_Connect.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Connect.cpp.i
+.PHONY : src/OWLS_Connect.cpp.i
+
+src/OWLS_Connect.s: src/OWLS_Connect.cpp.s
+.PHONY : src/OWLS_Connect.s
+
+# target to generate assembly for a file
+src/OWLS_Connect.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Connect.cpp.s
+.PHONY : src/OWLS_Connect.cpp.s
+
+src/OWLS_CrashLog.o: src/OWLS_CrashLog.cpp.o
+.PHONY : src/OWLS_CrashLog.o
+
+# target to build an object file
+src/OWLS_CrashLog.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_CrashLog.cpp.o
+.PHONY : src/OWLS_CrashLog.cpp.o
+
+src/OWLS_CrashLog.i: src/OWLS_CrashLog.cpp.i
+.PHONY : src/OWLS_CrashLog.i
+
+# target to preprocess a source file
+src/OWLS_CrashLog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_CrashLog.cpp.i
+.PHONY : src/OWLS_CrashLog.cpp.i
+
+src/OWLS_CrashLog.s: src/OWLS_CrashLog.cpp.s
+.PHONY : src/OWLS_CrashLog.s
+
+# target to generate assembly for a file
+src/OWLS_CrashLog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_CrashLog.cpp.s
+.PHONY : src/OWLS_CrashLog.cpp.s
+
+src/OWLS_Disconnect.o: src/OWLS_Disconnect.cpp.o
+.PHONY : src/OWLS_Disconnect.o
+
+# target to build an object file
+src/OWLS_Disconnect.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Disconnect.cpp.o
+.PHONY : src/OWLS_Disconnect.cpp.o
+
+src/OWLS_Disconnect.i: src/OWLS_Disconnect.cpp.i
+.PHONY : src/OWLS_Disconnect.i
+
+# target to preprocess a source file
+src/OWLS_Disconnect.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Disconnect.cpp.i
+.PHONY : src/OWLS_Disconnect.cpp.i
+
+src/OWLS_Disconnect.s: src/OWLS_Disconnect.cpp.s
+.PHONY : src/OWLS_Disconnect.s
+
+# target to generate assembly for a file
+src/OWLS_Disconnect.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Disconnect.cpp.s
+.PHONY : src/OWLS_Disconnect.cpp.s
+
+src/OWLS_EstablishConnection.o: src/OWLS_EstablishConnection.cpp.o
+.PHONY : src/OWLS_EstablishConnection.o
+
+# target to build an object file
+src/OWLS_EstablishConnection.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_EstablishConnection.cpp.o
+.PHONY : src/OWLS_EstablishConnection.cpp.o
+
+src/OWLS_EstablishConnection.i: src/OWLS_EstablishConnection.cpp.i
+.PHONY : src/OWLS_EstablishConnection.i
+
+# target to preprocess a source file
+src/OWLS_EstablishConnection.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_EstablishConnection.cpp.i
+.PHONY : src/OWLS_EstablishConnection.cpp.i
+
+src/OWLS_EstablishConnection.s: src/OWLS_EstablishConnection.cpp.s
+.PHONY : src/OWLS_EstablishConnection.s
+
+# target to generate assembly for a file
+src/OWLS_EstablishConnection.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_EstablishConnection.cpp.s
+.PHONY : src/OWLS_EstablishConnection.cpp.s
+
+src/OWLS_HealthCheck.o: src/OWLS_HealthCheck.cpp.o
+.PHONY : src/OWLS_HealthCheck.o
+
+# target to build an object file
+src/OWLS_HealthCheck.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_HealthCheck.cpp.o
+.PHONY : src/OWLS_HealthCheck.cpp.o
+
+src/OWLS_HealthCheck.i: src/OWLS_HealthCheck.cpp.i
+.PHONY : src/OWLS_HealthCheck.i
+
+# target to preprocess a source file
+src/OWLS_HealthCheck.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_HealthCheck.cpp.i
+.PHONY : src/OWLS_HealthCheck.cpp.i
+
+src/OWLS_HealthCheck.s: src/OWLS_HealthCheck.cpp.s
+.PHONY : src/OWLS_HealthCheck.s
+
+# target to generate assembly for a file
+src/OWLS_HealthCheck.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_HealthCheck.cpp.s
+.PHONY : src/OWLS_HealthCheck.cpp.s
+
+src/OWLS_KeepAlive.o: src/OWLS_KeepAlive.cpp.o
+.PHONY : src/OWLS_KeepAlive.o
+
+# target to build an object file
+src/OWLS_KeepAlive.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_KeepAlive.cpp.o
+.PHONY : src/OWLS_KeepAlive.cpp.o
+
+src/OWLS_KeepAlive.i: src/OWLS_KeepAlive.cpp.i
+.PHONY : src/OWLS_KeepAlive.i
+
+# target to preprocess a source file
+src/OWLS_KeepAlive.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_KeepAlive.cpp.i
+.PHONY : src/OWLS_KeepAlive.cpp.i
+
+src/OWLS_KeepAlive.s: src/OWLS_KeepAlive.cpp.s
+.PHONY : src/OWLS_KeepAlive.s
+
+# target to generate assembly for a file
+src/OWLS_KeepAlive.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_KeepAlive.cpp.s
+.PHONY : src/OWLS_KeepAlive.cpp.s
+
+src/OWLS_Log.o: src/OWLS_Log.cpp.o
+.PHONY : src/OWLS_Log.o
+
+# target to build an object file
+src/OWLS_Log.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Log.cpp.o
+.PHONY : src/OWLS_Log.cpp.o
+
+src/OWLS_Log.i: src/OWLS_Log.cpp.i
+.PHONY : src/OWLS_Log.i
+
+# target to preprocess a source file
+src/OWLS_Log.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Log.cpp.i
+.PHONY : src/OWLS_Log.cpp.i
+
+src/OWLS_Log.s: src/OWLS_Log.cpp.s
+.PHONY : src/OWLS_Log.s
+
+# target to generate assembly for a file
+src/OWLS_Log.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Log.cpp.s
+.PHONY : src/OWLS_Log.cpp.s
+
+src/OWLS_PendingConfig.o: src/OWLS_PendingConfig.cpp.o
+.PHONY : src/OWLS_PendingConfig.o
+
+# target to build an object file
+src/OWLS_PendingConfig.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_PendingConfig.cpp.o
+.PHONY : src/OWLS_PendingConfig.cpp.o
+
+src/OWLS_PendingConfig.i: src/OWLS_PendingConfig.cpp.i
+.PHONY : src/OWLS_PendingConfig.i
+
+# target to preprocess a source file
+src/OWLS_PendingConfig.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_PendingConfig.cpp.i
+.PHONY : src/OWLS_PendingConfig.cpp.i
+
+src/OWLS_PendingConfig.s: src/OWLS_PendingConfig.cpp.s
+.PHONY : src/OWLS_PendingConfig.s
+
+# target to generate assembly for a file
+src/OWLS_PendingConfig.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_PendingConfig.cpp.s
+.PHONY : src/OWLS_PendingConfig.cpp.s
+
+src/OWLS_Reconnect.o: src/OWLS_Reconnect.cpp.o
+.PHONY : src/OWLS_Reconnect.o
+
+# target to build an object file
+src/OWLS_Reconnect.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Reconnect.cpp.o
+.PHONY : src/OWLS_Reconnect.cpp.o
+
+src/OWLS_Reconnect.i: src/OWLS_Reconnect.cpp.i
+.PHONY : src/OWLS_Reconnect.i
+
+# target to preprocess a source file
+src/OWLS_Reconnect.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Reconnect.cpp.i
+.PHONY : src/OWLS_Reconnect.cpp.i
+
+src/OWLS_Reconnect.s: src/OWLS_Reconnect.cpp.s
+.PHONY : src/OWLS_Reconnect.s
+
+# target to generate assembly for a file
+src/OWLS_Reconnect.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Reconnect.cpp.s
+.PHONY : src/OWLS_Reconnect.cpp.s
+
+src/OWLS_State.o: src/OWLS_State.cpp.o
+.PHONY : src/OWLS_State.o
+
+# target to build an object file
+src/OWLS_State.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_State.cpp.o
+.PHONY : src/OWLS_State.cpp.o
+
+src/OWLS_State.i: src/OWLS_State.cpp.i
+.PHONY : src/OWLS_State.i
+
+# target to preprocess a source file
+src/OWLS_State.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_State.cpp.i
+.PHONY : src/OWLS_State.cpp.i
+
+src/OWLS_State.s: src/OWLS_State.cpp.s
+.PHONY : src/OWLS_State.s
+
+# target to generate assembly for a file
+src/OWLS_State.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_State.cpp.s
+.PHONY : src/OWLS_State.cpp.s
+
+src/OWLS_Update.o: src/OWLS_Update.cpp.o
+.PHONY : src/OWLS_Update.o
+
+# target to build an object file
+src/OWLS_Update.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Update.cpp.o
+.PHONY : src/OWLS_Update.cpp.o
+
+src/OWLS_Update.i: src/OWLS_Update.cpp.i
+.PHONY : src/OWLS_Update.i
+
+# target to preprocess a source file
+src/OWLS_Update.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Update.cpp.i
+.PHONY : src/OWLS_Update.cpp.i
+
+src/OWLS_Update.s: src/OWLS_Update.cpp.s
+.PHONY : src/OWLS_Update.s
+
+# target to generate assembly for a file
+src/OWLS_Update.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_Update.cpp.s
+.PHONY : src/OWLS_Update.cpp.s
+
+src/OWLS_WSPing.o: src/OWLS_WSPing.cpp.o
+.PHONY : src/OWLS_WSPing.o
+
+# target to build an object file
+src/OWLS_WSPing.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_WSPing.cpp.o
+.PHONY : src/OWLS_WSPing.cpp.o
+
+src/OWLS_WSPing.i: src/OWLS_WSPing.cpp.i
+.PHONY : src/OWLS_WSPing.i
+
+# target to preprocess a source file
+src/OWLS_WSPing.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_WSPing.cpp.i
+.PHONY : src/OWLS_WSPing.cpp.i
+
+src/OWLS_WSPing.s: src/OWLS_WSPing.cpp.s
+.PHONY : src/OWLS_WSPing.s
+
+# target to generate assembly for a file
+src/OWLS_WSPing.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLS_WSPing.cpp.s
+.PHONY : src/OWLS_WSPing.cpp.s
+
+src/OWLSclient.o: src/OWLSclient.cpp.o
+.PHONY : src/OWLSclient.o
+
+# target to build an object file
+src/OWLSclient.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSclient.cpp.o
+.PHONY : src/OWLSclient.cpp.o
+
+src/OWLSclient.i: src/OWLSclient.cpp.i
+.PHONY : src/OWLSclient.i
+
+# target to preprocess a source file
+src/OWLSclient.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSclient.cpp.i
+.PHONY : src/OWLSclient.cpp.i
+
+src/OWLSclient.s: src/OWLSclient.cpp.s
+.PHONY : src/OWLSclient.s
+
+# target to generate assembly for a file
+src/OWLSclient.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSclient.cpp.s
+.PHONY : src/OWLSclient.cpp.s
+
+src/OWLSscheduler.o: src/OWLSscheduler.cpp.o
+.PHONY : src/OWLSscheduler.o
+
+# target to build an object file
+src/OWLSscheduler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSscheduler.cpp.o
+.PHONY : src/OWLSscheduler.cpp.o
+
+src/OWLSscheduler.i: src/OWLSscheduler.cpp.i
+.PHONY : src/OWLSscheduler.i
+
+# target to preprocess a source file
+src/OWLSscheduler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSscheduler.cpp.i
+.PHONY : src/OWLSscheduler.cpp.i
+
+src/OWLSscheduler.s: src/OWLSscheduler.cpp.s
+.PHONY : src/OWLSscheduler.s
+
+# target to generate assembly for a file
+src/OWLSscheduler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSscheduler.cpp.s
+.PHONY : src/OWLSscheduler.cpp.s
+
 src/RESTAPI/RESTAPI_deviceDashboardHandler.o: src/RESTAPI/RESTAPI_deviceDashboardHandler.cpp.o
 .PHONY : src/RESTAPI/RESTAPI_deviceDashboardHandler.o
 
@@ -489,53 +825,53 @@ src/RESTObjects/RESTAPI_SecurityObjects.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/RESTObjects/RESTAPI_SecurityObjects.cpp.s
 .PHONY : src/RESTObjects/RESTAPI_SecurityObjects.cpp.s
 
-src/Simulation.o: src/Simulation.cpp.o
-.PHONY : src/Simulation.o
+src/SimulationCoordinator.o: src/SimulationCoordinator.cpp.o
+.PHONY : src/SimulationCoordinator.o
 
 # target to build an object file
-src/Simulation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/Simulation.cpp.o
-.PHONY : src/Simulation.cpp.o
+src/SimulationCoordinator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/SimulationCoordinator.cpp.o
+.PHONY : src/SimulationCoordinator.cpp.o
 
-src/Simulation.i: src/Simulation.cpp.i
-.PHONY : src/Simulation.i
+src/SimulationCoordinator.i: src/SimulationCoordinator.cpp.i
+.PHONY : src/SimulationCoordinator.i
 
 # target to preprocess a source file
-src/Simulation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/Simulation.cpp.i
-.PHONY : src/Simulation.cpp.i
+src/SimulationCoordinator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/SimulationCoordinator.cpp.i
+.PHONY : src/SimulationCoordinator.cpp.i
 
-src/Simulation.s: src/Simulation.cpp.s
-.PHONY : src/Simulation.s
+src/SimulationCoordinator.s: src/SimulationCoordinator.cpp.s
+.PHONY : src/SimulationCoordinator.s
 
 # target to generate assembly for a file
-src/Simulation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/Simulation.cpp.s
-.PHONY : src/Simulation.cpp.s
+src/SimulationCoordinator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/SimulationCoordinator.cpp.s
+.PHONY : src/SimulationCoordinator.cpp.s
 
-src/Simulator.o: src/Simulator.cpp.o
-.PHONY : src/Simulator.o
+src/SimulationRunner.o: src/SimulationRunner.cpp.o
+.PHONY : src/SimulationRunner.o
 
 # target to build an object file
-src/Simulator.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/Simulator.cpp.o
-.PHONY : src/Simulator.cpp.o
+src/SimulationRunner.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/SimulationRunner.cpp.o
+.PHONY : src/SimulationRunner.cpp.o
 
-src/Simulator.i: src/Simulator.cpp.i
-.PHONY : src/Simulator.i
+src/SimulationRunner.i: src/SimulationRunner.cpp.i
+.PHONY : src/SimulationRunner.i
 
 # target to preprocess a source file
-src/Simulator.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/Simulator.cpp.i
-.PHONY : src/Simulator.cpp.i
+src/SimulationRunner.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/SimulationRunner.cpp.i
+.PHONY : src/SimulationRunner.cpp.i
 
-src/Simulator.s: src/Simulator.cpp.s
-.PHONY : src/Simulator.s
+src/SimulationRunner.s: src/SimulationRunner.cpp.s
+.PHONY : src/SimulationRunner.s
 
 # target to generate assembly for a file
-src/Simulator.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/Simulator.cpp.s
-.PHONY : src/Simulator.cpp.s
+src/SimulationRunner.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/SimulationRunner.cpp.s
+.PHONY : src/SimulationRunner.cpp.s
 
 src/StorageService.o: src/StorageService.cpp.o
 .PHONY : src/StorageService.o
@@ -969,54 +1305,6 @@ src/storage/storage_simulations.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/storage/storage_simulations.cpp.s
 .PHONY : src/storage/storage_simulations.cpp.s
 
-src/uCentralClient.o: src/uCentralClient.cpp.o
-.PHONY : src/uCentralClient.o
-
-# target to build an object file
-src/uCentralClient.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/uCentralClient.cpp.o
-.PHONY : src/uCentralClient.cpp.o
-
-src/uCentralClient.i: src/uCentralClient.cpp.i
-.PHONY : src/uCentralClient.i
-
-# target to preprocess a source file
-src/uCentralClient.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/uCentralClient.cpp.i
-.PHONY : src/uCentralClient.cpp.i
-
-src/uCentralClient.s: src/uCentralClient.cpp.s
-.PHONY : src/uCentralClient.s
-
-# target to generate assembly for a file
-src/uCentralClient.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/uCentralClient.cpp.s
-.PHONY : src/uCentralClient.cpp.s
-
-src/uCentralEvent.o: src/uCentralEvent.cpp.o
-.PHONY : src/uCentralEvent.o
-
-# target to build an object file
-src/uCentralEvent.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/uCentralEvent.cpp.o
-.PHONY : src/uCentralEvent.cpp.o
-
-src/uCentralEvent.i: src/uCentralEvent.cpp.i
-.PHONY : src/uCentralEvent.i
-
-# target to preprocess a source file
-src/uCentralEvent.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/uCentralEvent.cpp.i
-.PHONY : src/uCentralEvent.cpp.i
-
-src/uCentralEvent.s: src/uCentralEvent.cpp.s
-.PHONY : src/uCentralEvent.s
-
-# target to generate assembly for a file
-src/uCentralEvent.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/uCentralEvent.cpp.s
-.PHONY : src/uCentralEvent.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1032,6 +1320,48 @@ help:
 	@echo "... src/Dashboard.o"
 	@echo "... src/Dashboard.i"
 	@echo "... src/Dashboard.s"
+	@echo "... src/OWLS_Connect.o"
+	@echo "... src/OWLS_Connect.i"
+	@echo "... src/OWLS_Connect.s"
+	@echo "... src/OWLS_CrashLog.o"
+	@echo "... src/OWLS_CrashLog.i"
+	@echo "... src/OWLS_CrashLog.s"
+	@echo "... src/OWLS_Disconnect.o"
+	@echo "... src/OWLS_Disconnect.i"
+	@echo "... src/OWLS_Disconnect.s"
+	@echo "... src/OWLS_EstablishConnection.o"
+	@echo "... src/OWLS_EstablishConnection.i"
+	@echo "... src/OWLS_EstablishConnection.s"
+	@echo "... src/OWLS_HealthCheck.o"
+	@echo "... src/OWLS_HealthCheck.i"
+	@echo "... src/OWLS_HealthCheck.s"
+	@echo "... src/OWLS_KeepAlive.o"
+	@echo "... src/OWLS_KeepAlive.i"
+	@echo "... src/OWLS_KeepAlive.s"
+	@echo "... src/OWLS_Log.o"
+	@echo "... src/OWLS_Log.i"
+	@echo "... src/OWLS_Log.s"
+	@echo "... src/OWLS_PendingConfig.o"
+	@echo "... src/OWLS_PendingConfig.i"
+	@echo "... src/OWLS_PendingConfig.s"
+	@echo "... src/OWLS_Reconnect.o"
+	@echo "... src/OWLS_Reconnect.i"
+	@echo "... src/OWLS_Reconnect.s"
+	@echo "... src/OWLS_State.o"
+	@echo "... src/OWLS_State.i"
+	@echo "... src/OWLS_State.s"
+	@echo "... src/OWLS_Update.o"
+	@echo "... src/OWLS_Update.i"
+	@echo "... src/OWLS_Update.s"
+	@echo "... src/OWLS_WSPing.o"
+	@echo "... src/OWLS_WSPing.i"
+	@echo "... src/OWLS_WSPing.s"
+	@echo "... src/OWLSclient.o"
+	@echo "... src/OWLSclient.i"
+	@echo "... src/OWLSclient.s"
+	@echo "... src/OWLSscheduler.o"
+	@echo "... src/OWLSscheduler.i"
+	@echo "... src/OWLSscheduler.s"
 	@echo "... src/RESTAPI/RESTAPI_deviceDashboardHandler.o"
 	@echo "... src/RESTAPI/RESTAPI_deviceDashboardHandler.i"
 	@echo "... src/RESTAPI/RESTAPI_deviceDashboardHandler.s"
@@ -1071,12 +1401,12 @@ help:
 	@echo "... src/RESTObjects/RESTAPI_SecurityObjects.o"
 	@echo "... src/RESTObjects/RESTAPI_SecurityObjects.i"
 	@echo "... src/RESTObjects/RESTAPI_SecurityObjects.s"
-	@echo "... src/Simulation.o"
-	@echo "... src/Simulation.i"
-	@echo "... src/Simulation.s"
-	@echo "... src/Simulator.o"
-	@echo "... src/Simulator.i"
-	@echo "... src/Simulator.s"
+	@echo "... src/SimulationCoordinator.o"
+	@echo "... src/SimulationCoordinator.i"
+	@echo "... src/SimulationCoordinator.s"
+	@echo "... src/SimulationRunner.o"
+	@echo "... src/SimulationRunner.i"
+	@echo "... src/SimulationRunner.s"
 	@echo "... src/StorageService.o"
 	@echo "... src/StorageService.i"
 	@echo "... src/StorageService.s"
@@ -1131,12 +1461,6 @@ help:
 	@echo "... src/storage/storage_simulations.o"
 	@echo "... src/storage/storage_simulations.i"
 	@echo "... src/storage/storage_simulations.s"
-	@echo "... src/uCentralClient.o"
-	@echo "... src/uCentralClient.i"
-	@echo "... src/uCentralClient.s"
-	@echo "... src/uCentralEvent.o"
-	@echo "... src/uCentralEvent.i"
-	@echo "... src/uCentralEvent.s"
 .PHONY : help
 
 

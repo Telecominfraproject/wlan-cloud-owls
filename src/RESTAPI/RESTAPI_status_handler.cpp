@@ -15,10 +15,22 @@ namespace OpenWifi {
             return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
         }
 
-		OWLSObjects::SimulationStatus S;
-		SimStats()->GetCurrent(id,S);
-		Poco::JSON::Object Answer;
-		S.to_json(Answer);
-		ReturnObject(Answer);
+        std::vector<OWLSObjects::SimulationStatus>  Statuses;
+        if(id=="*") {
+            SimStats()->GetAllSimulations(Statuses);
+        } else {
+            OWLSObjects::SimulationStatus S;
+            SimStats()->GetCurrent(id, S);
+            Statuses.emplace_back(S);
+        }
+		Poco::JSON::Array   Arr;
+        for(const auto &status:Statuses) {
+            Poco::JSON::Object  Obj;
+            status.to_json(Obj);
+            Arr.add(Obj);
+        }
+        std::ostringstream os;
+        Arr.stringify(os);
+        ReturnRawJSON(os.str());
 	}
 } // namespace OpenWifi

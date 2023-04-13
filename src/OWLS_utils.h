@@ -184,6 +184,7 @@ namespace OpenWifi {
                 case radio_bands::band_6g:
                     return Channels_6G[std::rand() % (Channels_6G.size() - num_chan)];
             }
+            return Channels_2G[std::rand() % Channels_2G.size()];
         }
 
     }

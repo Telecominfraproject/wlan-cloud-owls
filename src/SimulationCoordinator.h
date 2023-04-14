@@ -34,7 +34,8 @@ namespace OpenWifi {
 		void Stop() final;
 		void run() final;
 
-		bool StartSim(const std::string &SimId, std::string &Id, std::string &Error, const std::string &Owner);
+		bool StartSim(std::string &SimId, const std::string &Id,
+                      std::string &Error, const std::string &Owner);
 		bool StopSim(const std::string &Id, std::string &Error);
 		bool CancelSim(const std::string &Id, std::string &Error);
 

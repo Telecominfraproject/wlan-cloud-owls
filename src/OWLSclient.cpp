@@ -86,9 +86,9 @@ namespace OpenWifi {
         auto interface_hint = AllAssociations_.find(interface);
         std::cout << __LINE__ << std::endl;
         if(interface_hint==end(AllAssociations_)) {
-            bool inserted;
-            std::pair<associations_map_t::iterator,bool> insertion_res(interface_hint,inserted);
-            insertion_res = AllAssociations_.insert(std::make_pair(interface,MockAssociations {}));
+            MockAssociations M;
+            AllAssociations_[interface] = M;
+            interface_hint = AllAssociations_.find(interface);
         }
 
         std::cout << __LINE__ << std::endl;

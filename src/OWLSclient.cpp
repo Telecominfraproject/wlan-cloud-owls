@@ -174,23 +174,29 @@ namespace OpenWifi {
 						for (const auto &band : ssid["wifi-bands"]) {
                             std::cout << __LINE__ << std::endl;
 							auto ssidName = ssid["name"];
+                            std::cout << __LINE__ << std::endl;
 							if (band == "2G") {
+                                std::cout << __LINE__ << std::endl;
 									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
                                                                        radio_bands::band_2g), Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
+                                std::cout << __LINE__ << std::endl;
 							}
 							if (band == "5G") {
+                                std::cout << __LINE__ << std::endl;
 									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
                                                                        radio_bands::band_5g), Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
+                                std::cout << __LINE__ << std::endl;
 							}
 							if (band == "6G") {
+                                std::cout << __LINE__ << std::endl;
 									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
                                                                        radio_bands::band_6g),
                                                        Utils::SerialToMAC(Utils::IntToSerialNumber(
@@ -198,11 +204,14 @@ namespace OpenWifi {
 														   bssid_index++)),
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
+                                std::cout << __LINE__ << std::endl;
 							}
 						}
 					}
+                    std::cout << __LINE__ << std::endl;
 					MockCounters F;
 					AllCounters_[current_interface_role] = F;
+                    std::cout << __LINE__ << std::endl;
 				}
 			}
 		}

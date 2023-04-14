@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: OpenWifi Load Simulator
   description: An application to test load on an OpenWifi system.
-  version: 2.5.0
+  version: 2.10.0
   license:
     name: BSD3
     url: https://github.com/Telecominfraproject/wlan-cloud-ucentralgw/blob/master/LICENSE
@@ -403,21 +403,48 @@ components:
             $ref: '#/components/schemas/SimulationStatus'
 
 paths:
-  /simulation:
+  /simulation/{id}:
     get:
       tags:
         - Simulations
       operationId: getSimulations
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          example: Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            format: int64
       responses:
         200:
           $ref: '#/components/schemas/SimulationDetailsList'
         400:
           $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
 
     post:
       tags:
         - Simulations
       operationId: createSimulation
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
       requestBody:
         description: Simulation details
         content:
@@ -429,17 +456,20 @@ paths:
           $ref: '#/components/schemas/SimulationDetails'
         400:
           $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
 
     put:
       tags:
         - Simulations
       operationId: modifySimulation
       parameters:
-        - in: query
+        - in: path
           name: id
           schema:
             type: string
             format: uuid
+          required: true
       requestBody:
         description: Simulation details
         content:
@@ -451,22 +481,27 @@ paths:
           $ref: '#/components/schemas/SimulationDetails'
         400:
           $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
 
     delete:
       tags:
         - Simulations
       operationId: deleteSimulation
       parameters:
-        - in: query
+        - in: path
           name: id
           schema:
             type: string
             format: uuid
+          required: true
       responses:
         200:
           $ref: '#/components/responses/Success'
         400:
           $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
 
@@ -488,22 +523,31 @@ paths:
           $ref: '#/components/schemas/SimulationStatusList'
         400:
           $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
 
     delete:
       tags:
         - Results
       operationId: deleteSimulationResults
       parameters:
-        - in: query
+        - in: path
           name: id
           schema:
             type: string
             format: uuid
+          required: true
+          example: Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'
+
       responses:
         200:
           $ref: '#/components/responses/Success'
         400:
           $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
 
@@ -512,22 +556,28 @@ paths:
       tags:
         - Status
       operationId: getStatusOfRunningSimulation
-
       parameters:
         - in: path
+          name: id
           schema:
             type: string
           required: true
           example: Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'
-
       responses:
         200:
+          description: Successfully retrieved status list
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/SimulationStatus'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
 
   /operation/{id}:
     post:
@@ -549,12 +599,15 @@ paths:
               - start
               - stop
               - cancel
+          required: true
 
       responses:
         200:
           $ref: '#/components/schemas/SimulationStatus'
         400:
           $ref: '#/components/responses/BadRequest'
+        403:
+          $ref: '#/components/responses/Unauthorized'
         404:
           $ref: '#/components/responses/NotFound'
 
@@ -615,6 +668,8 @@ paths:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/SystemInfoResults'
+        400:
+          $ref: '#/components/responses/BadRequest'
         403:
           $ref: '#/components/responses/Unauthorized'
         404:

@@ -177,8 +177,9 @@ namespace OpenWifi {
                             std::cout << __LINE__ << std::endl;
 							if (band == "2G") {
                                 std::cout << __LINE__ << std::endl;
-									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
-                                                                       radio_bands::band_2g), Utils::SerialToMAC(Utils::IntToSerialNumber(
+                                auto index = std::make_tuple(current_interface_role, ssidName,
+                                                             radio_bands::band_2g);
+									CreateAssociations(index, Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),
                                                        Runner_->Details().minAssociations,
@@ -187,8 +188,9 @@ namespace OpenWifi {
 							}
 							if (band == "5G") {
                                 std::cout << __LINE__ << std::endl;
-									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
-                                                                       radio_bands::band_5g), Utils::SerialToMAC(Utils::IntToSerialNumber(
+                                auto index = std::make_tuple(current_interface_role, ssidName,
+                                                             radio_bands::band_5g);
+									CreateAssociations(index, Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),
                                                        Runner_->Details().minAssociations,
@@ -197,8 +199,9 @@ namespace OpenWifi {
 							}
 							if (band == "6G") {
                                 std::cout << __LINE__ << std::endl;
-									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
-                                                                       radio_bands::band_6g),
+                                auto index = std::make_tuple(current_interface_role, ssidName,
+                                                             radio_bands::band_6g);
+									CreateAssociations(index,
                                                        Utils::SerialToMAC(Utils::IntToSerialNumber(
 														   Utils::SerialNumberToInt(SerialNumber_) +
 														   bssid_index++)),

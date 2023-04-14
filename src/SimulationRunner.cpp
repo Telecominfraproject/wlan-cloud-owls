@@ -25,8 +25,10 @@ namespace OpenWifi {
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<> distrib(3, 15);
 
+        std::cout << __LINE__ << std::endl;
 		std::lock_guard Lock(Mutex_);
 
+        std::cout << __LINE__ << std::endl;
 		for (uint64_t i = 0; i < Details_.devices; i++) {
 			char Buffer[32];
 			snprintf(Buffer, sizeof(Buffer), "%s%05x0", Details_.macPrefix.c_str(), (unsigned int)i);
@@ -35,7 +37,9 @@ namespace OpenWifi {
             OWLSscheduler()->Ref().in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
 			Clients_[Buffer] = Client;
 		}
+        std::cout << __LINE__ << std::endl;
         OWLSscheduler()->Ref().in(std::chrono::seconds(10), ProgressUpdate, this);
+        std::cout << __LINE__ << std::endl;
 	}
 
     void SimulationRunner::ProgressUpdate(SimulationRunner *sim) {

@@ -10,7 +10,6 @@ namespace OpenWifi {
 	void RESTAPI_operation_handler::DoPost() {
 
         auto Id = GetBinding("id","");
-
         if(Id.empty()) {
             return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
         }
@@ -29,9 +28,9 @@ namespace OpenWifi {
 		if (Op == "start") {
 			SimulationCoordinator()->StartSim(SimId, Id, Error, UserInfo_.userinfo.email);
 		} else if (Op == "stop") {
-			SimulationCoordinator()->StopSim(Id, Error);
+			SimulationCoordinator()->StopSim(SimId, Error);
 		} else if (Op == "cancel") {
-			SimulationCoordinator()->CancelSim(Id, Error);
+			SimulationCoordinator()->CancelSim(SimId, Error);
 		}
 
 		if (Error.empty()) {

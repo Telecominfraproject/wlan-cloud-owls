@@ -81,16 +81,23 @@ namespace OpenWifi {
 
     void OWLSclient::CreateAssociations(const interface_location_t &interface, const std::string &bssid, uint64_t min,
                                         uint64_t max) {
+
+        std::cout << __LINE__ << std::endl;
         auto interface_hint = AllAssociations_.find(interface);
+        std::cout << __LINE__ << std::endl;
         if(interface_hint==end(AllAssociations_)) {
             bool inserted;
             std::pair<associations_map_t::iterator,bool> insertion_res(interface_hint,inserted);
             insertion_res = AllAssociations_.insert(std::make_pair(interface,MockAssociations {}));
         }
 
+        std::cout << __LINE__ << std::endl;
         interface_hint->second.clear();
+        std::cout << __LINE__ << std::endl;
         auto NumberOfAssociations = MicroServiceRandom(min, max);
+        std::cout << __LINE__ << std::endl;
         while (NumberOfAssociations) {
+            std::cout << __LINE__ << std::endl;
             MockAssociation FA;
             FA.bssid = bssid;
             FA.station = OWLSutils::RandomMAC();
@@ -101,9 +108,13 @@ namespace OpenWifi {
             FA.rssi = OWLSutils::local_random(-40, -90);
             interface_hint->second.push_back(FA);
             --NumberOfAssociations;
+            std::cout << __LINE__ << std::endl;
         }
+        std::cout << __LINE__ << std::endl;
         Load_.SetSize(AllLanClients_.size()+CountAssociations());
+        std::cout << __LINE__ << std::endl;
         Memory_.SetSize(AllLanClients_.size()+CountAssociations());
+        std::cout << __LINE__ << std::endl;
     }
 
     void OWLSclient::Update() {
@@ -175,13 +186,14 @@ namespace OpenWifi {
                             std::cout << __LINE__ << std::endl;
 							auto ssidName = ssid["name"];
                             std::cout << __LINE__ << std::endl;
+                            auto bssid_num = Utils::SerialToMAC(Utils::IntToSerialNumber(
+                                    Utils::SerialNumberToInt(SerialNumber_) +
+                                    bssid_index++));
 							if (band == "2G") {
                                 std::cout << __LINE__ << std::endl;
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_2g);
-									CreateAssociations(index, Utils::SerialToMAC(Utils::IntToSerialNumber(
-														   Utils::SerialNumberToInt(SerialNumber_) +
-														   bssid_index++)),
+									CreateAssociations(index, bssid_num,
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
                                 std::cout << __LINE__ << std::endl;
@@ -190,9 +202,7 @@ namespace OpenWifi {
                                 std::cout << __LINE__ << std::endl;
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_5g);
-									CreateAssociations(index, Utils::SerialToMAC(Utils::IntToSerialNumber(
-														   Utils::SerialNumberToInt(SerialNumber_) +
-														   bssid_index++)),
+									CreateAssociations(index, bssid_num,
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
                                 std::cout << __LINE__ << std::endl;
@@ -201,10 +211,7 @@ namespace OpenWifi {
                                 std::cout << __LINE__ << std::endl;
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_6g);
-									CreateAssociations(index,
-                                                       Utils::SerialToMAC(Utils::IntToSerialNumber(
-														   Utils::SerialNumberToInt(SerialNumber_) +
-														   bssid_index++)),
+									CreateAssociations(index,bssid_num,
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
                                 std::cout << __LINE__ << std::endl;

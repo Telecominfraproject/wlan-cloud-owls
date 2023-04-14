@@ -70,7 +70,7 @@ namespace OpenWifi::OWLSclientEvents {
             (*Client->WS_).setReceiveTimeout(Poco::Timespan());
             (*Client->WS_).setSendTimeout(Poco::Timespan(20, 0));
             (*Client->WS_).setNoDelay(true);
-            Client->Reactor_.addEventHandler(
+            Runner->Reactor().addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                             *Runner, &SimulationRunner::OnSocketReadable));
             Client->Connected_ = true;

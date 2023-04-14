@@ -35,7 +35,7 @@ namespace OpenWifi {
 			snprintf(Buffer, sizeof(Buffer), "%s%05x0", Details_.macPrefix.c_str(), (unsigned int)i);
             std::cout << __LINE__ << std::endl;
 
-			auto Client = std::make_shared<OWLSclient>(Reactor_, Buffer, Logger_, this);
+			auto Client = std::make_shared<OWLSclient>(Buffer, Logger_, this);
             std::cout << __LINE__ << std::endl;
             Client->SerialNumber_ = Buffer;
             std::cout << __LINE__ << std::endl;

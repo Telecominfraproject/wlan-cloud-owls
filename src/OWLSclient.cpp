@@ -38,23 +38,30 @@ namespace OpenWifi {
           Memory_(1),
           Load_(1),
           Runner_(runner) {
+        std::cout << __LINE__ << std::endl;
 
 		AllInterfaceNames_[ap_interface_types::upstream] = "up0v0";
 		AllInterfaceNames_[ap_interface_types::downstream] = "down0v0";
+        std::cout << __LINE__ << std::endl;
 
 		AllInterfaceRoles_[ap_interface_types::upstream] = "upstream";
 		AllInterfaceRoles_[ap_interface_types::downstream] = "downstream";
 
+        std::cout << __LINE__ << std::endl;
 		AllPortNames_[ap_interface_types::upstream] = "eth0";
 		AllPortNames_[ap_interface_types::downstream] = "eth1";
 
+        std::cout << __LINE__ << std::endl;
 		SetFirmware();
 		Active_ = UUID_ = Utils::Now();
 		srand(UUID_);
 		mac_lan = OWLSutils::MakeMac(SerialNumber_.c_str(), 0);
 		CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
+        std::cout << __LINE__ << std::endl;
 		UpdateConfiguration();
+        std::cout << __LINE__ << std::endl;
         Valid_ = true;
+        std::cout << __LINE__ << std::endl;
 	}
 
     void OWLSclient::CreateLanClients(uint64_t min, uint64_t max) {

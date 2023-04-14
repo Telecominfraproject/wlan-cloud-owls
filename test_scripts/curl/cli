@@ -143,6 +143,13 @@ listsims() {
     jq < ${result_file}
 }
 
+getsim() {
+    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/simulation/$1" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
 deletesim() {
     curl    ${FLAGS} -X DELETE "https://${OWLS}/api/v1/simulation?id=$1" \
     -H "Content-Type: application/json" \
@@ -191,6 +198,7 @@ case "$1" in
     "examplesim") examplesim;;
     "createsim") login; createsim "$2"; logout;;
     "listsims") login; listsims; logout;;
+    "getsim") login; getsim "$2"; logout;;
     "deletesim") login; deletesim "$2"; logout;;
     "startsim") login; startsim "$2"; logout;;
     "stopsim") login; stopsim "$2" ; logout;;

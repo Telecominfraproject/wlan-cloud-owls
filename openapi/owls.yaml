@@ -527,7 +527,6 @@ paths:
             type: string
             format: uuid
           required: true
-          example: Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'
         - in: query
           name: offset
           schema:

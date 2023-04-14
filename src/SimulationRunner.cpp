@@ -34,7 +34,7 @@ namespace OpenWifi {
 			snprintf(Buffer, sizeof(Buffer), "%s%05x0", Details_.macPrefix.c_str(), (unsigned int)i);
 			auto Client = std::make_shared<OWLSclient>(Reactor_, Buffer, Logger_, this);
             Client->SerialNumber_ = Buffer;
-            OWLSscheduler()->Ref().in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
+            // OWLSscheduler()->Ref().in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
 			Clients_[Buffer] = Client;
 		}
         std::cout << __LINE__ << std::endl;

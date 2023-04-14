@@ -411,6 +411,7 @@ paths:
       parameters:
         - in: path
           name: id
+          description: The UUID of the specific simulation ID
           schema:
             type: string
             format: uuid
@@ -428,7 +429,13 @@ paths:
             format: int64
       responses:
         200:
-          $ref: '#/components/schemas/SimulationDetailsList'
+          description: A single or list of simulation definitions
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SimulationDetailsList'
+                  - $ref: '#/components/schemas/SimulationDetails'
         400:
           $ref: '#/components/responses/BadRequest'
         403:
@@ -441,6 +448,7 @@ paths:
       parameters:
         - in: path
           name: id
+          description: The UUID of the specific simulation ID. Must be set to 0 for a POST
           schema:
             type: string
             format: uuid
@@ -466,6 +474,7 @@ paths:
       parameters:
         - in: path
           name: id
+          description: The UUID of the specific simulation ID
           schema:
             type: string
             format: uuid
@@ -513,11 +522,22 @@ paths:
       parameters:
         - in: path
           name: id
+          description: The UUID of the Simulation Definition
           schema:
             type: string
             format: uuid
           required: true
           example: Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            format: int64
       responses:
         200:
           $ref: '#/components/schemas/SimulationStatusList'
@@ -535,6 +555,7 @@ paths:
       parameters:
         - in: path
           name: id
+          description: The UUID of the results to remove.
           schema:
             type: string
             format: uuid
@@ -587,6 +608,7 @@ paths:
       parameters:
         - in: path
           name: id
+          description: The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation
           schema:
             type: string
             format: uuid
@@ -600,6 +622,12 @@ paths:
               - stop
               - cancel
           required: true
+        - in: query
+          name: runningId
+          description: Must be specified when stop or cancel re used.
+          schema:
+            type: string
+            format: uuid
 
       responses:
         200:

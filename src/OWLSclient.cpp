@@ -160,13 +160,19 @@ namespace OpenWifi {
 		AllLanClients_.clear();
 		AllRadios_.clear();
 		bssid_index = 1;
+        std::cout << __LINE__ << std::endl;
 		for (const auto &interface : Interfaces) {
+            std::cout << __LINE__ << std::endl;
 			if (interface.contains("role")) {
+                std::cout << __LINE__ << std::endl;
 				ap_interface_types current_interface_role = upstream;
 				if (FindInterfaceRole(interface["role"], current_interface_role)) {
+                    std::cout << __LINE__ << std::endl;
 					auto SSIDs = interface["ssids"];
 					for (const auto &ssid : SSIDs) {
+                        std::cout << __LINE__ << std::endl;
 						for (const auto &band : ssid["wifi-bands"]) {
+                            std::cout << __LINE__ << std::endl;
 							auto ssidName = ssid["name"];
 							if (band == "2G") {
 									CreateAssociations(std::make_tuple(current_interface_role, ssidName,
@@ -201,7 +207,9 @@ namespace OpenWifi {
 			}
 		}
 
+        std::cout << __LINE__ << std::endl;
 		CreateLanClients(Runner_->Details().minClients, Runner_->Details().maxClients);
+        std::cout << __LINE__ << std::endl;
 
 		auto radios = CurrentConfig_["radios"];
 		uint index = 0;
@@ -209,6 +217,7 @@ namespace OpenWifi {
 			auto band = radio["band"];
 			MockRadio R;
 
+            std::cout << __LINE__ << std::endl;
             R.band.push_back(band);
             if (band == "2G") {
                 R.radioBands = radio_bands::band_2g;
@@ -218,30 +227,38 @@ namespace OpenWifi {
                 R.radioBands =  radio_bands::band_6g;
             }
 
+            std::cout << __LINE__ << std::endl;
             if(radio.contains("channel-width") && radio["channel-width"].is_number_integer())
                 R.channel_width = radio["channel-width"];
             else
                 R.channel_width = 20;
 
+            std::cout << __LINE__ << std::endl;
 			if ((!radio.contains("channel"))
                 ||  (radio.contains("channel") && radio["channel"].is_string() && radio["channel"] == "auto")
                 ||  (!radio["channel"].is_number_integer())) {
                 R.channel = OWLSutils::FindAutoChannel(R.radioBands, R.channel_width);
             } else if (radio["channel"].is_number_integer()) {
+                std::cout << __LINE__ << std::endl;
                 R.channel = radio["channel"];
 			}
 
+            std::cout << __LINE__ << std::endl;
             OWLSutils::FillinFrequencies(R.channel, R.radioBands, R.channel_width, R.channels, R.frequency);
+            std::cout << __LINE__ << std::endl;
 
 			OWLSutils::AssignIfPresent(radio, "tx_power", R.tx_power, (uint_fast64_t)23);
+            std::cout << __LINE__ << std::endl;
 
 			if (index == 0)
 				R.phy = "platform/soc/c000000.wifi";
 			else
 				R.phy = "platform/soc/c000000.wifi+" + std::to_string(index);
+            std::cout << __LINE__ << std::endl;
 			R.index = index;
 			AllRadios_[R.radioBands] = R;
 			++index;
+            std::cout << __LINE__ << std::endl;
 		}
 	}
 

@@ -79,7 +79,7 @@ namespace OpenWifi {
 
         if(id == "*") {
             std::vector<OWLSObjects::SimulationDetails> Sims;
-            StorageService()->SimulationDB().GetRecords(1, 1000, Sims);
+            StorageService()->SimulationDB().GetRecords(QB_.Offset, QB_.Limit, Sims);
             return ReturnObject("list", Sims);
         }
 

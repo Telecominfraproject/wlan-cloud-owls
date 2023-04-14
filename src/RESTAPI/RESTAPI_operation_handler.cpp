@@ -21,7 +21,7 @@ namespace OpenWifi {
 		}
 
 		std::string SimId;
-		if (HasParameter("runningId", SimId) && Op != "start") {
+		if (!HasParameter("runningId", SimId) && Op!="start") {
 			return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 		}
 

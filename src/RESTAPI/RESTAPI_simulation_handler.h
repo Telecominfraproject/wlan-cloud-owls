@@ -19,7 +19,7 @@ namespace OpenWifi {
 													  Poco::Net::HTTPRequest::HTTP_DELETE,
 													  Poco::Net::HTTPRequest::HTTP_OPTIONS},
 							 Server, TransactionId, Internal) {}
-		static auto PathName() { return std::list<std::string>{"/api/v1/simulation"}; }
+		static auto PathName() { return std::list<std::string>{"/api/v1/simulation/{id}"}; }
 		void DoGet() final;
 		void DoPost() final;
 		void DoPut() final;

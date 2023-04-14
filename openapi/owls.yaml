@@ -470,11 +470,19 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
-  /results:
+  /results/{id}:
     get:
       tags:
         - Results
       operationId: getSimulationResults
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          example: Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'
       responses:
         200:
           $ref: '#/components/schemas/SimulationStatusList'

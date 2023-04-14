@@ -70,6 +70,28 @@ namespace OpenWifi {
 		return false;
 	}
 
+    void RESTAPI_simulation_handler::DoGet() {
+        auto id = GetBinding("id","");
+
+        if(id.empty()) {
+            return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
+        }
+
+        if(id == "*") {
+            std::vector<OWLSObjects::SimulationDetails> Sims;
+            StorageService()->SimulationDB().GetRecords(1, 1000, Sims);
+            return ReturnObject("list", Sims);
+        }
+
+        OWLSObjects::SimulationDetails  Sim;
+        if(StorageService()->SimulationDB().GetRecord("id",id, Sim)) {
+            Poco::JSON::Object  Answer;
+            Sim.to_json(Answer);
+            return ReturnObject(Answer);
+        }
+        return NotFound();
+    }
+
 	void RESTAPI_simulation_handler::DoPost() {
 
 		OWLSObjects::SimulationDetails D;
@@ -92,16 +114,9 @@ namespace OpenWifi {
 		BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 	}
 
-	void RESTAPI_simulation_handler::DoGet() {
-		std::vector<OWLSObjects::SimulationDetails> Sims;
-		StorageService()->SimulationDB().GetRecords(1, 1000, Sims);
-		ReturnObject("list", Sims);
-	}
-
 	void RESTAPI_simulation_handler::DoDelete() {
-		std::string id;
-
-		if (!HasParameter("id", id) || id.empty()) {
+        auto id = GetBinding("id","");
+		if (id.empty()) {
 			return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 		}
 
@@ -114,13 +129,19 @@ namespace OpenWifi {
 		OWLSObjects::SimulationDetails D;
 		const auto &Raw = ParsedBody_;
 
-		if (!D.from_json(Raw) || D.id.empty() || D.name.empty() || D.gateway.empty() ||
+        auto id = GetBinding("id","");
+        if (id.empty()) {
+            return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
+        }
+
+		if (!D.from_json(Raw) || D.name.empty() || D.gateway.empty() ||
 			D.macPrefix.size() != 6 || D.deviceType.empty() || !GooDeviceType(D.deviceType) ||
 			(D.maxClients < D.minClients) || (D.maxAssociations < D.minAssociations)) {
 			return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
 		}
 
-		if (StorageService()->SimulationDB().UpdateRecord("id", D.id, D)) {
+        D.id = id;
+		if (StorageService()->SimulationDB().UpdateRecord("id", id, D)) {
 			OWLSObjects::SimulationDetails N;
 			StorageService()->SimulationDB().GetRecord("id", D.id, N);
 			Poco::JSON::Object Answer;

@@ -21,7 +21,7 @@ namespace OpenWifi {
 		}
 
 		std::string SimId;
-		if (HasParameter("simulationId", SimId) && Op != "start") {
+		if (HasParameter("runningId", SimId) && Op != "start") {
 			return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 		}
 
@@ -36,7 +36,7 @@ namespace OpenWifi {
 
 		if (Error.empty()) {
 			OWLSObjects::SimulationStatus S;
-			SimStats()->GetCurrent(Id,S);
+			SimStats()->GetCurrent(SimId,S);
 			Poco::JSON::Object Answer;
 			S.to_json(Answer);
 			return ReturnObject(Answer);

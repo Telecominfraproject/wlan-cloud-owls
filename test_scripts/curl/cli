@@ -158,14 +158,14 @@ deletesim() {
 }
 
 startsim()  {
-    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/0?simulationId=$1&operation=start" \
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=start" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
     jq < ${result_file}
 }
 
 stopsim()  {
-    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/$1?operation=stop" \
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=stop" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
     jq < ${result_file}

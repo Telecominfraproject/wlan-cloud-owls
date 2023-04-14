@@ -32,9 +32,9 @@ using namespace std::chrono_literals;
 
 namespace OpenWifi {
 
-	OWLSclient::OWLSclient(Poco::Net::SocketReactor &Reactor, std::string SerialNumber,
+	OWLSclient::OWLSclient(std::string SerialNumber,
                            Poco::Logger &Logger, SimulationRunner *runner)
-		: Reactor_(Reactor), Logger_(Logger), SerialNumber_(std::move(SerialNumber)),
+		: Logger_(Logger), SerialNumber_(std::move(SerialNumber)),
           Memory_(1),
           Load_(1),
           Runner_(runner) {

@@ -32,7 +32,7 @@ namespace OpenWifi {
 
 	class OWLSclient {
 	  public:
-		OWLSclient(Poco::Net::SocketReactor &Reactor, std::string SerialNumber,
+		OWLSclient(std::string SerialNumber,
                    Poco::Logger &Logger, SimulationRunner *runner);
 
 		bool Send(const std::string &Cmd);
@@ -107,7 +107,6 @@ namespace OpenWifi {
 
     private:
 		std::recursive_mutex Mutex_;
-		Poco::Net::SocketReactor &Reactor_;
 		Poco::Logger &Logger_;
 		nlohmann::json CurrentConfig_;
 		std::string SerialNumber_;

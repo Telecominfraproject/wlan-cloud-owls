@@ -42,6 +42,7 @@ namespace OpenWifi {
         }
 
         void ProcessCommand(std::shared_ptr<OWLSclient> Client, nlohmann::json &Vars);
+        Poco::Net::SocketReactor & Reactor() { return Reactor_; }
 
 	  private:
         my_mutex            Mutex_;

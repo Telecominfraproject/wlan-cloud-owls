@@ -23,7 +23,7 @@ namespace OpenWifi::OWLSclientEvents {
             if (Client->Connected_) {
                 Runner->RemoveClientFd(Client->fd_);
                 Client->fd_ = -1;
-                Client->Reactor_.removeEventHandler(
+                Runner->Reactor().removeEventHandler(
                         *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                                 *Client->Runner_, &SimulationRunner::OnSocketReadable));
                 (*Client->WS_).close();

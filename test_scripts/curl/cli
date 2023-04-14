@@ -136,8 +136,8 @@ createsim() {
   fi
 }
 
-listsim() {
-    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/simulation" \
+listsims() {
+    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/simulation/*" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
     jq < ${result_file}
@@ -190,7 +190,7 @@ case "$1" in
     "login") login; echo "You succesfully logged in..."  ; logout ;;
     "examplesim") examplesim;;
     "createsim") login; createsim "$2"; logout;;
-    "listsim") login; listsim; logout;;
+    "listsims") login; listsims; logout;;
     "deletesim") login; deletesim "$2"; logout;;
     "startsim") login; startsim "$2"; logout;;
     "stopsim") login; stopsim "$2" ; logout;;

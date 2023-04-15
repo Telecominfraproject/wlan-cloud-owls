@@ -23,7 +23,7 @@ namespace OpenWifi {
 	void SimulationRunner::Start() {
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> distrib(3, 15);
+		std::uniform_int_distribution<> distrib(5, 25);
 
         std::cout << __LINE__ << std::endl;
 		std::lock_guard Lock(Mutex_);
@@ -38,7 +38,7 @@ namespace OpenWifi {
             std::cout << __LINE__ << std::endl;
             Client->SerialNumber_ = Buffer;
             std::cout << __LINE__ << std::endl;
-            // OWLSscheduler()->Ref().in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
+            OWLSscheduler()->Ref().in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
 			Clients_[Buffer] = Client;
             std::cout << __LINE__ << std::endl;
 		}
@@ -49,6 +49,7 @@ namespace OpenWifi {
 
     void SimulationRunner::ProgressUpdate(SimulationRunner *sim) {
         if(sim->Running_) {
+            std::cout << "Progress update..." << std::endl;
             OWLSNotifications::SimulationUpdate_t Notification;
             SimStats()->GetCurrent(sim->Id_, Notification.content);
             OWLSNotifications::SimulationUpdate(Notification);

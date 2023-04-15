@@ -82,22 +82,16 @@ namespace OpenWifi {
     void OWLSclient::CreateAssociations(const interface_location_t &interface, const std::string &bssid, uint64_t min,
                                         uint64_t max) {
 
-        std::cout << __LINE__ << std::endl;
         auto interface_hint = AllAssociations_.find(interface);
-        std::cout << __LINE__ << std::endl;
         if(interface_hint==end(AllAssociations_)) {
             MockAssociations M;
             AllAssociations_[interface] = M;
             interface_hint = AllAssociations_.find(interface);
         }
 
-        std::cout << __LINE__ << std::endl;
         interface_hint->second.clear();
-        std::cout << __LINE__ << std::endl;
         auto NumberOfAssociations = MicroServiceRandom(min, max);
-        std::cout << __LINE__ << std::endl;
         while (NumberOfAssociations) {
-            std::cout << __LINE__ << std::endl;
             MockAssociation FA;
             FA.bssid = bssid;
             FA.station = OWLSutils::RandomMAC();
@@ -108,13 +102,9 @@ namespace OpenWifi {
             FA.rssi = OWLSutils::local_random(-40, -90);
             interface_hint->second.push_back(FA);
             --NumberOfAssociations;
-            std::cout << __LINE__ << std::endl;
         }
-        std::cout << __LINE__ << std::endl;
         Load_.SetSize(AllLanClients_.size()+CountAssociations());
-        std::cout << __LINE__ << std::endl;
         Memory_.SetSize(AllLanClients_.size()+CountAssociations());
-        std::cout << __LINE__ << std::endl;
     }
 
     void OWLSclient::Update() {

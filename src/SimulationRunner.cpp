@@ -25,6 +25,7 @@ namespace OpenWifi {
 		std::mt19937 gen(rd());
 		std::uniform_int_distribution<> distrib(5, 25);
 
+        Running_ = true;
         std::cout << __LINE__ << std::endl;
 		std::lock_guard Lock(Mutex_);
 

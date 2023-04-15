@@ -20,6 +20,8 @@ namespace OpenWifi::OWLSclientEvents {
 
         Poco::Net::Context::Params P;
 
+        std::cout << "Trying to connected: " << Client->SerialNumber_ << std::endl;
+
         Runner->Report().ev_establish_connection++;
 
         P.verificationMode = Poco::Net::Context::VERIFY_STRICT;

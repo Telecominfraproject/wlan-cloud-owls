@@ -652,9 +652,9 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool OWLSclient::SendObject(nlohmann::json &O) {
+	bool OWLSclient::SendObject(const nlohmann::json &O) {
 		try {
-			auto M = to_string(O);
+			std::string M = to_string(O);
 			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
 			if (BytesSent == M.size()) {
                 DEBUG_LINE("sent");

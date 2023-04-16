@@ -33,10 +33,13 @@ namespace OpenWifi {
 	  public:
 		OWLSclient(std::string SerialNumber,
                    Poco::Logger &Logger, SimulationRunner *runner);
+        ~OWLSclient() {
+            std::cout << SerialNumber_ << ": Deleting client" << std::endl;
+        }
 
 		bool Send(const std::string &Cmd);
 		bool SendWSPing();
-		bool SendObject(nlohmann::json &O);
+		bool SendObject(const nlohmann::json &O);
 
 		void SetFirmware(const std::string &S = "sim-firmware-1") { Firmware_ = S; }
 

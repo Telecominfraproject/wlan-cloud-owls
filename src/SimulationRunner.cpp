@@ -17,6 +17,7 @@
 
 #include <Poco/Net/NetException.h>
 #include <Poco/Net/SSLException.h>
+#include <Poco/NObserver.h>
 
 namespace OpenWifi {
 	void SimulationRunner::Start() {
@@ -61,6 +62,62 @@ namespace OpenWifi {
             Clients_.clear();
 		}
 	}
+
+    void SimulationRunner::OnSocketError(const Poco::AutoPtr<Poco::Net::ErrorNotification> &pNf) {
+        std::lock_guard G(Mutex_);
+
+        auto socket = pNf->socket().impl()->sockfd();
+        std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;
+        std::shared_ptr<OWLSclient> client;
+
+        client_hint = Clients_fd_.find(socket);
+        if (client_hint == end(Clients_fd_)) {
+            poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
+            return;
+        }
+        client = client_hint->second;
+        Clients_fd_.erase(socket);
+        Reactor_.removeEventHandler(
+                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
+                        *this, &SimulationRunner::OnSocketReadable));
+        Reactor_.removeEventHandler(
+                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
+                        *this, &SimulationRunner::OnSocketError));
+        Reactor_.removeEventHandler(
+                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
+                        *this, &SimulationRunner::OnSocketShutdown));
+        client->fd_ = -1;
+        if(Running_)
+            OWLSclientEvents::Reconnect(client,this);
+    }
+
+    void SimulationRunner::OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification> &pNf) {
+        std::lock_guard G(Mutex_);
+
+        auto socket = pNf->socket().impl()->sockfd();
+        std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;
+        std::shared_ptr<OWLSclient> client;
+
+        client_hint = Clients_fd_.find(socket);
+        if (client_hint == end(Clients_fd_)) {
+            poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
+            return;
+        }
+        client = client_hint->second;
+        Clients_fd_.erase(socket);
+        Reactor_.removeEventHandler(
+                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
+                        *this, &SimulationRunner::OnSocketReadable));
+        Reactor_.removeEventHandler(
+                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
+                        *this, &SimulationRunner::OnSocketError));
+        Reactor_.removeEventHandler(
+                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
+                        *this, &SimulationRunner::OnSocketShutdown));
+        client->fd_ = -1;
+        if(Running_)
+            OWLSclientEvents::Reconnect(client,this);
+    }
 
     void SimulationRunner::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification> &pNf) {
         std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;

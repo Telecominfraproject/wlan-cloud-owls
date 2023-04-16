@@ -17,7 +17,7 @@ namespace OpenWifi {
 
         virtual void next() { last_update = Utils::Now(); };
         virtual void reset() = 0;
-        [[nodiscard]] virtual nlohmann::json to_json() const = 0;
+        virtual void to_json(nlohmann::json &json ) const = 0;
         virtual ~MockElement() = default;
         void SetSize(std::uint64_t S) { size = S; }
         std::uint64_t   last_update = Utils::Now();
@@ -39,13 +39,11 @@ namespace OpenWifi {
 
         }
 
-        [[nodiscard]] nlohmann::json to_json() const final {
-            nlohmann::json result;
-            result["unit"]["memory"]["buffered"] = buffered;
-            result["unit"]["memory"]["cached"] = cached;
-            result["unit"]["memory"]["free"] = free;
-            result["unit"]["memory"]["total"] = total;
-            return result;
+        void to_json(nlohmann::json &json) const final {
+            json["unit"]["memory"]["buffered"] = buffered;
+            json["unit"]["memory"]["cached"] = cached;
+            json["unit"]["memory"]["free"] = free;
+            json["unit"]["memory"]["total"] = total;
         }
     };
 
@@ -65,10 +63,8 @@ namespace OpenWifi {
 
         }
 
-        [[nodiscard]] nlohmann::json to_json() const final {
-            nlohmann::json result;
-            result["unit"]["load"] = std::vector<std::double_t> { load_1, load_5, load_15};
-            return result;
+        void to_json(nlohmann::json &json) const final {
+            json["unit"]["load"] = std::vector<std::double_t> { load_1, load_5, load_15};
         }
     };
 
@@ -89,13 +85,11 @@ namespace OpenWifi {
 
         }
 
-        [[nodiscard]] nlohmann::json to_json() const final {
-            nlohmann::json res;
-            res["ipv4_addresses"] = ipv4_addresses;
-            res["ipv6_addresses"] = ipv6_addresses;
-            res["ports"] = ports;
-            res["mac"] = mac;
-            return res;
+        void to_json(nlohmann::json &json) const final {
+            json["ipv4_addresses"] = ipv4_addresses;
+            json["ipv6_addresses"] = ipv6_addresses;
+            json["ports"] = ports;
+            json["mac"] = mac;
         }
     };
     typedef std::vector<MockLanClient> MockLanClients;
@@ -114,39 +108,36 @@ namespace OpenWifi {
 
         }
 
-        [[nodiscard]] nlohmann::json to_json() const final {
-            nlohmann::json res;
-            res["ack_signal"] = ack_signal;
-            res["ack_signal_avg"] = ack_signal_avg;
-            res["bssid"] = bssid;
-            res["station"] = station;
-            res["connected"] = connected;
-            res["inactive"] = inactive;
-            res["ipaddr_v4"] = ipaddr_v4;
-            res["rssi"] = rssi;
-            res["rx_bytes"] = rx_bytes;
-            res["rx_duration"] = rx_duration;
-            res["rx_packets"] = rx_packets;
-            res["rx_rate"]["bitrate"] = 200000;
-            res["rx_rate"]["chwidth"] = 40;
-            res["rx_rate"]["mcs"] = 9;
-            res["rx_rate"]["nss"] = 9;
-            res["rx_rate"]["sgi"] = true;
-            res["rx_rate"]["vht"] = true;
+        void to_json(nlohmann::json &json) const final {
+            json["ack_signal"] = ack_signal;
+            json["ack_signal_avg"] = ack_signal_avg;
+            json["bssid"] = bssid;
+            json["station"] = station;
+            json["connected"] = connected;
+            json["inactive"] = inactive;
+            json["ipaddr_v4"] = ipaddr_v4;
+            json["rssi"] = rssi;
+            json["rx_bytes"] = rx_bytes;
+            json["rx_duration"] = rx_duration;
+            json["rx_packets"] = rx_packets;
+            json["rx_rate"]["bitrate"] = 200000;
+            json["rx_rate"]["chwidth"] = 40;
+            json["rx_rate"]["mcs"] = 9;
+            json["rx_rate"]["nss"] = 9;
+            json["rx_rate"]["sgi"] = true;
+            json["rx_rate"]["vht"] = true;
 
-            res["tx_bytes"] = tx_bytes;
-            res["tx_duration"] = tx_duration;
-            res["tx_failed"] = tx_failed;
-            res["tx_packets"] = tx_packets;
-            res["tx_retries"] = tx_retries;
+            json["tx_bytes"] = tx_bytes;
+            json["tx_duration"] = tx_duration;
+            json["tx_failed"] = tx_failed;
+            json["tx_packets"] = tx_packets;
+            json["tx_retries"] = tx_retries;
 
-            res["tx_rate"]["bitrate"] = 200000;
-            res["tx_rate"]["chwidth"] = 40;
-            res["tx_rate"]["mcs"] = 9;
-            res["tx_rate"]["sgi"] = true;
-            res["tx_rate"]["ht"] = true;
-
-            return res;
+            json["tx_rate"]["bitrate"] = 200000;
+            json["tx_rate"]["chwidth"] = 40;
+            json["tx_rate"]["mcs"] = 9;
+            json["tx_rate"]["sgi"] = true;
+            json["tx_rate"]["ht"] = true;
         }
 
         void next() final {
@@ -209,22 +200,20 @@ namespace OpenWifi {
 
         }
 
-        [[nodiscard]] nlohmann::json to_json() const final {
-            nlohmann::json res;
-            res["active_ms"] = active_ms;
-            res["busy_ms"] = busy_ms;
-            res["receive_ms"] = receive_ms;
-            res["transmit_ms"] = transmit_ms;
-            res["noise"] = noise;
-            res["temperature"] = temperature;
-            res["channel"] = channel;
-            res["channel_width"] = std::to_string(channel_width);
-            res["tx_power"] = tx_power;
-            res["phy"] = phy;
-            res["channels"] = channels;
-            res["frequency"] = frequency;
-            res["band"] = band;
-            return res;
+        void to_json(nlohmann::json &json) const final {
+            json["active_ms"] = active_ms;
+            json["busy_ms"] = busy_ms;
+            json["receive_ms"] = receive_ms;
+            json["transmit_ms"] = transmit_ms;
+            json["noise"] = noise;
+            json["temperature"] = temperature;
+            json["channel"] = channel;
+            json["channel_width"] = std::to_string(channel_width);
+            json["tx_power"] = tx_power;
+            json["phy"] = phy;
+            json["channels"] = channels;
+            json["frequency"] = frequency;
+            json["band"] = band;
         }
 
         void next() final {
@@ -253,22 +242,18 @@ namespace OpenWifi {
 
         }
 
-        [[nodiscard]] nlohmann::json to_json() const final {
-            nlohmann::json res;
-
-            res["collisions"] = collisions;
-            res["multicast"] = multicast;
-            res["rx_bytes"] = rx_bytes;
-            res["rx_dropped"] = rx_dropped;
-            res["rx_errors"] = rx_errors;
-            res["rx_packets"] = rx_packets;
-            res["tx_bytes"] = tx_bytes;
-            res["tx_dropped"] = tx_dropped;
-            res["tx_errors"] = tx_errors;
-            res["tx_packets"] = tx_packets;
-
-            return res;
-        }
+        void to_json(nlohmann::json &json) const final {
+            json["collisions"] = collisions;
+            json["multicast"] = multicast;
+            json["rx_bytes"] = rx_bytes;
+            json["rx_dropped"] = rx_dropped;
+            json["rx_errors"] = rx_errors;
+            json["rx_packets"] = rx_packets;
+            json["tx_bytes"] = tx_bytes;
+            json["tx_dropped"] = tx_dropped;
+            json["tx_errors"] = tx_errors;
+            json["tx_packets"] = tx_packets;
+       }
 
         void next() final {
             MockElement::next();

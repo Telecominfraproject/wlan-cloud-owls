@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ucentral-clnt.iml" filepath="$PROJECT_DIR$/.idea/ucentral-clnt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/owls.iml" filepath="$PROJECT_DIR$/.idea/owls.iml" />
     </modules>
   </component>
 </project>

@@ -489,30 +489,6 @@ src/OWLSclient.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSclient.cpp.s
 .PHONY : src/OWLSclient.cpp.s
 
-src/OWLSscheduler.o: src/OWLSscheduler.cpp.o
-.PHONY : src/OWLSscheduler.o
-
-# target to build an object file
-src/OWLSscheduler.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSscheduler.cpp.o
-.PHONY : src/OWLSscheduler.cpp.o
-
-src/OWLSscheduler.i: src/OWLSscheduler.cpp.i
-.PHONY : src/OWLSscheduler.i
-
-# target to preprocess a source file
-src/OWLSscheduler.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSscheduler.cpp.i
-.PHONY : src/OWLSscheduler.cpp.i
-
-src/OWLSscheduler.s: src/OWLSscheduler.cpp.s
-.PHONY : src/OWLSscheduler.s
-
-# target to generate assembly for a file
-src/OWLSscheduler.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/owls.dir/build.make CMakeFiles/owls.dir/src/OWLSscheduler.cpp.s
-.PHONY : src/OWLSscheduler.cpp.s
-
 src/RESTAPI/RESTAPI_deviceDashboardHandler.o: src/RESTAPI/RESTAPI_deviceDashboardHandler.cpp.o
 .PHONY : src/RESTAPI/RESTAPI_deviceDashboardHandler.o
 
@@ -1359,9 +1335,6 @@ help:
 	@echo "... src/OWLSclient.o"
 	@echo "... src/OWLSclient.i"
 	@echo "... src/OWLSclient.s"
-	@echo "... src/OWLSscheduler.o"
-	@echo "... src/OWLSscheduler.i"
-	@echo "... src/OWLSscheduler.s"
 	@echo "... src/RESTAPI/RESTAPI_deviceDashboardHandler.o"
 	@echo "... src/RESTAPI/RESTAPI_deviceDashboardHandler.i"
 	@echo "... src/RESTAPI/RESTAPI_deviceDashboardHandler.s"

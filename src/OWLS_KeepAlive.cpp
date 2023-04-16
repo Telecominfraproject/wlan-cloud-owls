@@ -5,7 +5,6 @@
 #include "SimulationRunner.h"
 #include "SimulationCoordinator.h"
 #include <fmt/format.h>
-#include "OWLSscheduler.h"
 #include "SimStats.h"
 #include <Poco/NObserver.h>
 
@@ -27,7 +26,7 @@ namespace OpenWifi::OWLSclientEvents {
                 M["params"]["uuid"] = Client->UUID();
 
                 if (Client->Send(to_string(M))) {
-                    OWLSscheduler()->Ref().in(std::chrono::seconds(Runner->Details().keepAlive),
+                    Runner->Scheduler().in(std::chrono::seconds(Runner->Details().keepAlive),
                                               OWLSclientEvents::KeepAlive, Client, Runner);
                     return;
                 }

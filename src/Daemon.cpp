@@ -14,7 +14,6 @@
 #include "Poco/Net/SSLManager.h"
 #include "UI_Owls_WebSocketNotifications.h"
 #include "framework/UI_WebSocketClientServer.h"
-#include "OWLSscheduler.h"
 
 namespace OpenWifi {
 	class Daemon *Daemon::instance_ = nullptr;
@@ -25,8 +24,7 @@ namespace OpenWifi {
 				new Daemon(vDAEMON_PROPERTIES_FILENAME, vDAEMON_ROOT_ENV_VAR,
 						   vDAEMON_CONFIG_ENV_VAR, vDAEMON_APP_NAME, vDAEMON_BUS_TIMER,
 						   SubSystemVec{SimStats(), StorageService(), SimulationCoordinator(),
-										UI_WebSocketClientServer(),
-                                        OWLSscheduler()});
+										UI_WebSocketClientServer()});
 		}
 		return instance_;
 	}

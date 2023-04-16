@@ -367,7 +367,9 @@ namespace OpenWifi {
 		std::lock_guard G(Mutex_);
 
 		try {
+            std::cout << "Reconfigure: " << __LINE__ << std::endl;
 			if (Params.contains("serial") && Params.contains("uuid") && Params.contains("config")) {
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
 				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
 				auto Serial = Params["serial"];
 				uint64_t UUID = Params["uuid"];
@@ -375,18 +377,22 @@ namespace OpenWifi {
 				CurrentConfig_ = Configuration;
 				UUID_ = Active_ = UUID;
 
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
 				//  We need to digest the configuration and generate what we will need for
 				//  state messages.
 				auto Radios = CurrentConfig_["radios"];			//  array
 				auto Metrics = CurrentConfig_["metrics"];		//  object
 				auto Interfaces = CurrentConfig_["interfaces"]; //  array
 
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
 				HealthInterval_ = Metrics["health"]["interval"];
 				StatisticsInterval_ = Metrics["statistics"]["interval"];
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
 
 				//  prepare response...
 				nlohmann::json Answer;
 
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
 				Answer["jsonrpc"] = "2.0";
 				Answer["id"] = Id;
 				Answer["result"]["serial"] = Serial;
@@ -395,16 +401,20 @@ namespace OpenWifi {
 				Answer["result"]["status"]["when"] = When;
 				Answer["result"]["status"]["text"] = "No errors were found";
 				Answer["result"]["status"]["error"] = 0;
-
-				Logger_.information(fmt::format("configure({}): done.", SerialNumber_));
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
 				SendObject(Answer);
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
 			} else {
-				Logger_.warning(fmt::format("configure({}): Illegal command.", SerialNumber_));
+                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                poco_warning(Logger_,fmt::format("configure({}): Illegal command.", SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
-			Logger_.warning(
+            std::cout << "Reconfigure: " << __LINE__ << std::endl;
+            poco_warning(Logger_,
 				fmt::format("configure({}): Exception. {}", SerialNumber_, E.displayText()));
 		}
+        std::cout << "Reconfigure: " << __LINE__ << std::endl;
 	}
 
 	void OWLSclient::DoReboot(uint64_t Id, nlohmann::json &Params) {

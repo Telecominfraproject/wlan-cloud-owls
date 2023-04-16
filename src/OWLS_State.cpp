@@ -51,7 +51,7 @@ namespace OpenWifi::OWLSclientEvents {
                 std::cout << __LINE__ << std::endl;
                 StateDoc["params"]["compress_64"] = CompressedBase64Encoded;
                 StateDoc["params"]["compress_sz"] = ParamsStr.size();
-                std::cout << __LINE__ << ":" << to_string(StateDoc) << std::endl;
+                // std::cout << __LINE__ << ":" << to_string(StateDoc) << std::endl;
 
                 if (Client->Send(StateDoc)) {
                     std::cout << __LINE__ << std::endl;

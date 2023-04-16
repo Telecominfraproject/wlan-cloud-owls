@@ -19,7 +19,7 @@
 #include "Poco/URI.h"
 
 #include "OWLSclient.h"
-
+#include "OWLSdefinitions.h"
 #include "framework/MicroServiceFuncs.h"
 
 #include "SimStats.h"
@@ -250,7 +250,7 @@ namespace OpenWifi {
 
 		State["version"] = 1;
 
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 		auto now = Utils::Now();
 		Memory_.to_json(State);
         Load_.to_json(State);
@@ -258,7 +258,7 @@ namespace OpenWifi {
 		State["unit"]["uptime"] = now - StartTime_;
         State["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};
 
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 		for (auto &[_, radio] : AllRadios_) {
 			radio.next();
             nlohmann::json doc;
@@ -266,27 +266,27 @@ namespace OpenWifi {
 			State["radios"].push_back(doc);
 		}
 
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 		//  set the link state
 		State["link-state"] = CreateLinkState();
 
 		nlohmann::json all_interfaces;
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 		for (const auto &ap_interface_type :
 			 {ap_interface_types::upstream, ap_interface_types::downstream}) {
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				nlohmann::json current_interface;
 				nlohmann::json up_ssids;
 				uint64_t ssid_num = 0, interfaces = 0;
 
 				auto ue_clients = nlohmann::json::array();
 				for (auto &[interface, associations] : AllAssociations_) {
-                    std::cout << __LINE__ << std::endl;
+                    DEBUG_LINE;
 					auto &[interface_type, ssid, band] = interface;
 					if (interface_type == ap_interface_type) {
-                        std::cout << __LINE__ << std::endl;
+                        DEBUG_LINE;
 						nlohmann::json association_list;
 						std::string bssid;
 						for (auto &association : associations) {
@@ -306,7 +306,7 @@ namespace OpenWifi {
                             ue["last_seen"] = 0 ;
                             ue_clients.push_back(ue);
 						}
-                        std::cout << __LINE__ << std::endl;
+                        DEBUG_LINE;
 						nlohmann::json ssid_info;
 						ssid_info["associations"] = association_list;
 						ssid_info["bssid"] = bssid;
@@ -320,20 +320,20 @@ namespace OpenWifi {
 						ssid_info["name"] = AllInterfaceNames_[ap_interface_type];
 						up_ssids.push_back(ssid_info);
 					}
-                    std::cout << __LINE__ << std::endl;
+                    DEBUG_LINE;
 				}
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				current_interface["ssids"] = up_ssids;
 				AllCounters_[ap_interface_type].next();
                 nlohmann::json doc;
                 AllCounters_[ap_interface_type].to_json(doc);
 				current_interface["counters"] = doc;
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 
 				//  if we have 2 interfaces, then the clients go to the downstream interface
 				//  if we only have 1 interface then this is bridged and therefore clients go on the
 				//  upstream
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				if ((AllCounters_.size() == 1 &&
 					 ap_interface_type == ap_interface_types::upstream) ||
 					(AllCounters_.size() == 2 &&
@@ -344,21 +344,21 @@ namespace OpenWifi {
                         lan_client.to_json(d);
 						state_lan_clients.push_back(d);
 					}
-                    std::cout << __LINE__ << std::endl;
+                    DEBUG_LINE;
 					for (const auto &ue_client : ue_clients) {
-                        std::cout << __LINE__ << std::endl;
+                        DEBUG_LINE;
 						state_lan_clients.push_back(ue_client);
 					}
-                    std::cout << __LINE__ << std::endl;
+                    DEBUG_LINE;
 					current_interface["clients"] = state_lan_clients;
 				}
 				current_interface["name"] = AllInterfaceNames_[ap_interface_type];
 				all_interfaces.push_back(current_interface);
 			}
 		}
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 		State["interfaces"] = all_interfaces;
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 
 		return State;
 	}
@@ -367,9 +367,9 @@ namespace OpenWifi {
 		std::lock_guard G(Mutex_);
 
 		try {
-            std::cout << "Reconfigure: " << __LINE__ << std::endl;
+            DEBUG_LINE;
 			if (Params.contains("serial") && Params.contains("uuid") && Params.contains("config")) {
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
 				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
 				auto Serial = Params["serial"];
 				uint64_t UUID = Params["uuid"];
@@ -377,22 +377,22 @@ namespace OpenWifi {
 				CurrentConfig_ = Configuration;
 				UUID_ = Active_ = UUID;
 
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
 				//  We need to digest the configuration and generate what we will need for
 				//  state messages.
 				auto Radios = CurrentConfig_["radios"];			//  array
 				auto Metrics = CurrentConfig_["metrics"];		//  object
 				auto Interfaces = CurrentConfig_["interfaces"]; //  array
 
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
 				HealthInterval_ = Metrics["health"]["interval"];
 				StatisticsInterval_ = Metrics["statistics"]["interval"];
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
 
 				//  prepare response...
 				nlohmann::json Answer;
 
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
 				Answer["jsonrpc"] = "2.0";
 				Answer["id"] = Id;
 				Answer["result"]["serial"] = Serial;
@@ -401,20 +401,20 @@ namespace OpenWifi {
 				Answer["result"]["status"]["when"] = When;
 				Answer["result"]["status"]["text"] = "No errors were found";
 				Answer["result"]["status"]["error"] = 0;
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
                 poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
 				SendObject(Answer);
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
 			} else {
-                std::cout << "Reconfigure: " << __LINE__ << std::endl;
+                DEBUG_LINE;
                 poco_warning(Logger_,fmt::format("configure({}): Illegal command.", SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
-            std::cout << "Reconfigure: " << __LINE__ << std::endl;
+            DEBUG_LINE;
             poco_warning(Logger_,
 				fmt::format("configure({}): Exception. {}", SerialNumber_, E.displayText()));
 		}
-        std::cout << "Reconfigure: " << __LINE__ << std::endl;
+        DEBUG_LINE;
 	}
 
 	void OWLSclient::DoReboot(uint64_t Id, nlohmann::json &Params) {
@@ -639,32 +639,30 @@ namespace OpenWifi {
 	}
 
 	bool OWLSclient::Send(const std::string &Cmd) {
-        std::cout << __LINE__ << std::endl;
-
 		std::lock_guard guard(Mutex_);
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 
 		try {
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			if (BytesSent == Cmd.size()) {
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				SimStats()->AddTX(Runner_->Id(),Cmd.size());
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				SimStats()->AddOutMsg(Runner_->Id());
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				return true;
 			} else {
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				Logger_.warning(
 					fmt::format("SEND({}): incomplete. Sent: {}", SerialNumber_, BytesSent));
 			}
 		} catch (const Poco::Exception &E) {
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			Logger_.log(E);
 		}
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 		return false;
 	}
 
@@ -685,26 +683,26 @@ namespace OpenWifi {
 		std::lock_guard guard(Mutex_);
 
 		try {
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			auto M = to_string(O);
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			if (BytesSent == M.size()) {
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				SimStats()->AddTX(Runner_->Id(),BytesSent);
 				SimStats()->AddOutMsg(Runner_->Id());
 				return true;
 			} else {
-                std::cout << __LINE__ << std::endl;
+                DEBUG_LINE;
 				Logger_.warning(
 					fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
 			}
 		} catch (const Poco::Exception &E) {
-            std::cout << __LINE__ << std::endl;
+            DEBUG_LINE;
 			Logger_.log(E);
 		}
-        std::cout << __LINE__ << std::endl;
+        DEBUG_LINE;
 		return false;
 	}
 

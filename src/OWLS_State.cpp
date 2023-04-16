@@ -22,13 +22,6 @@ namespace OpenWifi::OWLSclientEvents {
 
             Runner->Report().ev_state++;
             try {
-
-
-                Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
-                                       OWLSclientEvents::State, Client, Runner);
-                return;
-/*
-
                 nlohmann::json StateDoc;
 
                 StateDoc["jsonrpc"] = "2.0";
@@ -48,6 +41,11 @@ namespace OpenWifi::OWLSclientEvents {
                 StateDoc["params"]["compress_64"] = CompressedBase64Encoded;
                 StateDoc["params"]["compress_sz"] = ParamsStr.size();
 
+                Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
+                                       OWLSclientEvents::State, Client, Runner);
+                return;
+
+                /*
                 if (Client->SendObject(StateDoc)) {
                     DEBUG_LINE("Sent");
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),

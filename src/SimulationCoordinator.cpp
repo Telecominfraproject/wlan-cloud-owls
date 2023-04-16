@@ -99,17 +99,11 @@ namespace OpenWifi {
 		DefaultCapabilities_ = DefaultCapabilities;
 		DefaultCapabilities_["compatible"] = NewSim.deviceType;
 
-        std::cout << __LINE__ << std::endl;
         SimId = MicroServiceCreateUUID();
-        std::cout << __LINE__ << std::endl;
         auto NewSimulation = std::make_unique<SimulationRecord>(NewSim, Logger(), SimId);
-        std::cout << __LINE__ << std::endl;
         Simulations_[SimId] = std::move(NewSimulation);
-        std::cout << __LINE__ << std::endl;
         Simulations_[SimId]->Runner.Start();
-        std::cout << __LINE__ << std::endl;
 		SimStats()->StartSim(SimId, Id, NewSim.devices, Owner);
-        std::cout << __LINE__ << std::endl;
 		return true;
 	}
 

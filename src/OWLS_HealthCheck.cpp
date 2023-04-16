@@ -15,6 +15,7 @@ namespace OpenWifi::OWLSclientEvents {
     void HealthCheck(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
+        DEBUG_LINE;
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_healthcheck++;
             try {

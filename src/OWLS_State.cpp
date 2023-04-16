@@ -55,7 +55,7 @@ namespace OpenWifi::OWLSclientEvents {
                 StateDoc["params"]["compress_sz"] = ParamsStr.size();
                 DEBUG_LINE;
 
-                if (Client->Send(StateDoc)) {
+                if (Client->SendObject(StateDoc)) {
                     DEBUG_LINE;
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
                                               OWLSclientEvents::State, Client, Runner);

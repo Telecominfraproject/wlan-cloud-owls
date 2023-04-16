@@ -66,10 +66,14 @@ namespace OpenWifi::OWLSclientEvents {
 
         try {
             Client->WS_ = std::make_unique<Poco::Net::WebSocket>(Session, Request, Response);
+            (*Client->WS_).setReceiveTimeout(Poco::Timespan(1200,0));
+            (*Client->WS_).setSendTimeout(Poco::Timespan(1200,0));
             (*Client->WS_).setKeepAlive(true);
-            (*Client->WS_).setReceiveTimeout(Poco::Timespan());
-            (*Client->WS_).setSendTimeout(Poco::Timespan(20, 0));
             (*Client->WS_).setNoDelay(true);
+            (*Client->WS_).setBlocking(false);
+            (*Client->WS_).setMaxPayloadSize(128000);
+            Runner->AddClientFd(Client->WS_->impl()->sockfd(), Client);
+            Client->Connected_ = true;
             Runner->Reactor().addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                             *Runner, &SimulationRunner::OnSocketReadable));
@@ -79,8 +83,6 @@ namespace OpenWifi::OWLSclientEvents {
             Runner->Reactor().addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                             *Runner, &SimulationRunner::OnSocketShutdown));
-            Client->Connected_ = true;
-            Runner->AddClientFd(Client->WS_->impl()->sockfd(), Client);
             Runner->Scheduler().in(std::chrono::seconds(1), Connect, Client, Runner);
             SimStats()->Connect(Runner->Id());
         } catch (const Poco::Exception &E) {

@@ -14,6 +14,7 @@
 namespace OpenWifi::OWLSclientEvents {
 
     void State(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
+
         std::lock_guard G(Client->Mutex_);
 
         DEBUG_LINE;

@@ -105,7 +105,8 @@ namespace OpenWifi {
         friend void OWLSclientEvents::PendingConfig(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
 
     private:
-		std::recursive_mutex Mutex_;
+		// std::recursive_mutex Mutex_;
+        std::mutex      Mutex_;
 		Poco::Logger &Logger_;
 		nlohmann::json CurrentConfig_;
 		std::string SerialNumber_;

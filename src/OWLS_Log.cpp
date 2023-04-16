@@ -31,7 +31,10 @@ namespace OpenWifi::OWLSclientEvents {
                     return;
                 }
             } catch (const Poco::Exception &E) {
+                DEBUG_LINE("exception1");
                 Client->Logger().log(E);
+            } catch (const std::exception &E) {
+                DEBUG_LINE("exception2");
             }
             OWLSclientEvents::Disconnect(Client, Runner, "Error while sending a Log event", true);
         }

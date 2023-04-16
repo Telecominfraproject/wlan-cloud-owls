@@ -18,13 +18,13 @@ namespace OpenWifi::OWLSObjects {
 		std::string key;
 		std::string macPrefix;
 		std::string deviceType;
-		uint64_t devices = 5;
+		uint64_t devices = 10;
 		uint64_t healthCheckInterval = 60;
 		uint64_t stateInterval = 60;
-		uint64_t minAssociations = 1;
-		uint64_t maxAssociations = 3;
-		uint64_t minClients = 1;
-		uint64_t maxClients = 3;
+		uint64_t minAssociations = 2;
+		uint64_t maxAssociations = 8;
+		uint64_t minClients = 2;
+		uint64_t maxClients = 4;
 		uint64_t simulationLength = 60 * 60;
 		uint64_t threads = 16;
 		uint64_t clientInterval = 1;

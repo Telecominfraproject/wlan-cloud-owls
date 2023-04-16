@@ -300,7 +300,7 @@ components:
         maxAssociations:
           type: integer
           minimum: 0
-          maximum: 32
+          maximum: 64
           default: 8
         minClients:
           type: integer
@@ -310,7 +310,7 @@ components:
         maxClients:
           type: integer
           minimum: 0
-          maximum: 32
+          maximum: 16
           default: 4
         simulationLength:
           type: integer

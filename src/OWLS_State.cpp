@@ -16,12 +16,14 @@ namespace OpenWifi::OWLSclientEvents {
     void State(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
+        std::cout << "State 1" << std::endl;
         if(Client->Valid_ && Client->Connected_) {
 
             Runner->Report().ev_state++;
             try {
                 nlohmann::json StateDoc;
 
+                std::cout << "State 2" << std::endl;
                 StateDoc["jsonrpc"] = "2.0";
                 StateDoc["method"] = "state";
 

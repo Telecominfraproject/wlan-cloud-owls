@@ -246,40 +246,45 @@ namespace OpenWifi {
 	}
 
 	nlohmann::json OWLSclient::CreateState() {
-		nlohmann::json S;
+		nlohmann::json State;
 
-		//  set the version
-		S["version"] = 1;
+		State["version"] = 1;
 
-		//  set the unit stuff
+        std::cout << __LINE__ << std::endl;
 		auto now = Utils::Now();
-		S["unit"] += Memory_.to_json();
-        S["unit"] += Load_.to_json();
-		S["unit"]["localtime"] = now;
-		S["unit"]["uptime"] = now - StartTime_;
-        S["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};
+		State["unit"] += Memory_.to_json();
+        State["unit"] += Load_.to_json();
+		State["unit"]["localtime"] = now;
+		State["unit"]["uptime"] = now - StartTime_;
+        State["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};
 
-		//  get all the radios out
+        std::cout << __LINE__ << std::endl;
 		for (auto &[_, radio] : AllRadios_) {
 			radio.next();
-			S["radios"].push_back(radio.to_json());
+			State["radios"].push_back(radio.to_json());
 		}
 
+        std::cout << __LINE__ << std::endl;
 		//  set the link state
-		S["link-state"] = CreateLinkState();
+		State["link-state"] = CreateLinkState();
 
 		nlohmann::json all_interfaces;
+        std::cout << __LINE__ << std::endl;
 		for (const auto &ap_interface_type :
 			 {ap_interface_types::upstream, ap_interface_types::downstream}) {
+            std::cout << __LINE__ << std::endl;
 			if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
+                std::cout << __LINE__ << std::endl;
 				nlohmann::json current_interface;
 				nlohmann::json up_ssids;
 				uint64_t ssid_num = 0, interfaces = 0;
 
 				auto ue_clients = nlohmann::json::array();
 				for (auto &[interface, associations] : AllAssociations_) {
+                    std::cout << __LINE__ << std::endl;
 					auto &[interface_type, ssid, band] = interface;
 					if (interface_type == ap_interface_type) {
+                        std::cout << __LINE__ << std::endl;
 						nlohmann::json association_list;
 						std::string bssid;
 						for (auto &association : associations) {
@@ -297,6 +302,7 @@ namespace OpenWifi {
                             ue["last_seen"] = 0 ;
                             ue_clients.push_back(ue);
 						}
+                        std::cout << __LINE__ << std::endl;
 						nlohmann::json ssid_info;
 						ssid_info["associations"] = association_list;
 						ssid_info["bssid"] = bssid;
@@ -310,14 +316,18 @@ namespace OpenWifi {
 						ssid_info["name"] = AllInterfaceNames_[ap_interface_type];
 						up_ssids.push_back(ssid_info);
 					}
+                    std::cout << __LINE__ << std::endl;
 				}
+                std::cout << __LINE__ << std::endl;
 				current_interface["ssids"] = up_ssids;
 				AllCounters_[ap_interface_type].next();
 				current_interface["counters"] = AllCounters_[ap_interface_type].to_json();
+                std::cout << __LINE__ << std::endl;
 
 				//  if we have 2 interfaces, then the clients go to the downstream interface
 				//  if we only have 1 interface then this is bridged and therefore clients go on the
 				//  upstream
+                std::cout << __LINE__ << std::endl;
 				if ((AllCounters_.size() == 1 &&
 					 ap_interface_type == ap_interface_types::upstream) ||
 					(AllCounters_.size() == 2 &&
@@ -326,176 +336,25 @@ namespace OpenWifi {
 					for (const auto &lan_client : AllLanClients_) {
 						state_lan_clients.push_back(lan_client.to_json());
 					}
-					// std::cout << "Adding " << state_ue_clients.size() << " UE clients" <<
-					// std::endl;
+                    std::cout << __LINE__ << std::endl;
 					for (const auto &ue_client : ue_clients) {
+                        std::cout << __LINE__ << std::endl;
 						state_lan_clients.push_back(ue_client);
 					}
+                    std::cout << __LINE__ << std::endl;
 					current_interface["clients"] = state_lan_clients;
 				}
 				current_interface["name"] = AllInterfaceNames_[ap_interface_type];
 				all_interfaces.push_back(current_interface);
 			}
 		}
-		S["interfaces"] = all_interfaces;
-		//        std::cout << S << std::endl;
-		//        std::cout << std::endl << std::endl << std::endl;
+        std::cout << __LINE__ << std::endl;
+		State["interfaces"] = all_interfaces;
+        std::cout << __LINE__ << std::endl;
 
-		return S;
+		return State;
 	}
 
-/*
-	void OWLSclient::Disconnect(const char *Reason, bool Reconnect) {
-		std::lock_guard G(Mutex_);
-		Logger_.debug(fmt::format("DEVICE({}): disconnecting because '{}'", SerialNumber_,
-								  std::string{Reason}));
-		if (Connected_) {
-			Reactor_.removeEventHandler(
-				*WS_, Poco::NObserver<OWLSclient, Poco::Net::ReadableNotification>(
-						  *this, &OWLSclient::OnSocketReadable));
-			(*WS_).close();
-		}
-
-		Connected_ = false;
-		Commands_.clear();
-
-		if (Reconnect)
-            OWLSscheduler()->Ref().in(std::chrono::seconds(OWLSutils::local_random(3,15)), OWLSclientEvents::Reconnect, Client );
-			AddEvent(ev_reconnect, SimulationCoordinator()->GetSimulationInfo().reconnectInterval +
-									   MicroServiceRandom(15));
-
-		SimStats()->Disconnect();
-	}
-
-	void OWLSclient::DoCensus(CensusReport &Census) {
-		std::lock_guard G(Mutex_);
-
-		for (const auto i : Commands_)
-			switch (i.second) {
-			case ev_none:
-				Census.ev_none++;
-				break;
-			case ev_reconnect:
-				Census.ev_reconnect++;
-				break;
-			case ev_connect:
-				Census.ev_connect++;
-				break;
-			case ev_state:
-				Census.ev_state++;
-				break;
-			case ev_healthcheck:
-				Census.ev_healthcheck++;
-				break;
-			case ev_log:
-				Census.ev_log++;
-				break;
-			case ev_crashlog:
-				Census.ev_crashlog++;
-				break;
-			case ev_configpendingchange:
-				Census.ev_configpendingchange++;
-				break;
-			case ev_keepalive:
-				Census.ev_keepalive++;
-				break;
-			case ev_reboot:
-				Census.ev_reboot++;
-				break;
-			case ev_disconnect:
-				Census.ev_disconnect++;
-				break;
-			case ev_wsping:
-				Census.ev_wsping++;
-				break;
-            case ev_update:
-                Census.ev_update++;
-                    break;
-			}
-	}
-
-	void OWLSclient::OnSocketReadable(
-		[[maybe_unused]] const Poco::AutoPtr<Poco::Net::ReadableNotification> &pNf) {
-		std::lock_guard G(Mutex_);
-
-		try {
-			char Message[16000];
-			int Flags;
-
-			auto MessageSize = WS_->receiveFrame(Message, sizeof(Message), Flags);
-			auto Op = Flags & Poco::Net::WebSocket::FRAME_OP_BITMASK;
-
-			if (MessageSize == 0 && Flags == 0 && Op == 0) {
-				Disconnect("Error while waiting for data in WebSocket", true);
-				return;
-			}
-
-			Message[MessageSize] = 0;
-			switch (Op) {
-			case Poco::Net::WebSocket::FRAME_OP_PING: {
-				WS_->sendFrame("", 0,
-							   Poco::Net::WebSocket::FRAME_OP_PONG |
-								   Poco::Net::WebSocket::FRAME_FLAG_FIN);
-			} break;
-
-			case Poco::Net::WebSocket::FRAME_OP_PONG: {
-			} break;
-
-			case Poco::Net::WebSocket::FRAME_OP_TEXT: {
-				if (MessageSize > 0) {
-					SimStats()->AddRX(MessageSize);
-					SimStats()->AddInMsg();
-					auto Vars = nlohmann::json::parse(Message);
-
-					if (Vars.contains("jsonrpc") && Vars.contains("id") &&
-						Vars.contains("method") && Vars.contains("params")) {
-						ProcessCommand(Vars);
-					} else {
-						Logger_.warning(
-							fmt::format("MESSAGE({}): invalid incoming message.", SerialNumber_));
-					}
-				}
-			} break;
-			default: {
-			} break;
-			}
-			return;
-		} catch (const Poco::Net::SSLException &E) {
-			Logger_.warning(
-				fmt::format("Exception({}): SSL exception: {}", SerialNumber_, E.displayText()));
-		} catch (const Poco::Exception &E) {
-			Logger_.warning(fmt::format("Exception({}): Generic exception: {}", SerialNumber_,
-										E.displayText()));
-		}
-		Disconnect("Exception caught during data reception", true);
-	}
-
-	void OWLSclient::ProcessCommand(nlohmann::json &Vars) {
-
-		std::string Method = Vars["method"];
-
-		auto Id = Vars["id"];
-		auto Params = Vars["params"];
-
-		if (Method == "configure") {
-			DoConfigure(Id, Params);
-		} else if (Method == "reboot") {
-			DoReboot(Id, Params);
-		} else if (Method == "upgrade") {
-			DoUpgrade(Id, Params);
-		} else if (Method == "factory") {
-			DoFactory(Id, Params);
-		} else if (Method == "leds") {
-			DoLEDs(Id, Params);
-		} else if (Method == "perform") {
-			DoPerform(Id, Params);
-		} else if (Method == "trace") {
-			DoTrace(Id, Params);
-		} else {
-			Logger_.warning(fmt::format("COMMAND({}): unknown method '{}'", SerialNumber_, Method));
-		}
-	}
-*/
 	void OWLSclient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
 		std::lock_guard G(Mutex_);
 
@@ -813,41 +672,4 @@ namespace OpenWifi {
 		return false;
 	}
 
-/*	static const uint64_t million = 1000000;
-
-	void OWLSclient::AddEvent(OWLSeventType E, uint64_t InSeconds) {
-		std::lock_guard guard(Mutex_);
-
-		timeval curTime{0, 0};
-		gettimeofday(&curTime, nullptr);
-		uint64_t NextCommand = (InSeconds * million) + (curTime.tv_sec * million) + curTime.tv_usec;
-
-		//  we need to make sure we do not possibly overwrite other commands at the same time
-		while (Commands_.find(NextCommand) != Commands_.end())
-			NextCommand++;
-
-		Commands_[NextCommand] = E;
-	}
-
-	OWLSeventType OWLSclient::NextEvent(bool Remove) {
-		std::lock_guard guard(Mutex_);
-
-		if (Commands_.empty())
-			return ev_none;
-
-		auto EventTime = Commands_.begin()->first;
-		timeval curTime{0, 0};
-		gettimeofday(&curTime, nullptr);
-		uint64_t Now = (curTime.tv_sec * million) + curTime.tv_usec;
-
-		if (EventTime < Now) {
-			OWLSeventType E = Commands_.begin()->second;
-			if (Remove)
-				Commands_.erase(Commands_.begin());
-			return E;
-		}
-
-		return ev_none;
-	}
- */
 } // namespace OpenWifi

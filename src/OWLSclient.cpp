@@ -37,30 +37,20 @@ namespace OpenWifi {
           Memory_(1),
           Load_(1),
           Runner_(runner) {
-        std::cout << __LINE__ << std::endl;
 
 		AllInterfaceNames_[ap_interface_types::upstream] = "up0v0";
 		AllInterfaceNames_[ap_interface_types::downstream] = "down0v0";
-        std::cout << __LINE__ << std::endl;
-
 		AllInterfaceRoles_[ap_interface_types::upstream] = "upstream";
 		AllInterfaceRoles_[ap_interface_types::downstream] = "downstream";
-
-        std::cout << __LINE__ << std::endl;
 		AllPortNames_[ap_interface_types::upstream] = "eth0";
 		AllPortNames_[ap_interface_types::downstream] = "eth1";
-
-        std::cout << __LINE__ << std::endl;
 		SetFirmware();
 		Active_ = UUID_ = Utils::Now();
 		srand(UUID_);
 		mac_lan = OWLSutils::MakeMac(SerialNumber_.c_str(), 0);
 		CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
-        std::cout << __LINE__ << std::endl;
 		UpdateConfiguration();
-        std::cout << __LINE__ << std::endl;
         Valid_ = true;
-        std::cout << __LINE__ << std::endl;
 	}
 
     void OWLSclient::CreateLanClients(uint64_t min, uint64_t max) {
@@ -160,64 +150,47 @@ namespace OpenWifi {
 		AllLanClients_.clear();
 		AllRadios_.clear();
 		bssid_index = 1;
-        std::cout << __LINE__ << std::endl;
 		for (const auto &interface : Interfaces) {
-            std::cout << __LINE__ << std::endl;
 			if (interface.contains("role")) {
-                std::cout << __LINE__ << std::endl;
 				ap_interface_types current_interface_role = upstream;
 				if (FindInterfaceRole(interface["role"], current_interface_role)) {
-                    std::cout << __LINE__ << std::endl;
 					auto SSIDs = interface["ssids"];
 					for (const auto &ssid : SSIDs) {
-                        std::cout << __LINE__ << std::endl;
 						for (const auto &band : ssid["wifi-bands"]) {
-                            std::cout << __LINE__ << std::endl;
 							auto ssidName = ssid["name"];
-                            std::cout << __LINE__ << std::endl;
                             auto bssid_num = Utils::SerialToMAC(Utils::IntToSerialNumber(
                                     Utils::SerialNumberToInt(SerialNumber_) +
                                     bssid_index++));
 							if (band == "2G") {
-                                std::cout << __LINE__ << std::endl;
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_2g);
 									CreateAssociations(index, bssid_num,
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
-                                std::cout << __LINE__ << std::endl;
 							}
 							if (band == "5G") {
-                                std::cout << __LINE__ << std::endl;
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_5g);
 									CreateAssociations(index, bssid_num,
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
-                                std::cout << __LINE__ << std::endl;
 							}
 							if (band == "6G") {
-                                std::cout << __LINE__ << std::endl;
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_6g);
 									CreateAssociations(index,bssid_num,
                                                        Runner_->Details().minAssociations,
                                                        Runner_->Details().maxAssociations);
-                                std::cout << __LINE__ << std::endl;
 							}
 						}
 					}
-                    std::cout << __LINE__ << std::endl;
 					MockCounters F;
 					AllCounters_[current_interface_role] = F;
-                    std::cout << __LINE__ << std::endl;
 				}
 			}
 		}
 
-        std::cout << __LINE__ << std::endl;
 		CreateLanClients(Runner_->Details().minClients, Runner_->Details().maxClients);
-        std::cout << __LINE__ << std::endl;
 
 		auto radios = CurrentConfig_["radios"];
 		uint index = 0;
@@ -225,7 +198,6 @@ namespace OpenWifi {
 			auto band = radio["band"];
 			MockRadio R;
 
-            std::cout << __LINE__ << std::endl;
             R.band.push_back(band);
             if (band == "2G") {
                 R.radioBands = radio_bands::band_2g;
@@ -235,38 +207,30 @@ namespace OpenWifi {
                 R.radioBands =  radio_bands::band_6g;
             }
 
-            std::cout << __LINE__ << std::endl;
             if(radio.contains("channel-width") && radio["channel-width"].is_number_integer())
                 R.channel_width = radio["channel-width"];
             else
                 R.channel_width = 20;
 
-            std::cout << __LINE__ << std::endl;
 			if ((!radio.contains("channel"))
                 ||  (radio.contains("channel") && radio["channel"].is_string() && radio["channel"] == "auto")
                 ||  (!radio["channel"].is_number_integer())) {
                 R.channel = OWLSutils::FindAutoChannel(R.radioBands, R.channel_width);
             } else if (radio["channel"].is_number_integer()) {
-                std::cout << __LINE__ << std::endl;
                 R.channel = radio["channel"];
 			}
 
-            std::cout << __LINE__ << std::endl;
             OWLSutils::FillinFrequencies(R.channel, R.radioBands, R.channel_width, R.channels, R.frequency);
-            std::cout << __LINE__ << std::endl;
 
 			OWLSutils::AssignIfPresent(radio, "tx_power", R.tx_power, (uint_fast64_t)23);
-            std::cout << __LINE__ << std::endl;
 
 			if (index == 0)
 				R.phy = "platform/soc/c000000.wifi";
 			else
 				R.phy = "platform/soc/c000000.wifi+" + std::to_string(index);
-            std::cout << __LINE__ << std::endl;
 			R.index = index;
 			AllRadios_[R.radioBands] = R;
 			++index;
-            std::cout << __LINE__ << std::endl;
 		}
 	}
 

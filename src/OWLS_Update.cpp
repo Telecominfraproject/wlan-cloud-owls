@@ -15,12 +15,19 @@ namespace OpenWifi::OWLSclientEvents {
     void Update(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE;
-        if(Client->Valid_ && Client->Connected_) {
-            Runner->Report().ev_update++;
-            Client->Update();
-            Runner->Scheduler().in(std::chrono::seconds(30),
-                                      OWLSclientEvents::Update, Client, Runner);
+        DEBUG_LINE("start");
+        try {
+            if(Client->Valid_ && Client->Connected_) {
+                Runner->Report().ev_update++;
+                Client->Update();
+                Runner->Scheduler().in(std::chrono::seconds(30),
+                                       OWLSclientEvents::Update, Client, Runner);
+            }
+        } catch (const Poco::Exception &E) {
+            DEBUG_LINE("exception1");
+            Client->Logger().log(E);
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
         }
     }
 

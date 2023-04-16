@@ -28,6 +28,6 @@ namespace OpenWifi {
 
     enum ap_interface_types { upstream, downstream };
 
-#define DEBUG_LINE      std::cout << __LINE__ << ": " << __func__ << std::endl;
+#define DEBUG_LINE(X)      std::cout << __LINE__ << ": " << __func__ << "  :" << X << std::endl;
 
 }

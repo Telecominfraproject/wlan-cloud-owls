@@ -250,7 +250,7 @@ namespace OpenWifi {
 
 		State["version"] = 1;
 
-        DEBUG_LINE;
+        DEBUG_LINE("start");
 		auto now = Utils::Now();
 		Memory_.to_json(State);
         Load_.to_json(State);
@@ -348,9 +348,8 @@ namespace OpenWifi {
 
 	void OWLSclient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
 		try {
-            DEBUG_LINE;
+            DEBUG_LINE("start");
 			if (Params.contains("serial") && Params.contains("uuid") && Params.contains("config")) {
-                DEBUG_LINE;
 				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
 				auto Serial = Params["serial"];
 				uint64_t UUID = Params["uuid"];
@@ -358,22 +357,18 @@ namespace OpenWifi {
 				CurrentConfig_ = Configuration;
 				UUID_ = Active_ = UUID;
 
-                DEBUG_LINE;
 				//  We need to digest the configuration and generate what we will need for
 				//  state messages.
 				auto Radios = CurrentConfig_["radios"];			//  array
 				auto Metrics = CurrentConfig_["metrics"];		//  object
 				auto Interfaces = CurrentConfig_["interfaces"]; //  array
 
-                DEBUG_LINE;
 				HealthInterval_ = Metrics["health"]["interval"];
 				StatisticsInterval_ = Metrics["statistics"]["interval"];
-                DEBUG_LINE;
 
 				//  prepare response...
 				nlohmann::json Answer;
 
-                DEBUG_LINE;
 				Answer["jsonrpc"] = "2.0";
 				Answer["id"] = Id;
 				Answer["result"]["serial"] = Serial;
@@ -382,20 +377,18 @@ namespace OpenWifi {
 				Answer["result"]["status"]["when"] = When;
 				Answer["result"]["status"]["text"] = "No errors were found";
 				Answer["result"]["status"]["error"] = 0;
-                DEBUG_LINE;
                 poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
 				SendObject(Answer);
-                DEBUG_LINE;
 			} else {
-                DEBUG_LINE;
                 poco_warning(Logger_,fmt::format("configure({}): Illegal command.", SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
-            DEBUG_LINE;
+            DEBUG_LINE("exception 1");
             poco_warning(Logger_,
 				fmt::format("configure({}): Exception. {}", SerialNumber_, E.displayText()));
-		}
-        DEBUG_LINE;
+		} catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
+        }
 	}
 
 	void OWLSclient::DoReboot(uint64_t Id, nlohmann::json &Params) {
@@ -543,7 +536,7 @@ namespace OpenWifi {
 
 	void OWLSclient::DoPerform(uint64_t Id, nlohmann::json &Params) {
 		try {
-            DEBUG_LINE;
+            DEBUG_LINE("start");
 			if (Params.contains("serial") && Params.contains("command") &&
 				Params.contains("payload")) {
 
@@ -572,12 +565,14 @@ namespace OpenWifi {
 		} catch (const Poco::Exception &E) {
 			Logger_.warning(
 				fmt::format("perform({}): Exception. {}", SerialNumber_, E.displayText()));
-		}
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
+        }
 	}
 
 	void OWLSclient::DoTrace(uint64_t Id, nlohmann::json &Params) {
 		try {
-            DEBUG_LINE;
+            DEBUG_LINE("start");
 			if (Params.contains("serial") && Params.contains("duration") &&
 				Params.contains("network") && Params.contains("interface") &&
 				Params.contains("packets") && Params.contains("uri")) {
@@ -610,49 +605,50 @@ namespace OpenWifi {
 				Logger_.warning(fmt::format("trace({}): Illegal command.", SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
+            DEBUG_LINE("exception1");
 			Logger_.warning(
 				fmt::format("trace({}): Exception. {}", SerialNumber_, E.displayText()));
-		}
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
+        }
 	}
 
 	bool OWLSclient::Send(const std::string &Cmd) {
 
-        DEBUG_LINE;
 		try {
-            DEBUG_LINE;
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
-            DEBUG_LINE;
 			if (BytesSent == Cmd.size()) {
-                DEBUG_LINE;
+                DEBUG_LINE("sent");
 				SimStats()->AddTX(Runner_->Id(),Cmd.size());
-                DEBUG_LINE;
 				SimStats()->AddOutMsg(Runner_->Id());
-                DEBUG_LINE;
 				return true;
 			} else {
-                DEBUG_LINE;
+                DEBUG_LINE("fail to send");
 				Logger_.warning(
 					fmt::format("SEND({}): incomplete. Sent: {}", SerialNumber_, BytesSent));
 			}
 		} catch (const Poco::Exception &E) {
-            DEBUG_LINE;
+            DEBUG_LINE("exception1");
 			Logger_.log(E);
-		}
-        DEBUG_LINE;
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
+        }
+
 		return false;
 	}
 
 	bool OWLSclient::SendWSPing() {
 		try {
-            DEBUG_LINE;
+            DEBUG_LINE("start");
 			WS_->sendFrame(
 				"", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
 			return true;
 		} catch (const Poco::Exception &E) {
-            DEBUG_LINE;
+            DEBUG_LINE("failed");
 			Logger_.log(E);
-		}
-        DEBUG_LINE;
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
+        }
 		return false;
 	}
 
@@ -660,22 +656,22 @@ namespace OpenWifi {
 		try {
 			auto M = to_string(O);
 			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
-            DEBUG_LINE;
 			if (BytesSent == M.size()) {
-                DEBUG_LINE;
+                DEBUG_LINE("sent");
 				SimStats()->AddTX(Runner_->Id(),BytesSent);
 				SimStats()->AddOutMsg(Runner_->Id());
 				return true;
 			} else {
-                DEBUG_LINE;
+                DEBUG_LINE("failed");
 				Logger_.warning(
 					fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
 			}
 		} catch (const Poco::Exception &E) {
-            DEBUG_LINE;
+            DEBUG_LINE("exception1");
 			Logger_.log(E);
-		}
-        DEBUG_LINE;
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
+        }
 		return false;
 	}
 

@@ -17,11 +17,18 @@ namespace OpenWifi::OWLSclientEvents {
     void Reconnect(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE;
-        if(Client->Valid_) {
-            Runner->Report().ev_reconnect++;
-            Client->Connected_ = false;
-            Runner->Scheduler().in(std::chrono::seconds(OWLSutils::local_random(3,15)), OWLSclientEvents::EstablishConnection, Client, Runner);
+        DEBUG_LINE("start");
+        try {
+            if(Client->Valid_) {
+                Runner->Report().ev_reconnect++;
+                Client->Connected_ = false;
+                Runner->Scheduler().in(std::chrono::seconds(OWLSutils::local_random(3,15)), OWLSclientEvents::EstablishConnection, Client, Runner);
+            }
+        } catch (const Poco::Exception &E) {
+            DEBUG_LINE("exception1");
+            Client->Logger().log(E);
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
         }
     }
 

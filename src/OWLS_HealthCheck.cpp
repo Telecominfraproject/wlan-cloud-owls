@@ -15,7 +15,7 @@ namespace OpenWifi::OWLSclientEvents {
     void HealthCheck(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE;
+        DEBUG_LINE("start");
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_healthcheck++;
             try {
@@ -29,12 +29,16 @@ namespace OpenWifi::OWLSclientEvents {
                 M["params"]["data"] = P;
 
                 if (Client->Send(to_string(M))) {
+                    DEBUG_LINE("sent");
                     Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),
                                               OWLSclientEvents::HealthCheck, Client, Runner);
                     return;
                 }
             } catch (const Poco::Exception &E) {
+                DEBUG_LINE("exception1");
                 Client->Logger().log(E);
+            } catch (const std::exception &E) {
+                DEBUG_LINE("exception2");
             }
             OWLSclientEvents::Disconnect(Client, Runner, "Error while sending HealthCheck", true);
         }

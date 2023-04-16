@@ -6,7 +6,6 @@
 #include "SimulationRunner.h"
 #include "SimulationCoordinator.h"
 #include <fmt/format.h>
-#include "OWLSscheduler.h"
 #include "SimStats.h"
 
 #include <Poco/NObserver.h>
@@ -77,20 +76,20 @@ namespace OpenWifi::OWLSclientEvents {
                             *Runner, &SimulationRunner::OnSocketReadable));
             Client->Connected_ = true;
             Runner->AddClientFd(Client->WS_->impl()->sockfd(), Client);
-            OWLSscheduler()->Ref().in(std::chrono::seconds(1), Connect, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(1), Connect, Client, Runner);
             SimStats()->Connect(Runner->Id());
-            std::cout << "Connected: " << Client->SerialNumber_ << std::endl;
+            std::cout << "Connecting: " << Client->SerialNumber_ << std::endl;
         } catch (const Poco::Exception &E) {
             Client->Logger_.warning(
                     fmt::format("connecting({}): exception. {}", Client->SerialNumber_, E.displayText()));
-            OWLSscheduler()->Ref().in(std::chrono::seconds(60), Reconnect, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(60), Reconnect, Client, Runner);
         } catch (const std::exception &E) {
             Client->Logger_.warning(
                     fmt::format("connecting({}): std::exception. {}", Client->SerialNumber_, E.what()));
-            OWLSscheduler()->Ref().in(std::chrono::seconds(60), Reconnect, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(60), Reconnect, Client, Runner);
         } catch (...) {
             Client->Logger_.warning(fmt::format("connecting({}): unknown exception. {}", Client->SerialNumber_));
-            OWLSscheduler()->Ref().in(std::chrono::seconds(60), Reconnect, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(60), Reconnect, Client, Runner);
         }
     }
 }

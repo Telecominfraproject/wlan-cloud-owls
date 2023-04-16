@@ -6,7 +6,6 @@
 #include "SimulationRunner.h"
 #include "SimulationCoordinator.h"
 #include <fmt/format.h>
-#include "OWLSscheduler.h"
 #include "SimStats.h"
 #include <Poco/NObserver.h>
 
@@ -21,7 +20,7 @@ namespace OpenWifi::OWLSclientEvents {
         if(Client->Valid_) {
             Runner->Report().ev_reconnect++;
             Client->Connected_ = false;
-            OWLSscheduler()->Ref().in(std::chrono::seconds(OWLSutils::local_random(3,15)), OWLSclientEvents::EstablishConnection, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(OWLSutils::local_random(3,15)), OWLSclientEvents::EstablishConnection, Client, Runner);
         }
     }
 

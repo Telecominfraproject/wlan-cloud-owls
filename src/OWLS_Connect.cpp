@@ -6,7 +6,6 @@
 #include "SimulationRunner.h"
 #include "SimulationCoordinator.h"
 #include <fmt/format.h>
-#include "OWLSscheduler.h"
 #include "SimStats.h"
 #include <Poco/NObserver.h>
 
@@ -37,15 +36,15 @@ namespace OpenWifi::OWLSclientEvents {
                 M["params"]["capabilities"] = TmpCapabilities;
                 if (Client->Send(to_string(M))) {
                     Client->Reset();
-                    OWLSscheduler()->Ref().in(std::chrono::seconds(Client->StatisticsInterval_),
+                    Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
                                               OWLSclientEvents::State, Client, Runner);
-                    OWLSscheduler()->Ref().in(std::chrono::seconds(Client->HealthInterval_),
+                    Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),
                                               OWLSclientEvents::HealthCheck, Client, Runner);
-                    OWLSscheduler()->Ref().in(std::chrono::seconds(MicroServiceRandom(120, 200)),
+                    Runner->Scheduler().in(std::chrono::seconds(MicroServiceRandom(120, 200)),
                                               OWLSclientEvents::Log, Client, Runner, 1, "Device started");
-                    OWLSscheduler()->Ref().in(std::chrono::seconds(60 * 4),
+                    Runner->Scheduler().in(std::chrono::seconds(60 * 4),
                                               OWLSclientEvents::WSPing, Client, Runner);
-                    OWLSscheduler()->Ref().in(std::chrono::seconds(30),
+                    Runner->Scheduler().in(std::chrono::seconds(30),
                                               OWLSclientEvents::Update, Client, Runner);
                     return;
                 }

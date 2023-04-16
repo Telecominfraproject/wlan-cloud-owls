@@ -22,6 +22,13 @@ namespace OpenWifi::OWLSclientEvents {
 
             Runner->Report().ev_state++;
             try {
+
+
+                Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
+                                       OWLSclientEvents::State, Client, Runner);
+                return;
+/*
+
                 nlohmann::json StateDoc;
 
                 StateDoc["jsonrpc"] = "2.0";
@@ -47,6 +54,7 @@ namespace OpenWifi::OWLSclientEvents {
                                               OWLSclientEvents::State, Client, Runner);
                     return;
                 }
+                */
             } catch (const Poco::Exception &E) {
                 DEBUG_LINE("exception1");
                 Client->Logger().log(E);

@@ -14,7 +14,6 @@
 #include "fmt/format.h"
 
 #include "UI_Owls_WebSocketNotifications.h"
-#include "OWLSscheduler.h"
 
 #include <Poco/Net/NetException.h>
 #include <Poco/Net/SSLException.h>
@@ -26,26 +25,17 @@ namespace OpenWifi {
 		std::uniform_int_distribution<> distrib(5, 25);
 
         Running_ = true;
-        std::cout << __LINE__ << std::endl;
 		std::lock_guard Lock(Mutex_);
 
-        std::cout << __LINE__ << std::endl;
 		for (uint64_t i = 0; i < Details_.devices; i++) {
 			char Buffer[32];
-            std::cout << __LINE__ << std::endl;
 			snprintf(Buffer, sizeof(Buffer), "%s%05x0", Details_.macPrefix.c_str(), (unsigned int)i);
-            std::cout << __LINE__ << std::endl;
 			auto Client = std::make_shared<OWLSclient>(Buffer, Logger_, this);
-            std::cout << __LINE__ << std::endl;
             Client->SerialNumber_ = Buffer;
-            std::cout << __LINE__ << std::endl;
-            OWLSscheduler()->Ref().in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
+            Scheduler_.in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
 			Clients_[Buffer] = Client;
-            std::cout << __LINE__ << std::endl;
 		}
-        std::cout << __LINE__ << std::endl;
-        OWLSscheduler()->Ref().in(std::chrono::seconds(10), ProgressUpdate, this);
-        std::cout << __LINE__ << std::endl;
+        Scheduler_.in(std::chrono::seconds(10), ProgressUpdate, this);
 	}
 
     void SimulationRunner::ProgressUpdate(SimulationRunner *sim) {
@@ -54,7 +44,7 @@ namespace OpenWifi {
             OWLSNotifications::SimulationUpdate_t Notification;
             SimStats()->GetCurrent(sim->Id_, Notification.content);
             OWLSNotifications::SimulationUpdate(Notification);
-            OWLSscheduler()->Ref().in(std::chrono::seconds(10), ProgressUpdate, sim);
+            sim->Scheduler_.in(std::chrono::seconds(10), ProgressUpdate, sim);
         }
     }
 

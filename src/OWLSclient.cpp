@@ -26,7 +26,6 @@
 #include "SimulationCoordinator.h"
 #include "fmt/format.h"
 #include <nlohmann/json.hpp>
-#include "OWLSscheduler.h"
 
 using namespace std::chrono_literals;
 

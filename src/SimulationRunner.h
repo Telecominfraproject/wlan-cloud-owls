@@ -8,18 +8,21 @@
 #include <set>
 #include <string>
 
-#include "Poco/Thread.h"
+#include <Poco/Thread.h>
+#include <Poco/Environment.h>
 #include "OWLSclient.h"
 #include <RESTObjects/RESTAPI_OWLSobjects.h>
 
 #include "CensusReport.h"
+#include <libs/Scheduler.h>
 
 namespace OpenWifi {
 
 	class SimulationRunner {
 	  public:
         explicit SimulationRunner(const OWLSObjects::SimulationDetails &Details, Poco::Logger &L, const std::string &id)
-			: Details_(Details), Logger_(L), Id_(id) {
+			: Details_(Details), Logger_(L), Id_(id)
+            , Scheduler_(Poco::Environment::processorCount()*16){
         }
 
 		void Stop();
@@ -44,6 +47,8 @@ namespace OpenWifi {
         void ProcessCommand(std::shared_ptr<OWLSclient> Client, nlohmann::json &Vars);
         Poco::Net::SocketReactor & Reactor() { return Reactor_; }
 
+        inline auto & Scheduler() { return Scheduler_; }
+
 	  private:
         my_mutex            Mutex_;
         OWLSObjects::SimulationDetails  Details_;
@@ -56,6 +61,7 @@ namespace OpenWifi {
 		CensusReport        CensusReport_;
 		std::string         State_{"stopped"};
         std::string         Id_;
+        Bosma::Scheduler    Scheduler_;
 
         static void ProgressUpdate(SimulationRunner *s);
 

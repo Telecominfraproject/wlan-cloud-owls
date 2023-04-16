@@ -165,7 +165,7 @@ startsim()  {
 }
 
 stopsim()  {
-    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=stop" \
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=stop&runningId=$2" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
     jq < ${result_file}
@@ -201,8 +201,8 @@ case "$1" in
     "getsim") login; getsim "$2"; logout;;
     "deletesim") login; deletesim "$2"; logout;;
     "startsim") login; startsim "$2"; logout;;
-    "stopsim") login; stopsim "$2" ; logout;;
-    "cancelsim") login; cancelsim "$2" ; logout;;
+    "stopsim") login; stopsim "$2" "$3"; logout;;
+    "cancelsim") login; cancelsim "$2" "$3"; logout;;
     "getsimstats") login; getsimstats "$2"; logout;;
     "results") login; results ; logout;;
     *) help ;;

@@ -245,7 +245,19 @@ namespace OpenWifi {
 		return res;
 	}
 
-	nlohmann::json OWLSclient::CreateState() {
+    Poco::JSON::Object OWLSclient::CreateLinkStatePtr() {
+        Poco::JSON::Object  res;
+
+        return res;
+    }
+
+    Poco::JSON::Object OWLSclient::CreateStatePtr() {
+        Poco::JSON::Object  res;
+
+        return res;
+    }
+
+    nlohmann::json OWLSclient::CreateState() {
 		nlohmann::json State;
 
 		State["version"] = 1;
@@ -674,5 +686,29 @@ namespace OpenWifi {
         }
 		return false;
 	}
+
+    bool OWLSclient::SendObject(const Poco::JSON::Object &O) {
+        try {
+            std::ostringstream os;
+            O.stringify(os);
+            uint32_t BytesSent = WS_->sendFrame(os.str().c_str(), os.str().size());
+            if (BytesSent == os.str().size()) {
+                DEBUG_LINE("sent");
+                SimStats()->AddTX(Runner_->Id(),BytesSent);
+                SimStats()->AddOutMsg(Runner_->Id());
+                return true;
+            } else {
+                DEBUG_LINE("failed");
+                Logger_.warning(
+                        fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
+            }
+        } catch (const Poco::Exception &E) {
+            DEBUG_LINE("exception1");
+            Logger_.log(E);
+        } catch (const std::exception &E) {
+            DEBUG_LINE("exception2");
+        }
+        return false;
+    }
 
 } // namespace OpenWifi

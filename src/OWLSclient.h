@@ -40,6 +40,7 @@ namespace OpenWifi {
 		bool Send(const std::string &Cmd);
 		bool SendWSPing();
 		bool SendObject(const nlohmann::json &O);
+        bool SendObject(const Poco::JSON::Object &O);
 
 		void SetFirmware(const std::string &S = "sim-firmware-1") { Firmware_ = S; }
 
@@ -67,6 +68,9 @@ namespace OpenWifi {
 
 		nlohmann::json CreateState();
 		nlohmann::json CreateLinkState();
+
+        Poco::JSON::Object CreateStatePtr();
+        Poco::JSON::Object CreateLinkStatePtr();
 
 		Poco::Logger &Logger() { return Logger_; };
 

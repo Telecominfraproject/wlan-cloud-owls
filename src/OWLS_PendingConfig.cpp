@@ -20,15 +20,13 @@ namespace OpenWifi::OWLSclientEvents {
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_configpendingchange++;
             try {
-                nlohmann::json M;
+                Poco::JSON::Object  Message, Params;
+                Params.set("serial", Client->SerialNumber_);
+                Params.set("uuid", Client->UUID_);
+                Params.set("active", Client->Active_);
+                OWLSutils::MakeHeader(Message,"cfgpending",Params);
 
-                M["jsonrpc"] = "2.0";
-                M["method"] = "cfgpending";
-                M["params"]["serial"] = Client->Serial();
-                M["params"]["uuid"] = Client->UUID();
-                M["params"]["active"] = Client->Active();
-
-                if (Client->Send(to_string(M))) {
+                if (Client->SendObject(Message)) {
                     return;
                 }
             } catch (const Poco::Exception &E) {

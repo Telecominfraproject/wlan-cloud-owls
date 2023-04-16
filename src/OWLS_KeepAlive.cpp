@@ -19,14 +19,13 @@ namespace OpenWifi::OWLSclientEvents {
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_keepalive++;
             try {
-                nlohmann::json M;
 
-                M["jsonrpc"] = "2.0";
-                M["method"] = "ping";
-                M["params"]["serial"] = Client->Serial();
-                M["params"]["uuid"] = Client->UUID();
+                Poco::JSON::Object  Message, Params;
+                Params.set("serial", Client->SerialNumber_);
+                Params.set("uuid", Client->UUID_);
+                OWLSutils::MakeHeader(Message,"ping",Params);
 
-                if (Client->Send(to_string(M))) {
+                if (Client->SendObject(Message)) {
                     DEBUG_LINE("sent");
                     Runner->Scheduler().in(std::chrono::seconds(Runner->Details().keepAlive),
                                               OWLSclientEvents::KeepAlive, Client, Runner);

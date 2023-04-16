@@ -187,5 +187,11 @@ namespace OpenWifi {
             return Channels_2G[std::rand() % Channels_2G.size()];
         }
 
+        inline void MakeHeader(Poco::JSON::Object &Message, const char *method, const Poco::JSON::Object &Params) {
+            Message.set("jsonrpc", "2.0");
+            Message.set("method", method);
+            Message.set("params", Params);
+        }
+
     }
 }

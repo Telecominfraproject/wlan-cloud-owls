@@ -63,16 +63,23 @@ namespace OpenWifi {
 	}
 
     void SimulationRunner::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification> &pNf) {
-        std::lock_guard G(Mutex_);
+        std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;
+        std::shared_ptr<OWLSclient> client;
+        int socket;
+        {
+            std::lock_guard G(Mutex_);
 
-        auto socket = pNf->socket().impl()->sockfd();
-        auto client_hint = Clients_fd_.find(socket);
-        if(client_hint==end(Clients_fd_)) {
-            poco_warning(Logger_,fmt::format("{}: Invalid socket", socket));
-            return;
+            socket = pNf->socket().impl()->sockfd();
+            client_hint = Clients_fd_.find(socket);
+            if (client_hint == end(Clients_fd_)) {
+                poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
+                return;
+            }
+            client = client_hint->second;
         }
 
-        auto client = client_hint->second;
+
+        std::lock_guard Guard(client->Mutex_);
 
         try {
             char Message[16000];

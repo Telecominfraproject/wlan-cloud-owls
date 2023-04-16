@@ -364,8 +364,6 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
-		std::lock_guard G(Mutex_);
-
 		try {
             DEBUG_LINE;
 			if (Params.contains("serial") && Params.contains("uuid") && Params.contains("config")) {
@@ -418,7 +416,6 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::DoReboot(uint64_t Id, nlohmann::json &Params) {
-		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial")) {
 				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
@@ -465,7 +462,6 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::DoUpgrade(uint64_t Id, nlohmann::json &Params) {
-		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("uri")) {
 
@@ -498,7 +494,6 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::DoFactory(uint64_t Id, nlohmann::json &Params) {
-		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("keep_redirector")) {
 
@@ -534,7 +529,6 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::DoLEDs(uint64_t Id, nlohmann::json &Params) {
-		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("pattern")) {
 
@@ -565,7 +559,6 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::DoPerform(uint64_t Id, nlohmann::json &Params) {
-		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("command") &&
 				Params.contains("payload")) {
@@ -599,7 +592,6 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::DoTrace(uint64_t Id, nlohmann::json &Params) {
-		std::lock_guard G(Mutex_);
 		try {
 			if (Params.contains("serial") && Params.contains("duration") &&
 				Params.contains("network") && Params.contains("interface") &&
@@ -639,9 +631,8 @@ namespace OpenWifi {
 	}
 
 	bool OWLSclient::Send(const std::string &Cmd) {
-		std::lock_guard guard(Mutex_);
-        DEBUG_LINE;
 
+        DEBUG_LINE;
 		try {
             DEBUG_LINE;
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
@@ -667,8 +658,6 @@ namespace OpenWifi {
 	}
 
 	bool OWLSclient::SendWSPing() {
-		std::lock_guard guard(Mutex_);
-
 		try {
 			WS_->sendFrame(
 				"", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
@@ -680,8 +669,6 @@ namespace OpenWifi {
 	}
 
 	bool OWLSclient::SendObject(nlohmann::json &O) {
-		std::lock_guard guard(Mutex_);
-
 		try {
             DEBUG_LINE;
 			auto M = to_string(O);

@@ -19,8 +19,6 @@ namespace OpenWifi::OWLSclientEvents {
 
         Poco::Net::Context::Params P;
 
-        std::cout << "Trying to connected: " << Client->SerialNumber_ << std::endl;
-
         Runner->Report().ev_establish_connection++;
 
         P.verificationMode = Poco::Net::Context::VERIFY_STRICT;
@@ -78,7 +76,6 @@ namespace OpenWifi::OWLSclientEvents {
             Runner->AddClientFd(Client->WS_->impl()->sockfd(), Client);
             Runner->Scheduler().in(std::chrono::seconds(1), Connect, Client, Runner);
             SimStats()->Connect(Runner->Id());
-            std::cout << "Connecting: " << Client->SerialNumber_ << std::endl;
         } catch (const Poco::Exception &E) {
             Client->Logger_.warning(
                     fmt::format("connecting({}): exception. {}", Client->SerialNumber_, E.displayText()));

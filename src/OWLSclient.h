@@ -23,7 +23,6 @@
 #include "OWLSdefinitions.h"
 
 #include "MockElements.h"
-
 #include "OWLSclientEvents.h"
 
 namespace OpenWifi {

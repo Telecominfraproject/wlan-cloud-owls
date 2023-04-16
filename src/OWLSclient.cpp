@@ -252,8 +252,8 @@ namespace OpenWifi {
 
         std::cout << __LINE__ << std::endl;
 		auto now = Utils::Now();
-		State["unit"] += Memory_.to_json();
-        State["unit"] += Load_.to_json();
+		State += Memory_.to_json();
+        State += Load_.to_json();
 		State["unit"]["localtime"] = now;
 		State["unit"]["uptime"] = now - StartTime_;
         State["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};

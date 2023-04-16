@@ -629,21 +629,32 @@ namespace OpenWifi {
 	}
 
 	bool OWLSclient::Send(const std::string &Cmd) {
+        std::cout << __LINE__ << std::endl;
+
 		std::lock_guard guard(Mutex_);
+        std::cout << __LINE__ << std::endl;
 
 		try {
+            std::cout << __LINE__ << std::endl;
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
+            std::cout << __LINE__ << std::endl;
 			if (BytesSent == Cmd.size()) {
+                std::cout << __LINE__ << std::endl;
 				SimStats()->AddTX(Runner_->Id(),Cmd.size());
+                std::cout << __LINE__ << std::endl;
 				SimStats()->AddOutMsg(Runner_->Id());
+                std::cout << __LINE__ << std::endl;
 				return true;
 			} else {
+                std::cout << __LINE__ << std::endl;
 				Logger_.warning(
 					fmt::format("SEND({}): incomplete. Sent: {}", SerialNumber_, BytesSent));
 			}
 		} catch (const Poco::Exception &E) {
+            std::cout << __LINE__ << std::endl;
 			Logger_.log(E);
 		}
+        std::cout << __LINE__ << std::endl;
 		return false;
 	}
 
@@ -664,19 +675,26 @@ namespace OpenWifi {
 		std::lock_guard guard(Mutex_);
 
 		try {
+            std::cout << __LINE__ << std::endl;
 			auto M = to_string(O);
+            std::cout << __LINE__ << std::endl;
 			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
+            std::cout << __LINE__ << std::endl;
 			if (BytesSent == M.size()) {
+                std::cout << __LINE__ << std::endl;
 				SimStats()->AddTX(Runner_->Id(),BytesSent);
 				SimStats()->AddOutMsg(Runner_->Id());
 				return true;
 			} else {
+                std::cout << __LINE__ << std::endl;
 				Logger_.warning(
 					fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
 			}
 		} catch (const Poco::Exception &E) {
+            std::cout << __LINE__ << std::endl;
 			Logger_.log(E);
 		}
+        std::cout << __LINE__ << std::endl;
 		return false;
 	}
 

@@ -73,6 +73,12 @@ namespace OpenWifi::OWLSclientEvents {
             Runner->Reactor().addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                             *Runner, &SimulationRunner::OnSocketReadable));
+            Runner->Reactor().addEventHandler(
+                    *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
+                            *Runner, &SimulationRunner::OnSocketError));
+            Runner->Reactor().addEventHandler(
+                    *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
+                            *Runner, &SimulationRunner::OnSocketShutdown));
             Client->Connected_ = true;
             Runner->AddClientFd(Client->WS_->impl()->sockfd(), Client);
             Runner->Scheduler().in(std::chrono::seconds(1), Connect, Client, Runner);

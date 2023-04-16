@@ -26,6 +26,12 @@ namespace OpenWifi::OWLSclientEvents {
                 Runner->Reactor().removeEventHandler(
                         *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                                 *Client->Runner_, &SimulationRunner::OnSocketReadable));
+                Runner->Reactor().removeEventHandler(
+                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
+                                *Client->Runner_, &SimulationRunner::OnSocketError));
+                Runner->Reactor().removeEventHandler(
+                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
+                                *Client->Runner_, &SimulationRunner::OnSocketShutdown));
                 (*Client->WS_).close();
             }
             Client->Connected_ = false;

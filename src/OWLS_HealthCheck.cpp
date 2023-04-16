@@ -28,7 +28,7 @@ namespace OpenWifi::OWLSclientEvents {
                 M["params"]["sanity"] = 100;
                 M["params"]["data"] = P;
 
-                if (Client->Send(to_string(M))) {
+                if (Client->SendObject(M)) {
                     DEBUG_LINE("sent");
                     Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),
                                               OWLSclientEvents::HealthCheck, Client, Runner);

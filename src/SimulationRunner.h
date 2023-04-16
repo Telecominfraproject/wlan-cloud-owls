@@ -31,6 +31,8 @@ namespace OpenWifi {
         CensusReport & Report() { return CensusReport_; }
 
         void OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification> &pNf);
+        void OnSocketError(const Poco::AutoPtr<Poco::Net::ErrorNotification> &pNf);
+        void OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification> &pNf);
 
         const std::string & Id() const { return Id_; }
 

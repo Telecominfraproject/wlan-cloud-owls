@@ -64,6 +64,8 @@ namespace OpenWifi::OWLSclientEvents {
             } catch (const Poco::Exception &E) {
                 DEBUG_LINE;
                 Client->Logger().log(E);
+            } catch (const std::exception &E) {
+                std::cout << "Exception in state: " << E.what() << std::endl;
             }
             DEBUG_LINE;
             OWLSclientEvents::Disconnect(Client, Runner, "Error sending stats event", true);

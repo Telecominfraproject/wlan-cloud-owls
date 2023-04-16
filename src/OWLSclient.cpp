@@ -258,7 +258,6 @@ namespace OpenWifi {
 		State["unit"]["uptime"] = now - StartTime_;
         State["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};
 
-        DEBUG_LINE;
 		for (auto &[_, radio] : AllRadios_) {
 			radio.next();
             nlohmann::json doc;
@@ -266,27 +265,21 @@ namespace OpenWifi {
 			State["radios"].push_back(doc);
 		}
 
-        DEBUG_LINE;
 		//  set the link state
 		State["link-state"] = CreateLinkState();
 
 		nlohmann::json all_interfaces;
-        DEBUG_LINE;
 		for (const auto &ap_interface_type :
 			 {ap_interface_types::upstream, ap_interface_types::downstream}) {
-            DEBUG_LINE;
 			if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
-                DEBUG_LINE;
 				nlohmann::json current_interface;
 				nlohmann::json up_ssids;
 				uint64_t ssid_num = 0, interfaces = 0;
 
 				auto ue_clients = nlohmann::json::array();
 				for (auto &[interface, associations] : AllAssociations_) {
-                    DEBUG_LINE;
 					auto &[interface_type, ssid, band] = interface;
 					if (interface_type == ap_interface_type) {
-                        DEBUG_LINE;
 						nlohmann::json association_list;
 						std::string bssid;
 						for (auto &association : associations) {
@@ -306,7 +299,6 @@ namespace OpenWifi {
                             ue["last_seen"] = 0 ;
                             ue_clients.push_back(ue);
 						}
-                        DEBUG_LINE;
 						nlohmann::json ssid_info;
 						ssid_info["associations"] = association_list;
 						ssid_info["bssid"] = bssid;
@@ -320,20 +312,16 @@ namespace OpenWifi {
 						ssid_info["name"] = AllInterfaceNames_[ap_interface_type];
 						up_ssids.push_back(ssid_info);
 					}
-                    DEBUG_LINE;
 				}
-                DEBUG_LINE;
 				current_interface["ssids"] = up_ssids;
 				AllCounters_[ap_interface_type].next();
                 nlohmann::json doc;
                 AllCounters_[ap_interface_type].to_json(doc);
 				current_interface["counters"] = doc;
-                DEBUG_LINE;
 
 				//  if we have 2 interfaces, then the clients go to the downstream interface
 				//  if we only have 1 interface then this is bridged and therefore clients go on the
 				//  upstream
-                DEBUG_LINE;
 				if ((AllCounters_.size() == 1 &&
 					 ap_interface_type == ap_interface_types::upstream) ||
 					(AllCounters_.size() == 2 &&
@@ -344,21 +332,16 @@ namespace OpenWifi {
                         lan_client.to_json(d);
 						state_lan_clients.push_back(d);
 					}
-                    DEBUG_LINE;
 					for (const auto &ue_client : ue_clients) {
-                        DEBUG_LINE;
 						state_lan_clients.push_back(ue_client);
 					}
-                    DEBUG_LINE;
 					current_interface["clients"] = state_lan_clients;
 				}
 				current_interface["name"] = AllInterfaceNames_[ap_interface_type];
 				all_interfaces.push_back(current_interface);
 			}
 		}
-        DEBUG_LINE;
 		State["interfaces"] = all_interfaces;
-        DEBUG_LINE;
 
 		return State;
 	}
@@ -560,6 +543,7 @@ namespace OpenWifi {
 
 	void OWLSclient::DoPerform(uint64_t Id, nlohmann::json &Params) {
 		try {
+            DEBUG_LINE;
 			if (Params.contains("serial") && Params.contains("command") &&
 				Params.contains("payload")) {
 
@@ -593,6 +577,7 @@ namespace OpenWifi {
 
 	void OWLSclient::DoTrace(uint64_t Id, nlohmann::json &Params) {
 		try {
+            DEBUG_LINE;
 			if (Params.contains("serial") && Params.contains("duration") &&
 				Params.contains("network") && Params.contains("interface") &&
 				Params.contains("packets") && Params.contains("uri")) {
@@ -659,20 +644,21 @@ namespace OpenWifi {
 
 	bool OWLSclient::SendWSPing() {
 		try {
+            DEBUG_LINE;
 			WS_->sendFrame(
 				"", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
 			return true;
 		} catch (const Poco::Exception &E) {
+            DEBUG_LINE;
 			Logger_.log(E);
 		}
+        DEBUG_LINE;
 		return false;
 	}
 
 	bool OWLSclient::SendObject(nlohmann::json &O) {
 		try {
-            DEBUG_LINE;
 			auto M = to_string(O);
-            DEBUG_LINE;
 			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
             DEBUG_LINE;
 			if (BytesSent == M.size()) {

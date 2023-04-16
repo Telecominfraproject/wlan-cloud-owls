@@ -41,10 +41,10 @@ namespace OpenWifi {
 
         [[nodiscard]] nlohmann::json to_json() const final {
             nlohmann::json result;
-            result["memory"]["buffered"] = buffered;
-            result["memory"]["cached"] = cached;
-            result["memory"]["free"] = free;
-            result["memory"]["total"] = total;
+            result["unit"]["memory"]["buffered"] = buffered;
+            result["unit"]["memory"]["cached"] = cached;
+            result["unit"]["memory"]["free"] = free;
+            result["unit"]["memory"]["total"] = total;
             return result;
         }
     };
@@ -67,7 +67,7 @@ namespace OpenWifi {
 
         [[nodiscard]] nlohmann::json to_json() const final {
             nlohmann::json result;
-            result["load"] = std::vector<std::double_t> { load_1, load_5, load_15};
+            result["unit"]["load"] = std::vector<std::double_t> { load_1, load_5, load_15};
             return result;
         }
     };

@@ -252,8 +252,8 @@ namespace OpenWifi {
 
         std::cout << __LINE__ << std::endl;
 		auto now = Utils::Now();
-		State += Memory_.to_json();
-        State += Load_.to_json();
+		Memory_.to_json(State);
+        Load_.to_json(State);
 		State["unit"]["localtime"] = now;
 		State["unit"]["uptime"] = now - StartTime_;
         State["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};
@@ -261,7 +261,9 @@ namespace OpenWifi {
         std::cout << __LINE__ << std::endl;
 		for (auto &[_, radio] : AllRadios_) {
 			radio.next();
-			State["radios"].push_back(radio.to_json());
+            nlohmann::json doc;
+            radio.to_json(doc);
+			State["radios"].push_back(doc);
 		}
 
         std::cout << __LINE__ << std::endl;
@@ -290,7 +292,9 @@ namespace OpenWifi {
 						for (auto &association : associations) {
 							association.next();
 							bssid = association.bssid;
-							association_list.push_back(association.to_json());
+                            nlohmann::json doc;
+                            association.to_json(doc);
+							association_list.push_back(doc);
 							nlohmann::json ue;
 							ue["mac"] = association.station;
 							ue["ipv4_addresses"].push_back(association.ipaddr_v4);
@@ -321,7 +325,9 @@ namespace OpenWifi {
                 std::cout << __LINE__ << std::endl;
 				current_interface["ssids"] = up_ssids;
 				AllCounters_[ap_interface_type].next();
-				current_interface["counters"] = AllCounters_[ap_interface_type].to_json();
+                nlohmann::json doc;
+                AllCounters_[ap_interface_type].to_json(doc);
+				current_interface["counters"] = doc;
                 std::cout << __LINE__ << std::endl;
 
 				//  if we have 2 interfaces, then the clients go to the downstream interface
@@ -334,7 +340,9 @@ namespace OpenWifi {
 					 ap_interface_type == ap_interface_types::downstream)) {
 					nlohmann::json state_lan_clients;
 					for (const auto &lan_client : AllLanClients_) {
-						state_lan_clients.push_back(lan_client.to_json());
+                        nlohmann::json d;
+                        lan_client.to_json(d);
+						state_lan_clients.push_back(d);
 					}
                     std::cout << __LINE__ << std::endl;
 					for (const auto &ue_client : ue_clients) {

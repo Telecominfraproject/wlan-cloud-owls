@@ -19,7 +19,7 @@ namespace OpenWifi::OWLSclientEvents {
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_healthcheck++;
             try {
-                nlohmann::json M, P;
+/*                nlohmann::json M, P;
                 P["memory"] = 23;
                 M["jsonrpc"] = "2.0";
                 M["method"] = "healthcheck";
@@ -27,8 +27,17 @@ namespace OpenWifi::OWLSclientEvents {
                 M["params"]["uuid"] = Client->UUID();
                 M["params"]["sanity"] = 100;
                 M["params"]["data"] = P;
+*/
+                Poco::JSON::Object  Message, Params, Data, Memory;
+                Memory.set("memory", 23);
+                Data.set("data", Memory);
+                Params.set("data", Data);
+                Params.set("serial", Client->SerialNumber_);
+                Params.set("uuid", Client->UUID_);
+                Params.set("sanity", 100);
+                OWLSutils::MakeHeader(Message,"healthcheck",Params);
 
-                if (Client->SendObject(M)) {
+                if (Client->SendObject(Message)) {
                     DEBUG_LINE("sent");
                     Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),
                                               OWLSclientEvents::HealthCheck, Client, Runner);

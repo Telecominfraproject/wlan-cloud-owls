@@ -27,19 +27,31 @@ namespace OpenWifi::OWLSclientEvents {
                 StateDoc["jsonrpc"] = "2.0";
                 StateDoc["method"] = "state";
 
+                Poco::JSON::Object  Message, TempParams, Params;
+
                 nlohmann::json ParamsObj;
                 ParamsObj["serial"] = Client->Serial();
                 ParamsObj["uuid"] = Client->UUID();
                 ParamsObj["state"] = Client->CreateState();
 
+                TempParams.set("serial", Client->SerialNumber_);
+                TempParams.set("uuid", Client->UUID_);
+                TempParams.set("state", Client->CreateStatePtr());
+
+                std::ostringstream os;
+                TempParams.stringify(os);
+
                 auto ParamsStr = to_string(ParamsObj);
-                unsigned long BufSize = ParamsStr.size() + 4000;
+                unsigned long BufSize = os.str().size() + 4000;
                 std::vector<Bytef> Buffer(BufSize);
-                compress(&Buffer[0], &BufSize, (Bytef *)ParamsStr.c_str(), ParamsStr.size());
+                compress(&Buffer[0], &BufSize, (Bytef *)os.str().c_str(), os.str().size());
                 auto CompressedBase64Encoded = OpenWifi::Utils::base64encode(&Buffer[0], BufSize);
 
-                StateDoc["params"]["compress_64"] = CompressedBase64Encoded;
-                StateDoc["params"]["compress_sz"] = ParamsStr.size();
+                Params.set("compress_64", CompressedBase64Encoded);
+                Params.set("compress_sz", os.str().size());
+
+                OWLSutils::MakeHeader(Message,"state",Params);
+
 
                 Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
                                        OWLSclientEvents::State, Client, Runner);

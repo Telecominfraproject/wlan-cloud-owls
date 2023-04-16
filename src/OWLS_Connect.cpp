@@ -8,9 +8,7 @@
 #include <fmt/format.h>
 #include "SimStats.h"
 #include <Poco/NObserver.h>
-
 #include "OWLSclientEvents.h"
-#include "OWLSevent.h"
 
 namespace OpenWifi::OWLSclientEvents {
 
@@ -21,21 +19,38 @@ namespace OpenWifi::OWLSclientEvents {
         if(Client->Valid_) {
             try {
                 Runner->Report().ev_connect++;
-                nlohmann::json M;
+
+/*                nlohmann::json M;
                 M["jsonrpc"] = "2.0";
                 M["method"] = "connect";
                 M["params"]["serial"] = Client->Serial();
                 M["params"]["uuid"] = Client->UUID();
                 M["params"]["firmware"] = Client->Firmware();
-                auto TmpCapabilities = SimulationCoordinator()->GetSimCapabilities();
+                auto TmpCapabilities2 = SimulationCoordinator()->GetSimCapabilities();
                 auto LabelMac = Utils::SerialNumberToInt(Client->Serial());
                 auto LabelMacFormatted = Utils::SerialToMAC(Utils::IntToSerialNumber(LabelMac));
                 auto LabelLanMacFormatted = Utils::SerialToMAC(Utils::IntToSerialNumber(LabelMac + 1));
-                TmpCapabilities["label_macaddr"] = LabelMac;
-                TmpCapabilities["macaddr"]["wan"] = LabelMac;
-                TmpCapabilities["macaddr"]["lan"] = LabelLanMacFormatted;
-                M["params"]["capabilities"] = TmpCapabilities;
-                if (Client->Send(to_string(M))) {
+                TmpCapabilities2["label_macaddr"] = LabelMac;
+                TmpCapabilities2["macaddr"]["wan"] = LabelMac;
+                TmpCapabilities2["macaddr"]["lan"] = LabelLanMacFormatted;
+                M["params"]["capabilities"] = TmpCapabilities2;
+*/
+
+                Poco::JSON::Object  ConnectMessage, Params, TmpCapabilities, Capabilities, MacAddr;
+                auto LabelMac = Utils::SerialNumberToInt(Client->SerialNumber_);
+                Params.set("serial", Client->SerialNumber_);
+                Params.set("uuid", Client->UUID_);
+                Params.set("firmware", Client->Firmware_);
+                MacAddr.set("wan", Client->SerialNumber_);
+                MacAddr.set("lan", Utils::SerialToMAC(Utils::IntToSerialNumber(LabelMac + 1)));
+                TmpCapabilities = *SimulationCoordinator()->GetSimCapabilitiesPtr();
+                TmpCapabilities.set("label_macaddr", Client->SerialNumber_);
+                TmpCapabilities.set("macaddr", MacAddr);
+                Params.set("capabilities", TmpCapabilities);
+
+                OWLSutils::MakeHeader(ConnectMessage,"connect",Params);
+
+                if (Client->SendObject(ConnectMessage)) {
                     Client->Reset();
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
                                               OWLSclientEvents::State, Client, Runner);

@@ -18,16 +18,14 @@ namespace OpenWifi::OWLSclientEvents {
         if(Client->Valid_ && Client->Connected_ ) {
             Runner->Report().ev_log++;
             try {
-                nlohmann::json M;
+                Poco::JSON::Object  Message, Params;
+                Params.set("serial", Client->SerialNumber_);
+                Params.set("uuid", Client->UUID_);
+                Params.set("severity", Severity);
+                Params.set("log", LogLine);
+                OWLSutils::MakeHeader(Message,"log",Params);
 
-                M["jsonrpc"] = "2.0";
-                M["method"] = "log";
-                M["params"]["serial"] = Client->Serial();
-                M["params"]["uuid"] = Client->UUID();
-                M["params"]["severity"] = Severity;
-                M["params"]["log"] = LogLine;
-
-                if (Client->Send(to_string(M))) {
+                if (Client->SendObject(Message)) {
                     return;
                 }
             } catch (const Poco::Exception &E) {

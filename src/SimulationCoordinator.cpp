@@ -147,6 +147,7 @@ namespace OpenWifi {
 
         sim_hint->second->Runner.Stop();
 		OWLSObjects::SimulationStatus S;
+        SimStats()->EndSim(sim_hint->second->Runner.Id());
 		SimStats()->GetCurrent(sim_hint->second->Runner.Id(), S);
 		StorageService()->SimulationResultsDB().CreateRecord(S);
         SimStats()->RemoveSim(sim_hint->second->Runner.Id());

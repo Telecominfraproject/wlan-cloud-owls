@@ -380,7 +380,7 @@ namespace OpenWifi {
         Unit.set("uptime",  now - StartTime_);
         Unit.set("temperature", std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)});
 
-        DEBUG_LINE(__FILE_NAME__);
+        DEBUG_LINE("file");
         Poco::JSON::Array RadioArray;
         for (auto &[_, radio] : AllRadios_) {
             Poco::JSON::Object doc;
@@ -388,22 +388,22 @@ namespace OpenWifi {
             RadioArray.add(doc);
         }
 
-        DEBUG_LINE(__FILE_NAME__);
+        DEBUG_LINE("file");
         Poco::JSON::Array all_interfaces;
         for (const auto &ap_interface_type :
                 {ap_interface_types::upstream, ap_interface_types::downstream}) {
             if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
-                DEBUG_LINE(__FILE_NAME__);
+                DEBUG_LINE("file");
                 Poco::JSON::Object  current_interface;
                 Poco::JSON::Array   ue_clients, up_ssids;
                 uint64_t ssid_num = 0, interfaces = 0;
 
-                DEBUG_LINE(__FILE_NAME__);
+                DEBUG_LINE("file");
                 for (auto &[interface, associations] : AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
-                    DEBUG_LINE(__FILE_NAME__);
+                    DEBUG_LINE("file");
                     if (interface_type == ap_interface_type) {
-                        DEBUG_LINE(__FILE_NAME__);
+                        DEBUG_LINE("file");
                         Poco::JSON::Array association_list;
                         std::string bssid;
                         for (auto &association : associations) {
@@ -422,7 +422,7 @@ namespace OpenWifi {
                             ue.set("last_seen", 0);
                             ue_clients.add(ue);
                         }
-                        DEBUG_LINE(__FILE_NAME__);
+                        DEBUG_LINE("file");
                         Poco::JSON::Object ssid_info;
                         ssid_info.set("associations", association_list);
                         ssid_info.set("bssid", bssid);
@@ -439,7 +439,7 @@ namespace OpenWifi {
                         up_ssids.add(ssid_info);
                     }
                 }
-                DEBUG_LINE(__FILE_NAME__);
+                DEBUG_LINE("file");
                 current_interface.set("ssids", up_ssids);
                 Poco::JSON::Object  C;
                 AllCounters_[ap_interface_type].to_json(C);
@@ -448,7 +448,7 @@ namespace OpenWifi {
                 //  if we have 2 interfaces, then the clients go to the downstream interface
                 //  if we only have 1 interface then this is bridged and therefore clients go on the
                 //  upstream
-                DEBUG_LINE(__FILE_NAME__);
+                DEBUG_LINE("file");
                 if ((AllCounters_.size() == 1 &&
                      ap_interface_type == ap_interface_types::upstream) ||
                     (AllCounters_.size() == 2 &&

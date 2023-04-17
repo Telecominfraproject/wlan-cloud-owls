@@ -15,7 +15,6 @@ namespace OpenWifi::OWLSclientEvents {
     void KeepAlive(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE("start");
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_keepalive++;
             try {
@@ -26,7 +25,6 @@ namespace OpenWifi::OWLSclientEvents {
                 OWLSutils::MakeHeader(Message,"ping",Params);
 
                 if (Client->SendObject(Message)) {
-                    DEBUG_LINE("sent");
                     Runner->Scheduler().in(std::chrono::seconds(Runner->Details().keepAlive),
                                               OWLSclientEvents::KeepAlive, Client, Runner);
                     return;

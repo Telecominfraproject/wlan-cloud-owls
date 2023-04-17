@@ -42,7 +42,7 @@ namespace OpenWifi {
 
     void SimulationRunner::ProgressUpdate(SimulationRunner *sim) {
         if(sim->Running_) {
-            std::cout << "Progress update..." << std::endl;
+//            std::cout << "Progress update..." << std::endl;
             OWLSNotifications::SimulationUpdate_t Notification;
             SimStats()->GetCurrent(sim->Id_, Notification.content);
             OWLSNotifications::SimulationUpdate(Notification);

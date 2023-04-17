@@ -122,6 +122,14 @@ examplesim() {
 EOF
 }
 
+testargcount() {
+  if [ "$1" != "$2" ];
+  then
+    echo "Expected $1 arguments but received $2"
+    exit 1
+  fi
+}
+
 createsim() {
   if [[ -z "$1" ]]; then
     echo "Simulation file is not passed as an argument. Please pass the simulation. To get example simulation definition, run 'examplesim' command and check 'example-sim.json' file"
@@ -137,6 +145,7 @@ createsim() {
 }
 
 listsims() {
+    testargcount 0 #$
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/simulation/*" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -144,6 +153,7 @@ listsims() {
 }
 
 getsim() {
+    testargcount 1 #$
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/simulation/$1" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -151,6 +161,7 @@ getsim() {
 }
 
 deletesim() {
+    testargcount 1 #$
     curl    ${FLAGS} -X DELETE "https://${OWLS}/api/v1/simulation?id=$1" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -158,6 +169,7 @@ deletesim() {
 }
 
 startsim()  {
+    testargcount 1 #$
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=start" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -165,6 +177,7 @@ startsim()  {
 }
 
 stopsim()  {
+    testargcount 2 #$
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=stop&runningId=$2" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -172,6 +185,7 @@ stopsim()  {
 }
 
 cancelsim()  {
+    testargcount 2 #$
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=cancel" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -179,33 +193,70 @@ cancelsim()  {
 }
 
 getsimstats() {
+    testargcount 1 #$
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/status/$1" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
     jq < ${result_file}
 }
 
-results() {
-    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/results" \
+liststatuses() {
+    testargcount 0 #$
+    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/status/*" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
     jq < ${result_file}
 }
 
+results() {
+    testargcount 1 #$
+    curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/results/$1" \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ${token}" > ${result_file}
+    jq < ${result_file}
+}
+
+help() {
+  echo "Usage "
+  echo "  ./cli <command> [<argument(s)]"
+  echo " "
+  echo "    createsim <simulation definition file name>"
+  echo "              Please look at examplesim for a simulation example"
+  echo "    examplesim"
+  echo "              Print a sample simulation configuration"
+  echo "    listsims"
+  echo "              Return all the defined simulations"
+  echo "    getsim <simulation-id>"
+  echo "              Return the details of a simulation definition"
+  echo "    deletesim <simulation-id>"
+  echo "              Delete a simulation definition"
+  echo "    startsim <simulation-id>"
+  echo "              Start running a simulation"
+  echo "    stopsim <simulation-id> <running-simulation-instance-id>"
+  echo "              Stop running a simulation"
+  echo "    cancelsim <simulation-id> <running-simulation-instance-id>"
+  echo "              Cancel running a simulation"
+  echo "    getsimstats <running-simulation-instance-id>"
+  echo "              Get stats on a running simulation"
+  echo "    results <simulation-id>"
+  echo "              Get stats on a running simulation"
+}
+
 shopt -s nocasematch
 case "$1" in
-    "login") login; echo "You succesfully logged in..."  ; logout ;;
+    "help") help ;;
+    "login") login; echo "You successfully logged in..."  ; logout ;;
     "examplesim") examplesim;;
     "createsim") login; createsim "$2"; logout;;
     "listsims") login; listsims; logout;;
-    "liststatuses") login; listsims; logout;;
+    "liststatuses") login; liststatuses; logout;;
     "getsim") login; getsim "$2"; logout;;
     "deletesim") login; deletesim "$2"; logout;;
     "startsim") login; startsim "$2"; logout;;
     "stopsim") login; stopsim "$2" "$3"; logout;;
     "cancelsim") login; cancelsim "$2" "$3"; logout;;
     "getsimstats") login; getsimstats "$2"; logout;;
-    "results") login; results ; logout;;
+    "results") login; results "$2"; logout;;
     *) help ;;
 esac
 

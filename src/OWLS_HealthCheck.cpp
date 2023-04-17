@@ -15,7 +15,7 @@ namespace OpenWifi::OWLSclientEvents {
     void HealthCheck(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE("start");
+//        DEBUG_LINE("start");
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_healthcheck++;
             try {
@@ -30,7 +30,6 @@ namespace OpenWifi::OWLSclientEvents {
                 OWLSutils::MakeHeader(Message,"healthcheck",Params);
 
                 if (Client->SendObject(Message)) {
-                    DEBUG_LINE("sent");
                     Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),
                                               OWLSclientEvents::HealthCheck, Client, Runner);
                     return;

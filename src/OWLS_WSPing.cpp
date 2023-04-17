@@ -15,7 +15,6 @@ namespace OpenWifi::OWLSclientEvents {
     void WSPing(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE("start");
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_wsping++;
             try {

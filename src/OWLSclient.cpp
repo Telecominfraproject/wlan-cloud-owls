@@ -425,6 +425,12 @@ namespace OpenWifi {
                         Poco::JSON::Object ssid_info;
                         ssid_info.set("associations", association_list);
                         ssid_info.set("bssid", bssid);
+                        ssid_info.set("band", OpenWifi::to_string(band));
+                        Poco::JSON::Object  Counters;
+                        AllCounters_[interface_type].to_json(Counters);
+                        ssid_info.set("counters", Counters);
+                        ssid_info.set("frequency", AllRadios_[band].frequency);
+                        ssid_info.set("iface", AllPortNames_[interface_type]);
                         ssid_info.set("mode", "ap");
                         ssid_info.set("ssid", ssid);
                         ssid_info.set("phy", AllRadios_[band].phy);

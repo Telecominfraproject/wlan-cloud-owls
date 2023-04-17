@@ -56,12 +56,17 @@ namespace OpenWifi {
 
 			uint64_t Now = Utils::Now();
             std::lock_guard     G(Mutex_);
-            for(auto &[_,simulation]:Simulations_) {
+
+            for(auto &[id,simulation]:Simulations_) {
                 if (simulation->Details.simulationLength != 0 &&
                     (Now - SimStats()->GetStartTime(simulation->Runner.Id())) > simulation->Details.simulationLength) {
                     std::string Error;
                     simulation->Runner.Stop();
-                    SimStats()->EndSim(simulation->Runner.Id());
+                    SimStats()->EndSim(id);
+                    OWLSObjects::SimulationStatus S;
+                    SimStats()->GetCurrent(id, S);
+                    StorageService()->SimulationResultsDB().CreateRecord(S);
+                    Simulations_.erase(id);
                 }
             }
 		}
@@ -100,6 +105,16 @@ namespace OpenWifi {
         return Res;
     }
 
+    bool SimulationCoordinator::IsSimulationRunning(const std::string &id) {
+        std::lock_guard G(Mutex_);
+
+        for(const auto &[instance_id,simulation]:Simulations_) {
+            if(simulation->Details.id==id)
+                return true;
+        }
+        return false;
+    }
+
 	bool SimulationCoordinator::StartSim(std::string &SimId, const std::string &Id,
 										 std::string &Error, const std::string &Owner) {
         std::lock_guard G(Mutex_);
@@ -130,10 +145,10 @@ namespace OpenWifi {
         }
 
         sim_hint->second->Runner.Stop();
-
 		OWLSObjects::SimulationStatus S;
 		SimStats()->GetCurrent(sim_hint->second->Runner.Id(), S);
 		StorageService()->SimulationResultsDB().CreateRecord(S);
+        Simulations_.erase(sim_hint);
 
 		return true;
 	}
@@ -150,6 +165,7 @@ namespace OpenWifi {
 
         sim_hint->second->Runner.Stop();
 		SimStats()->SetState(sim_hint->second->Runner.Id(),"none");
+        Simulations_.erase(sim_hint);
 
 		return true;
 	}

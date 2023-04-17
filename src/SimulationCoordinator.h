@@ -65,6 +65,7 @@ namespace OpenWifi {
 
         [[nodiscard]] Poco::JSON::Object::Ptr GetSimConfigurationPtr(uint64_t uuid);
         [[nodiscard]] Poco::JSON::Object::Ptr GetSimCapabilitiesPtr();
+        bool IsSimulationRunning(const std::string &id);
 
 	  private:
 		Poco::Thread Worker_;

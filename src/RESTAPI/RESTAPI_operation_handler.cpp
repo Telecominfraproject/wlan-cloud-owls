@@ -26,6 +26,10 @@ namespace OpenWifi {
 
 		std::string Error;
 		if (Op == "start") {
+            if(SimulationCoordinator()->IsSimulationRunning(Id)) {
+                RESTAPI::Errors::msg    E{.err_num=4001, .err_txt="Simulation is already running."};
+                return BadRequest(E);
+            }
 			SimulationCoordinator()->StartSim(SimId, Id, Error, UserInfo_.userinfo.email);
 		} else if (Op == "stop") {
 			SimulationCoordinator()->StopSim(SimId, Error);

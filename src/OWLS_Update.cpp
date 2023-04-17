@@ -3,11 +3,8 @@
 //
 #include "OWLSclient.h"
 #include "SimulationRunner.h"
-#include "SimulationCoordinator.h"
-#include <fmt/format.h>
 #include "SimStats.h"
 #include <Poco/NObserver.h>
-
 #include "OWLSclientEvents.h"
 
 namespace OpenWifi::OWLSclientEvents {

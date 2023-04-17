@@ -66,9 +66,6 @@ namespace OpenWifi {
 												   uint64_t max);
 		void  CreateLanClients(uint64_t min, uint64_t max);
 
-		nlohmann::json CreateState();
-		nlohmann::json CreateLinkState();
-
         Poco::JSON::Object CreateStatePtr();
         Poco::JSON::Object CreateLinkStatePtr();
 

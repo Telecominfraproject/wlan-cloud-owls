@@ -17,7 +17,6 @@ namespace OpenWifi {
 
         virtual void next() { last_update = Utils::Now(); };
         virtual void reset() = 0;
-        virtual void to_json(nlohmann::json &json ) const = 0;
         virtual void to_json(Poco::JSON::Object &json ) const = 0;
         virtual ~MockElement() = default;
         void SetSize(std::uint64_t S) { size = S; }
@@ -38,13 +37,6 @@ namespace OpenWifi {
 
         void reset() final {
 
-        }
-
-        void to_json(nlohmann::json &json) const final {
-            json["unit"]["memory"]["buffered"] = buffered;
-            json["unit"]["memory"]["cached"] = cached;
-            json["unit"]["memory"]["free"] = free;
-            json["unit"]["memory"]["total"] = total;
         }
 
         void to_json(Poco::JSON::Object &json ) const final {
@@ -74,10 +66,6 @@ namespace OpenWifi {
 
         }
 
-        void to_json(nlohmann::json &json) const final {
-            json["unit"]["load"] = std::vector<std::double_t> { load_1, load_5, load_15};
-        }
-
         void to_json(Poco::JSON::Object &json) const final {
             auto LoadArray = std::vector<std::double_t> { load_1, load_5, load_15};
             Poco::JSON::Object  ObjArr;
@@ -102,13 +90,6 @@ namespace OpenWifi {
 
         }
 
-        void to_json(nlohmann::json &json) const final {
-            json["ipv4_addresses"] = ipv4_addresses;
-            json["ipv6_addresses"] = ipv6_addresses;
-            json["ports"] = ports;
-            json["mac"] = mac;
-        }
-
         void to_json(Poco::JSON::Object &json) const final {
             json.set("ipv4_addresses", ipv4_addresses);
             json.set("ipv6_addresses", ipv6_addresses);
@@ -131,38 +112,6 @@ namespace OpenWifi {
 
         MockAssociation() : MockElement(1) {
 
-        }
-
-        void to_json(nlohmann::json &json) const final {
-            json["ack_signal"] = ack_signal;
-            json["ack_signal_avg"] = ack_signal_avg;
-            json["bssid"] = bssid;
-            json["station"] = station;
-            json["connected"] = connected;
-            json["inactive"] = inactive;
-            json["ipaddr_v4"] = ipaddr_v4;
-            json["rssi"] = rssi;
-            json["rx_bytes"] = rx_bytes;
-            json["rx_duration"] = rx_duration;
-            json["rx_packets"] = rx_packets;
-            json["rx_rate"]["bitrate"] = 200000;
-            json["rx_rate"]["chwidth"] = 40;
-            json["rx_rate"]["mcs"] = 9;
-            json["rx_rate"]["nss"] = 9;
-            json["rx_rate"]["sgi"] = true;
-            json["rx_rate"]["vht"] = true;
-
-            json["tx_bytes"] = tx_bytes;
-            json["tx_duration"] = tx_duration;
-            json["tx_failed"] = tx_failed;
-            json["tx_packets"] = tx_packets;
-            json["tx_retries"] = tx_retries;
-
-            json["tx_rate"]["bitrate"] = 200000;
-            json["tx_rate"]["chwidth"] = 40;
-            json["tx_rate"]["mcs"] = 9;
-            json["tx_rate"]["sgi"] = true;
-            json["tx_rate"]["ht"] = true;
         }
 
         void to_json(Poco::JSON::Object &json) const final {
@@ -264,22 +213,6 @@ namespace OpenWifi {
 
         }
 
-        void to_json(nlohmann::json &json) const final {
-            json["active_ms"] = active_ms;
-            json["busy_ms"] = busy_ms;
-            json["receive_ms"] = receive_ms;
-            json["transmit_ms"] = transmit_ms;
-            json["noise"] = noise;
-            json["temperature"] = temperature;
-            json["channel"] = channel;
-            json["channel_width"] = channel_width;
-            json["tx_power"] = tx_power;
-            json["phy"] = phy;
-            json["channels"] = channels;
-            json["frequency"] = frequency;
-            json["band"] = band;
-        }
-
         void to_json(Poco::JSON::Object &json) const final {
             json.set("active_ms", active_ms);
             json.set("busy_ms", busy_ms);
@@ -321,19 +254,6 @@ namespace OpenWifi {
         MockCounters() : MockElement(1) {
 
         }
-
-        void to_json(nlohmann::json &json) const final {
-            json["collisions"] = collisions;
-            json["multicast"] = multicast;
-            json["rx_bytes"] = rx_bytes;
-            json["rx_dropped"] = rx_dropped;
-            json["rx_errors"] = rx_errors;
-            json["rx_packets"] = rx_packets;
-            json["tx_bytes"] = tx_bytes;
-            json["tx_dropped"] = tx_dropped;
-            json["tx_errors"] = tx_errors;
-            json["tx_packets"] = tx_packets;
-       }
 
         void to_json(Poco::JSON::Object &json) const final {
             json.set("collisions", collisions);

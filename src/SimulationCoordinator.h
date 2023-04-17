@@ -61,10 +61,10 @@ namespace OpenWifi {
 		[[nodiscard]] inline const std::string &GetRootCAFileName() { return RootCAFileName_; }
 		[[nodiscard]] inline int GetLevel() const { return Level_; }
 		[[nodiscard]] const nlohmann::json &GetSimCapabilities() { return DefaultCapabilities_; }
-        [[nodiscard]] Poco::JSON::Object::Ptr GetSimCapabilitiesPtr();
 		[[nodiscard]] nlohmann::json GetSimConfiguration(uint64_t uuid);
 
-
+        [[nodiscard]] Poco::JSON::Object::Ptr GetSimConfigurationPtr(uint64_t uuid);
+        [[nodiscard]] Poco::JSON::Object::Ptr GetSimCapabilitiesPtr();
 
 	  private:
 		Poco::Thread Worker_;

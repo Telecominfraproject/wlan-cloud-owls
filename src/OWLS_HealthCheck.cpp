@@ -19,15 +19,7 @@ namespace OpenWifi::OWLSclientEvents {
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_healthcheck++;
             try {
-/*                nlohmann::json M, P;
-                P["memory"] = 23;
-                M["jsonrpc"] = "2.0";
-                M["method"] = "healthcheck";
-                M["params"]["serial"] = Client->Serial();
-                M["params"]["uuid"] = Client->UUID();
-                M["params"]["sanity"] = 100;
-                M["params"]["data"] = P;
-*/
+
                 Poco::JSON::Object  Message, Params, Data, Memory;
                 Memory.set("memory", 23);
                 Data.set("data", Memory);

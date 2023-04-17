@@ -20,22 +20,6 @@ namespace OpenWifi::OWLSclientEvents {
             try {
                 Runner->Report().ev_connect++;
 
-/*                nlohmann::json M;
-                M["jsonrpc"] = "2.0";
-                M["method"] = "connect";
-                M["params"]["serial"] = Client->Serial();
-                M["params"]["uuid"] = Client->UUID();
-                M["params"]["firmware"] = Client->Firmware();
-                auto TmpCapabilities2 = SimulationCoordinator()->GetSimCapabilities();
-                auto LabelMac = Utils::SerialNumberToInt(Client->Serial());
-                auto LabelMacFormatted = Utils::SerialToMAC(Utils::IntToSerialNumber(LabelMac));
-                auto LabelLanMacFormatted = Utils::SerialToMAC(Utils::IntToSerialNumber(LabelMac + 1));
-                TmpCapabilities2["label_macaddr"] = LabelMac;
-                TmpCapabilities2["macaddr"]["wan"] = LabelMac;
-                TmpCapabilities2["macaddr"]["lan"] = LabelLanMacFormatted;
-                M["params"]["capabilities"] = TmpCapabilities2;
-*/
-
                 Poco::JSON::Object  ConnectMessage, Params, TmpCapabilities, Capabilities, MacAddr;
                 auto LabelMac = Utils::SerialNumberToInt(Client->SerialNumber_);
                 Params.set("serial", Client->SerialNumber_);

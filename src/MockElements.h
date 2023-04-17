@@ -272,7 +272,7 @@ namespace OpenWifi {
             json["noise"] = noise;
             json["temperature"] = temperature;
             json["channel"] = channel;
-            json["channel_width"] = std::to_string(channel_width);
+            json["channel_width"] = channel_width;
             json["tx_power"] = tx_power;
             json["phy"] = phy;
             json["channels"] = channels;
@@ -288,7 +288,7 @@ namespace OpenWifi {
             json.set("noise", noise);
             json.set("temperature", temperature);
             json.set("channel", channel);
-            json.set("channel_width", std::to_string(channel_width));
+            json.set("channel_width", channel_width);
             json.set("tx_power", tx_power);
             json.set("phy", phy);
             json.set("channels", channels);

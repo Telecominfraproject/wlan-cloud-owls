@@ -32,6 +32,8 @@ namespace OpenWifi {
 
         void next() final {
             MockElement::next();
+            if(size==0)
+                size=7;
             free = total - (size * (128000 * OWLSutils::local_random(25000,75000))) - 150000000 ;
             cached = OWLSutils::local_random(25000000,100000000);
             buffered = OWLSutils::local_random(25000000,100000000);
@@ -63,6 +65,8 @@ namespace OpenWifi {
             MockElement::next();
             load_15 = load_5;
             load_5 = load_1;
+            if(size==0)
+                size=7;
             load_1 = (std::double_t) OWLSutils::local_random(10*size,100*size) / (std::double_t) (75 * size);
         }
 

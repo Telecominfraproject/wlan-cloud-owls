@@ -198,6 +198,7 @@ case "$1" in
     "examplesim") examplesim;;
     "createsim") login; createsim "$2"; logout;;
     "listsims") login; listsims; logout;;
+    "liststatuses") login; listsims; logout;;
     "getsim") login; getsim "$2"; logout;;
     "deletesim") login; deletesim "$2"; logout;;
     "startsim") login; startsim "$2"; logout;;

@@ -34,7 +34,7 @@ namespace OpenWifi {
             MockElement::next();
             if(size==0)
                 size=7;
-            free = total - (size * (128000 * OWLSutils::local_random(25000,75000))) - 150000000 ;
+            free = total - (size * (128000 + OWLSutils::local_random(25000,75000))) - 150000000 ;
             cached = OWLSutils::local_random(25000000,100000000);
             buffered = OWLSutils::local_random(25000000,100000000);
         }

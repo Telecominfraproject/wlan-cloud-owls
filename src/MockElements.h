@@ -53,9 +53,7 @@ namespace OpenWifi {
             Memory.set("cached", cached);
             Memory.set("free", free);
             Memory.set("total", total);
-            Poco::JSON::Object  Unit;
-            Unit.set("memory", Memory);
-            json.set("unit", Unit);
+            json.set("memory", Memory);
         }
 
     };
@@ -83,8 +81,7 @@ namespace OpenWifi {
         void to_json(Poco::JSON::Object &json) const final {
             auto LoadArray = std::vector<std::double_t> { load_1, load_5, load_15};
             Poco::JSON::Object  ObjArr;
-            ObjArr.set("load", LoadArray);
-            json.set("unit",ObjArr);
+            json.set("load", LoadArray);
         }
     };
 

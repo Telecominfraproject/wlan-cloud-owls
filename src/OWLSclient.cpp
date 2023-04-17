@@ -371,7 +371,6 @@ namespace OpenWifi {
     Poco::JSON::Object OWLSclient::CreateStatePtr() {
         Poco::JSON::Object  State,Unit;
 
-
         DEBUG_LINE("start");
         auto now = Utils::Now();
         Memory_.to_json(Unit);

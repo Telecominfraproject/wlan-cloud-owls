@@ -124,6 +124,11 @@ namespace OpenWifi {
             stats_hint->second.endTime = Utils::Now();
 		}
 
+        inline void RemoveSim(const std::string &id) {
+            std::lock_guard G(Mutex_);
+            Status_.erase(id);
+        }
+
 		inline void SetState(const std::string &id, const std::string &S) {
             std::lock_guard G(Mutex_);
             auto stats_hint = Status_.find(id);

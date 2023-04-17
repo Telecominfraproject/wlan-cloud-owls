@@ -66,6 +66,7 @@ namespace OpenWifi {
                     OWLSObjects::SimulationStatus S;
                     SimStats()->GetCurrent(id, S);
                     StorageService()->SimulationResultsDB().CreateRecord(S);
+                    SimStats()->RemoveSim(id);
                     Simulations_.erase(id);
                 }
             }
@@ -148,6 +149,7 @@ namespace OpenWifi {
 		OWLSObjects::SimulationStatus S;
 		SimStats()->GetCurrent(sim_hint->second->Runner.Id(), S);
 		StorageService()->SimulationResultsDB().CreateRecord(S);
+        SimStats()->RemoveSim(sim_hint->second->Runner.Id());
         Simulations_.erase(sim_hint);
 
 		return true;
@@ -165,6 +167,7 @@ namespace OpenWifi {
 
         sim_hint->second->Runner.Stop();
 		SimStats()->SetState(sim_hint->second->Runner.Id(),"none");
+        SimStats()->RemoveSim(sim_hint->second->Runner.Id());
         Simulations_.erase(sim_hint);
 
 		return true;

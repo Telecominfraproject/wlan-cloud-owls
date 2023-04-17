@@ -50,7 +50,7 @@ namespace OpenWifi {
 	void SimulationCoordinator::run() {
 		Running_ = true;
 		while (Running_) {
-			Poco::Thread::trySleep(10000);
+			Poco::Thread::trySleep(30000);
 			if (!Running_)
 				break;
 

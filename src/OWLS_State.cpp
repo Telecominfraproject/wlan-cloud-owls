@@ -22,17 +22,7 @@ namespace OpenWifi::OWLSclientEvents {
 
             Runner->Report().ev_state++;
             try {
-                nlohmann::json StateDoc;
-
-                StateDoc["jsonrpc"] = "2.0";
-                StateDoc["method"] = "state";
-
                 Poco::JSON::Object  Message, TempParams, Params;
-
-                nlohmann::json ParamsObj;
-                ParamsObj["serial"] = Client->Serial();
-                ParamsObj["uuid"] = Client->UUID();
-                ParamsObj["state"] = Client->CreateState();
 
                 TempParams.set("serial", Client->SerialNumber_);
                 TempParams.set("uuid", Client->UUID_);
@@ -43,7 +33,6 @@ namespace OpenWifi::OWLSclientEvents {
 
                 std::cout << "State: " << os.str() << std::endl;
 
-                auto ParamsStr = to_string(ParamsObj);
                 unsigned long BufSize = os.str().size() + 4000;
                 std::vector<Bytef> Buffer(BufSize);
                 compress(&Buffer[0], &BufSize, (Bytef *)os.str().c_str(), os.str().size());
@@ -54,19 +43,12 @@ namespace OpenWifi::OWLSclientEvents {
 
                 OWLSutils::MakeHeader(Message,"state",Params);
 
-
-                Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
-                                       OWLSclientEvents::State, Client, Runner);
-                return;
-
-                /*
-                if (Client->SendObject(StateDoc)) {
+                if (Client->SendObject(Message)) {
                     DEBUG_LINE("Sent");
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
-                                              OWLSclientEvents::State, Client, Runner);
+                                           OWLSclientEvents::State, Client, Runner);
                     return;
                 }
-                */
             } catch (const Poco::Exception &E) {
                 DEBUG_LINE("exception1");
                 Client->Logger().log(E);

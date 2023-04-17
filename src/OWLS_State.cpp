@@ -41,6 +41,8 @@ namespace OpenWifi::OWLSclientEvents {
                 std::ostringstream os;
                 TempParams.stringify(os);
 
+                std::cout << "State: " << os.str() << std::endl;
+
                 auto ParamsStr = to_string(ParamsObj);
                 unsigned long BufSize = os.str().size() + 4000;
                 std::vector<Bytef> Buffer(BufSize);

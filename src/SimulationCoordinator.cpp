@@ -333,10 +333,199 @@ namespace OpenWifi {
         }
     )~~~"_json;
 
-	nlohmann::json SimulationCoordinator::GetSimConfiguration(uint64_t uuid) {
+    static const std::string DefaultConfigurationStr = R"~~~(
+        {
+            "interfaces": [
+                {
+                    "ethernet": [
+                        {
+                            "select-ports": [
+                                "WAN*"
+                            ]
+                        }
+                    ],
+                    "ipv4": {
+                        "addressing": "dynamic"
+                    },
+                    "ipv6": {
+                        "addressing": "dynamic"
+                    },
+                    "name": "WAN",
+                    "role": "upstream",
+                    "services": [
+                        "lldp"
+                    ],
+                    "ssids": [
+                        {
+                            "bss-mode": "ap",
+                            "encryption": {
+                                "ieee80211w": "optional",
+                                "key": "OpenWifi",
+                                "proto": "psk2"
+                            },
+                            "name": "OpenWifi-test5",
+                            "wifi-bands": [
+                                "5G"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ethernet": [
+                        {
+                            "select-ports": [
+                                "LAN*"
+                            ]
+                        }
+                    ],
+                    "ipv4": {
+                        "addressing": "static",
+                        "dhcp": {
+                            "lease-count": 100,
+                            "lease-first": 10,
+                            "lease-time": "6h"
+                        },
+                        "subnet": "192.168.1.1/24"
+                    },
+                    "name": "LAN",
+                    "role": "downstream",
+                    "services": [
+                        "ssh",
+                        "lldp"
+                    ],
+                    "ssids": [
+                        {
+                            "bss-mode": "ap",
+                            "encryption": {
+                                "ieee80211w": "optional",
+                                "key": "OpenWifi",
+                                "proto": "psk2"
+                            },
+                            "name": "OpenWifi-test2",
+                            "wifi-bands": [
+                                "2G", "5G"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "metrics": {
+                "dhcp-snooping": {
+                    "filters": [
+                        "ack",
+                        "discover",
+                        "offer",
+                        "request",
+                        "solicit",
+                        "reply",
+                        "renew"
+                    ]
+                },
+                "health": {
+                    "interval": 60
+                },
+                "statistics": {
+                    "interval": 60,
+                    "types": [
+                        "ssids",
+                        "lldp",
+                        "clients"
+                    ]
+                },
+                "wifi-frames": {
+                    "filters": [
+                        "probe",
+                        "auth",
+                        "assoc",
+                        "disassoc",
+                        "deauth",
+                        "local-deauth",
+                        "inactive-deauth",
+                        "key-mismatch",
+                        "beacon-report",
+                        "radar-detected"
+                    ]
+                }
+            },
+            "radios": [
+                {
+                    "band": "2G",
+                    "bandwidth": 20,
+                    "beacon-interval": 100,
+                    "channel": "auto",
+                    "channel-mode": "VHT",
+                    "channel-width": 20,
+                    "country": "CA",
+                    "dtim-period": 2,
+                    "hostapd-iface-raw": [],
+                    "legacy-rates": false,
+                    "maximum-clients": 64,
+                    "rates": {
+                        "beacon": 6000,
+                        "multicast": 24000
+                    },
+                    "tx-power": 23
+                },
+                {
+                    "band": "5G",
+                    "bandwidth": 20,
+                    "beacon-interval": 100,
+                    "channel": "auto",
+                    "channel-mode": "HE",
+                    "channel-width": 80,
+                    "country": "CA",
+                    "dtim-period": 2,
+                    "he": {
+                        "bss-color": 64,
+                        "ema": false,
+                        "multiple-bssid": false
+                    },
+                    "hostapd-iface-raw": [],
+                    "legacy-rates": false,
+                    "maximum-clients": 50,
+                    "rates": {
+                        "beacon": 6000,
+                        "multicast": 24000
+                    },
+                    "tx-power": 23
+                }
+            ],
+            "services": {
+                "lldp": {
+                    "describe": "",
+                    "location": ""
+                },
+                "ssh": {
+                    "authorized-keys": [],
+                    "password-authentication": false,
+                    "port": 22
+                }
+            },
+            "unit": {
+                "leds-active": true,
+                "location": "bowen island",
+                "name": "Bowen Development Unit",
+                "random-password": false,
+                "timezone": "UTC-8:00"
+            },
+            "uuid": 1635660963
+        }
+    )~~~";
+
+    nlohmann::json SimulationCoordinator::GetSimConfiguration(uint64_t uuid) {
 		nlohmann::json Temp = DefaultConfiguration;
 		Temp["uuid"] = uuid;
 		return Temp;
 	}
+
+    Poco::JSON::Object::Ptr SimulationCoordinator::GetSimConfigurationPtr(uint64_t uuid) {
+        Poco::JSON::Object::Ptr res;
+
+        Poco::JSON::Parser  P;
+        res = P.parse(DefaultConfigurationStr).extract<Poco::JSON::Object::Ptr>();
+        res->set("uuid", uuid);
+        return res;
+    }
+
 
 } // namespace OpenWifi

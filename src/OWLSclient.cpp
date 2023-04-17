@@ -246,16 +246,25 @@ namespace OpenWifi {
 	}
 
     Poco::JSON::Object OWLSclient::CreateLinkStatePtr() {
-        Poco::JSON::Object  res;
+        Poco::JSON::Object res;
+        for (const auto &[interface_type, _] : AllCounters_) {
+            Poco::JSON::Object InterfaceInfo, InterfacePort;
+            InterfaceInfo.set("carrier",1);
+            InterfaceInfo.set("duplex","full");
+            InterfaceInfo.set("speed",1000);
+            InterfacePort.set(AllPortNames_[interface_type],InterfaceInfo);
+            res.set(AllInterfaceRoles_[interface_type], InterfacePort);
+/*
 
+            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["carrier"] = 1;
+            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["duplex"] =
+                    "full";
+            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["speed"] = 1000;
+*/
+        }
         return res;
     }
 
-    Poco::JSON::Object OWLSclient::CreateStatePtr() {
-        Poco::JSON::Object  res;
-
-        return res;
-    }
 
     nlohmann::json OWLSclient::CreateState() {
 		nlohmann::json State;
@@ -358,7 +367,109 @@ namespace OpenWifi {
 		return State;
 	}
 
-	void OWLSclient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
+
+    Poco::JSON::Object OWLSclient::CreateStatePtr() {
+        Poco::JSON::Object  State,Unit;
+
+
+        DEBUG_LINE("start");
+        auto now = Utils::Now();
+        Memory_.to_json(Unit);
+        Load_.to_json(Unit);
+        Unit.set("localtime", now);
+        Unit.set("uptime",  now - StartTime_);
+        Unit.set("temperature", std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)});
+
+        Poco::JSON::Array RadioArray;
+        for (auto &[_, radio] : AllRadios_) {
+            Poco::JSON::Object doc;
+            radio.to_json(doc);
+            RadioArray.add(doc);
+        }
+
+        Poco::JSON::Array all_interfaces;
+        for (const auto &ap_interface_type :
+                {ap_interface_types::upstream, ap_interface_types::downstream}) {
+            if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
+                Poco::JSON::Object  current_interface;
+                Poco::JSON::Array   ue_clients, up_ssids;
+                uint64_t ssid_num = 0, interfaces = 0;
+
+                for (auto &[interface, associations] : AllAssociations_) {
+                    auto &[interface_type, ssid, band] = interface;
+                    if (interface_type == ap_interface_type) {
+                        Poco::JSON::Array association_list;
+                        std::string bssid;
+                        for (auto &association : associations) {
+                            bssid = association.bssid;
+                            Poco::JSON::Object doc;
+                            association.to_json(doc);
+                            association_list.add(doc);
+                            Poco::JSON::Object ue;
+                            ue.set("mac", association.station);
+                            ue.set("ipv4_addresses", std::vector<std::string>{association.ipaddr_v4});
+                            ue.set("ipv6_addresses", std::vector<std::string>{association.ipaddr_v6});
+                            if(interface_type==upstream)
+                                ue.set("ports", std::vector<std::string>{"wwan0"});
+                            else
+                            ue.set("ports", std::vector<std::string>{"wlan0"});
+                            ue.set("last_seen", 0);
+                            ue_clients.add(ue);
+                        }
+                        Poco::JSON::Object ssid_info;
+                        ssid_info.set("associations", association_list);
+                        ssid_info.set("bssid", bssid);
+                        ssid_info.set("mode", "ap");
+                        ssid_info.set("ssid", ssid);
+                        ssid_info.set("phy", AllRadios_[band].phy);
+                        ssid_info.set("location", "/interfaces/" + std::to_string(interfaces) +
+                                                "/ssids/" + std::to_string(ssid_num++));
+                        ssid_info.set("name", AllInterfaceNames_[ap_interface_type]);
+                        Poco::JSON::Object  R;
+                        R.set("$ref",
+                                "#/radios/" + std::to_string(AllRadios_[band].index));
+                        ssid_info.set("radio", R);
+                        up_ssids.add(ssid_info);
+                    }
+                }
+                current_interface.set("ssids", up_ssids);
+                Poco::JSON::Object  C;
+                AllCounters_[ap_interface_type].to_json(C);
+                current_interface.set("counters", C);
+
+                //  if we have 2 interfaces, then the clients go to the downstream interface
+                //  if we only have 1 interface then this is bridged and therefore clients go on the
+                //  upstream
+                if ((AllCounters_.size() == 1 &&
+                     ap_interface_type == ap_interface_types::upstream) ||
+                    (AllCounters_.size() == 2 &&
+                     ap_interface_type == ap_interface_types::downstream)) {
+                    Poco::JSON::Array ip_clients;
+                    for (const auto &lan_client : AllLanClients_) {
+                        Poco::JSON::Object  d;
+                        lan_client.to_json(d);
+                        ip_clients.add(d);
+                    }
+                    for (const auto &ue_client : ue_clients) {
+                        ip_clients.add(ue_client);
+                    }
+                    current_interface.set("clients", ip_clients);
+                }
+                current_interface.set("name", AllInterfaceNames_[ap_interface_type]);
+                all_interfaces.add(current_interface);
+            }
+        }
+
+        State.set("version" , 1 );
+        State.set("radios", RadioArray);
+        State.set("link-state", CreateLinkState());
+        State.set("unit", Unit);
+        State.set("interfaces", all_interfaces);
+
+        return State;
+    }
+
+    void OWLSclient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
 		try {
             DEBUG_LINE("start");
 			if (Params.contains("serial") && Params.contains("uuid") && Params.contains("config")) {

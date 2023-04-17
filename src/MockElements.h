@@ -18,6 +18,7 @@ namespace OpenWifi {
         virtual void next() { last_update = Utils::Now(); };
         virtual void reset() = 0;
         virtual void to_json(nlohmann::json &json ) const = 0;
+        virtual void to_json(Poco::JSON::Object &json ) const = 0;
         virtual ~MockElement() = default;
         void SetSize(std::uint64_t S) { size = S; }
         std::uint64_t   last_update = Utils::Now();
@@ -45,6 +46,18 @@ namespace OpenWifi {
             json["unit"]["memory"]["free"] = free;
             json["unit"]["memory"]["total"] = total;
         }
+
+        void to_json(Poco::JSON::Object &json ) const final {
+            Poco::JSON::Object  Memory;
+            Memory.set("buffered", buffered);
+            Memory.set("cached", cached);
+            Memory.set("free", free);
+            Memory.set("total", total);
+            Poco::JSON::Object  Unit;
+            Unit.set("memory", Memory);
+            json.set("unit", Unit);
+        }
+
     };
 
     struct MockCPULoad : public MockElement {
@@ -65,6 +78,13 @@ namespace OpenWifi {
 
         void to_json(nlohmann::json &json) const final {
             json["unit"]["load"] = std::vector<std::double_t> { load_1, load_5, load_15};
+        }
+
+        void to_json(Poco::JSON::Object &json) const final {
+            auto LoadArray = std::vector<std::double_t> { load_1, load_5, load_15};
+            Poco::JSON::Object  ObjArr;
+            ObjArr.set("load", LoadArray);
+            json.set("unit",ObjArr);
         }
     };
 
@@ -91,6 +111,14 @@ namespace OpenWifi {
             json["ports"] = ports;
             json["mac"] = mac;
         }
+
+        void to_json(Poco::JSON::Object &json) const final {
+            json.set("ipv4_addresses", ipv4_addresses);
+            json.set("ipv6_addresses", ipv6_addresses);
+            json.set("ports", ports);
+            json.set("mac", mac);
+        }
+
     };
     typedef std::vector<MockLanClient> MockLanClients;
 
@@ -138,6 +166,45 @@ namespace OpenWifi {
             json["tx_rate"]["mcs"] = 9;
             json["tx_rate"]["sgi"] = true;
             json["tx_rate"]["ht"] = true;
+        }
+
+        void to_json(Poco::JSON::Object &json) const final {
+            json.set("ack_signal", ack_signal);
+            json.set("ack_signal_avg", ack_signal_avg);
+            json.set("bssid", bssid);
+            json.set("station", station);
+            json.set("connected", connected);
+            json.set("inactive", inactive);
+            json.set("ipaddr_v4", ipaddr_v4);
+            json.set("rssi", rssi);
+            json.set("rx_bytes", rx_bytes);
+            json.set("rx_duration", rx_duration);
+            json.set("rx_packets", rx_packets);
+            json.set("tx_packets", tx_packets);
+            json.set("tx_retries", tx_retries);
+
+            Poco::JSON::Object  rx_rate;
+            rx_rate.set("bitrate", 200000);
+            rx_rate.set("chwidth", 40);
+            rx_rate.set("mcs", 9);
+            rx_rate.set("nss", 9);
+            rx_rate.set("sgi", true);
+            rx_rate.set("vht", true);
+            json.set("rx_rate", rx_rate);
+
+            json.set("tx_bytes", tx_bytes);
+            json.set("tx_duration", tx_duration);
+            json.set("tx_failed", tx_failed);
+            json.set("tx_packets", tx_packets);
+            json.set("tx_retries", tx_retries);
+
+            Poco::JSON::Object  tx_rate;
+            tx_rate.set("bitrate", 200000);
+            tx_rate.set("chwidth", 40);
+            tx_rate.set("mcs", 9);
+            tx_rate.set("sgi", true);
+            tx_rate.set("ht", true);
+            json.set("tx_rate", tx_rate);
         }
 
         void next() final {
@@ -216,6 +283,22 @@ namespace OpenWifi {
             json["band"] = band;
         }
 
+        void to_json(Poco::JSON::Object &json) const final {
+            json.set("active_ms", active_ms);
+            json.set("busy_ms", busy_ms);
+            json.set("receive_ms", receive_ms);
+            json.set("transmit_ms", transmit_ms);
+            json.set("noise", noise);
+            json.set("temperature", temperature);
+            json.set("channel", channel);
+            json.set("channel_width", std::to_string(channel_width));
+            json.set("tx_power", tx_power);
+            json.set("phy", phy);
+            json.set("channels", channels);
+            json.set("frequency", frequency);
+            json.set("band", band);
+        }
+
         void next() final {
             MockElement::next();
             temperature = 50 + OWLSutils::local_random(-7, 7);
@@ -254,6 +337,19 @@ namespace OpenWifi {
             json["tx_errors"] = tx_errors;
             json["tx_packets"] = tx_packets;
        }
+
+        void to_json(Poco::JSON::Object &json) const final {
+            json.set("collisions", collisions);
+            json.set("multicast", multicast);
+            json.set("rx_bytes", rx_bytes);
+            json.set("rx_dropped", rx_dropped);
+            json.set("rx_errors", rx_errors);
+            json.set("rx_packets", rx_packets);
+            json.set("tx_bytes", tx_bytes);
+            json.set("tx_dropped", tx_dropped);
+            json.set("tx_errors", tx_errors);
+            json.set("tx_packets", tx_packets);
+        }
 
         void next() final {
             MockElement::next();

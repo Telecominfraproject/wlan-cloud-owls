@@ -12,7 +12,6 @@ namespace OpenWifi::OWLSclientEvents {
     void Update(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE("start");
         try {
             if(Client->Valid_ && Client->Connected_) {
                 Runner->Report().ev_update++;

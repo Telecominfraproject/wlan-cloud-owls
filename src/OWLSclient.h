@@ -24,6 +24,7 @@
 
 #include "MockElements.h"
 #include "OWLSclientEvents.h"
+#include <fmt/format.h>
 
 namespace OpenWifi {
 
@@ -34,7 +35,7 @@ namespace OpenWifi {
 		OWLSclient(std::string SerialNumber,
                    Poco::Logger &Logger, SimulationRunner *runner);
         ~OWLSclient() {
-            std::cout << SerialNumber_ << ": Deleting client" << std::endl;
+            poco_debug(Logger_,fmt::format("{} simulator client done.", SerialNumber_));
         }
 
 		bool Send(const std::string &Cmd);

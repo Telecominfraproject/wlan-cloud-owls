@@ -17,7 +17,6 @@ namespace OpenWifi::OWLSclientEvents {
 
         std::lock_guard G(Client->Mutex_);
 
-        DEBUG_LINE("start");
         if(Client->Valid_ && Client->Connected_) {
 
             Runner->Report().ev_state++;
@@ -44,7 +43,6 @@ namespace OpenWifi::OWLSclientEvents {
                 OWLSutils::MakeHeader(Message,"state",Params);
 
                 if (Client->SendObject(Message)) {
-                    DEBUG_LINE("Sent");
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
                                            OWLSclientEvents::State, Client, Runner);
                     return;

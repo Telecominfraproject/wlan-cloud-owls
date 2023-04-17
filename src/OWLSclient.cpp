@@ -371,7 +371,6 @@ namespace OpenWifi {
     Poco::JSON::Object OWLSclient::CreateStatePtr() {
         Poco::JSON::Object  State,Unit;
 
-        DEBUG_LINE("start");
         auto now = Utils::Now();
         Memory_.to_json(Unit);
         Load_.to_json(Unit);
@@ -421,7 +420,6 @@ namespace OpenWifi {
                             ue.set("last_seen", 0);
                             ue_clients.add(ue);
                         }
-                        DEBUG_LINE("file");
                         Poco::JSON::Object ssid_info;
                         ssid_info.set("associations", association_list);
                         ssid_info.set("bssid", bssid);
@@ -444,7 +442,6 @@ namespace OpenWifi {
                         up_ssids.add(ssid_info);
                     }
                 }
-                DEBUG_LINE("file");
                 current_interface.set("ssids", up_ssids);
                 Poco::JSON::Object  C;
                 AllCounters_[ap_interface_type].to_json(C);
@@ -453,7 +450,6 @@ namespace OpenWifi {
                 //  if we have 2 interfaces, then the clients go to the downstream interface
                 //  if we only have 1 interface then this is bridged and therefore clients go on the
                 //  upstream
-                DEBUG_LINE("file");
                 if ((AllCounters_.size() == 1 &&
                      ap_interface_type == ap_interface_types::upstream) ||
                     (AllCounters_.size() == 2 &&
@@ -755,7 +751,6 @@ namespace OpenWifi {
 		try {
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
 			if (BytesSent == Cmd.size()) {
-                DEBUG_LINE("sent");
 				SimStats()->AddTX(Runner_->Id(),Cmd.size());
 				SimStats()->AddOutMsg(Runner_->Id());
 				return true;
@@ -794,7 +789,6 @@ namespace OpenWifi {
 			std::string M = to_string(O);
 			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
 			if (BytesSent == M.size()) {
-                DEBUG_LINE("sent");
 				SimStats()->AddTX(Runner_->Id(),BytesSent);
 				SimStats()->AddOutMsg(Runner_->Id());
 				return true;
@@ -818,7 +812,6 @@ namespace OpenWifi {
             O.stringify(os);
             uint32_t BytesSent = WS_->sendFrame(os.str().c_str(), os.str().size());
             if (BytesSent == os.str().size()) {
-                DEBUG_LINE("sent");
                 SimStats()->AddTX(Runner_->Id(),BytesSent);
                 SimStats()->AddOutMsg(Runner_->Id());
                 return true;

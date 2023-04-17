@@ -234,17 +234,6 @@ namespace OpenWifi {
 		}
 	}
 
-	nlohmann::json OWLSclient::CreateLinkState() {
-		nlohmann::json res;
-		for (const auto &[interface_type, _] : AllCounters_) {
-			res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["carrier"] = 1;
-			res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["duplex"] =
-				"full";
-			res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["speed"] = 1000;
-		}
-		return res;
-	}
-
     Poco::JSON::Object OWLSclient::CreateLinkStatePtr() {
         Poco::JSON::Object res;
         for (const auto &[interface_type, _] : AllCounters_) {
@@ -254,119 +243,9 @@ namespace OpenWifi {
             InterfaceInfo.set("speed",1000);
             InterfacePort.set(AllPortNames_[interface_type],InterfaceInfo);
             res.set(AllInterfaceRoles_[interface_type], InterfacePort);
-/*
-
-            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["carrier"] = 1;
-            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["duplex"] =
-                    "full";
-            res[AllInterfaceRoles_[interface_type]][AllPortNames_[interface_type]]["speed"] = 1000;
-*/
         }
         return res;
     }
-
-
-    nlohmann::json OWLSclient::CreateState() {
-		nlohmann::json State;
-
-		State["version"] = 1;
-
-        DEBUG_LINE("start");
-		auto now = Utils::Now();
-		Memory_.to_json(State);
-        Load_.to_json(State);
-		State["unit"]["localtime"] = now;
-		State["unit"]["uptime"] = now - StartTime_;
-        State["unit"]["temperature"] = std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)};
-
-		for (auto &[_, radio] : AllRadios_) {
-			radio.next();
-            nlohmann::json doc;
-            radio.to_json(doc);
-			State["radios"].push_back(doc);
-		}
-
-		//  set the link state
-		State["link-state"] = CreateLinkState();
-
-		nlohmann::json all_interfaces;
-		for (const auto &ap_interface_type :
-			 {ap_interface_types::upstream, ap_interface_types::downstream}) {
-			if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
-				nlohmann::json current_interface;
-				nlohmann::json up_ssids;
-				uint64_t ssid_num = 0, interfaces = 0;
-
-				auto ue_clients = nlohmann::json::array();
-				for (auto &[interface, associations] : AllAssociations_) {
-					auto &[interface_type, ssid, band] = interface;
-					if (interface_type == ap_interface_type) {
-						nlohmann::json association_list;
-						std::string bssid;
-						for (auto &association : associations) {
-							association.next();
-							bssid = association.bssid;
-                            nlohmann::json doc;
-                            association.to_json(doc);
-							association_list.push_back(doc);
-							nlohmann::json ue;
-							ue["mac"] = association.station;
-							ue["ipv4_addresses"].push_back(association.ipaddr_v4);
-							ue["ipv6_addresses"].push_back(association.ipaddr_v6);
-                            if(interface_type==upstream)
-							    ue["ports"].push_back("wwan0");
-                            else
-                                ue["ports"].push_back("wlan0");
-                            ue["last_seen"] = 0 ;
-                            ue_clients.push_back(ue);
-						}
-						nlohmann::json ssid_info;
-						ssid_info["associations"] = association_list;
-						ssid_info["bssid"] = bssid;
-						ssid_info["mode"] = "ap";
-						ssid_info["ssid"] = ssid;
-						ssid_info["phy"] = AllRadios_[band].phy;
-						ssid_info["location"] = "/interfaces/" + std::to_string(interfaces) +
-												"/ssids/" + std::to_string(ssid_num++);
-						ssid_info["radio"]["$ref"] =
-							"#/radios/" + std::to_string(AllRadios_[band].index);
-						ssid_info["name"] = AllInterfaceNames_[ap_interface_type];
-						up_ssids.push_back(ssid_info);
-					}
-				}
-				current_interface["ssids"] = up_ssids;
-				AllCounters_[ap_interface_type].next();
-                nlohmann::json doc;
-                AllCounters_[ap_interface_type].to_json(doc);
-				current_interface["counters"] = doc;
-
-				//  if we have 2 interfaces, then the clients go to the downstream interface
-				//  if we only have 1 interface then this is bridged and therefore clients go on the
-				//  upstream
-				if ((AllCounters_.size() == 1 &&
-					 ap_interface_type == ap_interface_types::upstream) ||
-					(AllCounters_.size() == 2 &&
-					 ap_interface_type == ap_interface_types::downstream)) {
-					nlohmann::json state_lan_clients;
-					for (const auto &lan_client : AllLanClients_) {
-                        nlohmann::json d;
-                        lan_client.to_json(d);
-						state_lan_clients.push_back(d);
-					}
-					for (const auto &ue_client : ue_clients) {
-						state_lan_clients.push_back(ue_client);
-					}
-					current_interface["clients"] = state_lan_clients;
-				}
-				current_interface["name"] = AllInterfaceNames_[ap_interface_type];
-				all_interfaces.push_back(current_interface);
-			}
-		}
-		State["interfaces"] = all_interfaces;
-
-		return State;
-	}
-
 
     Poco::JSON::Object OWLSclient::CreateStatePtr() {
         Poco::JSON::Object  State,Unit;
@@ -378,7 +257,6 @@ namespace OpenWifi {
         Unit.set("uptime",  now - StartTime_);
         Unit.set("temperature", std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)});
 
-        DEBUG_LINE("file");
         Poco::JSON::Array RadioArray;
         for (auto &[_, radio] : AllRadios_) {
             Poco::JSON::Object doc;
@@ -386,22 +264,17 @@ namespace OpenWifi {
             RadioArray.add(doc);
         }
 
-        DEBUG_LINE("file");
         Poco::JSON::Array all_interfaces;
         for (const auto &ap_interface_type :
                 {ap_interface_types::upstream, ap_interface_types::downstream}) {
             if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
-                DEBUG_LINE("file");
                 Poco::JSON::Object  current_interface;
                 Poco::JSON::Array   ue_clients, up_ssids;
                 uint64_t ssid_num = 0, interfaces = 0;
 
-                DEBUG_LINE("file");
                 for (auto &[interface, associations] : AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
-                    DEBUG_LINE("file");
                     if (interface_type == ap_interface_type) {
-                        DEBUG_LINE("file");
                         Poco::JSON::Array association_list;
                         std::string bssid;
                         for (auto &association : associations) {

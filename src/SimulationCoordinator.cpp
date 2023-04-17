@@ -57,7 +57,9 @@ namespace OpenWifi {
 			uint64_t Now = Utils::Now();
             std::lock_guard     G(Mutex_);
 
-            for(auto &[id,simulation]:Simulations_) {
+            for(auto it = Simulations_.begin(); it!=end(Simulations_); ) {
+                const auto &id = it->first;
+                const auto &simulation = it->second;
                 if (simulation->Details.simulationLength != 0 &&
                     (Now - SimStats()->GetStartTime(simulation->Runner.Id())) > simulation->Details.simulationLength) {
                     std::string Error;
@@ -67,9 +69,13 @@ namespace OpenWifi {
                     SimStats()->GetCurrent(id, S);
                     StorageService()->SimulationResultsDB().CreateRecord(S);
                     SimStats()->RemoveSim(id);
-                    Simulations_.erase(id);
+                    it = Simulations_.erase(it);
+                } else {
+                    ++it;
                 }
             }
+
+
 		}
 	}
 

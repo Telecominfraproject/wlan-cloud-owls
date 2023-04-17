@@ -14,6 +14,15 @@ namespace OpenWifi {
         band_2g, band_5g, band_6g
     };
 
+   inline  std::string to_string(radio_bands b) {
+        switch(b) {
+            case radio_bands::band_5g: return "5G";
+            case radio_bands::band_6g: return "6G";
+            default:
+                return "2G";
+        }
+    }
+
     namespace OWLSutils {
 
         template<typename T>

@@ -137,12 +137,12 @@ namespace OpenWifi {
 
         SimulationRunner    *Runner_ = nullptr;
 
-		MockLanClients AllLanClients_;
-		associations_map_t AllAssociations_;
-		std::map<radio_bands, MockRadio> AllRadios_;
-		std::map<ap_interface_types, MockCounters> AllCounters_;
-		std::map<ap_interface_types, std::string> AllInterfaceNames_;
-		std::map<ap_interface_types, std::string> AllInterfaceRoles_;
-		std::map<ap_interface_types, std::string> AllPortNames_;
+		MockLanClients                              AllLanClients_;
+		associations_map_t                          AllAssociations_;
+		std::map<radio_bands, MockRadio>            AllRadios_;
+		std::map<ap_interface_types, MockCounters>  AllCounters_;
+		std::map<ap_interface_types, std::string>   AllInterfaceNames_;
+		std::map<ap_interface_types, std::string>   AllInterfaceRoles_;
+		std::map<ap_interface_types, std::string>   AllPortNames_;
 	};
 } // namespace OpenWifi

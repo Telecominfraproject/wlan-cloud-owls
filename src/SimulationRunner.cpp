@@ -207,6 +207,7 @@ namespace OpenWifi {
             Client->DoLEDs(Client, Id, Params);
         } else {
             Logger_.warning(fmt::format("COMMAND({}): unknown method '{}'", Client->SerialNumber_, Method));
+            Client->UNsupportedCommand(Client, Id, Method);
         }
 
     }

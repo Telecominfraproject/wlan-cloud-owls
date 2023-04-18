@@ -365,7 +365,6 @@ namespace OpenWifi {
 
     void OWLSclient::DoConfigure([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
-            DEBUG_LINE("start");
 			if (Params->has("serial") && Params->has("config")) {
 				uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
 				std::string Serial = Params->get("serial");
@@ -603,7 +602,6 @@ namespace OpenWifi {
 
 	bool OWLSclient::SendWSPing() {
 		try {
-            DEBUG_LINE("start");
 			WS_->sendFrame(
 				"", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
 			return true;

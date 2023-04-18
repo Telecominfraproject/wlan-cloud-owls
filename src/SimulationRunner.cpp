@@ -28,6 +28,7 @@ namespace OpenWifi {
         Running_ = true;
 		std::lock_guard Lock(Mutex_);
 
+        SocketReactorThread_.start(Reactor_);
 		for (uint64_t i = 0; i < Details_.devices; i++) {
 			char Buffer[32];
 			snprintf(Buffer, sizeof(Buffer), "%s%05x0", Details_.macPrefix.c_str(), (unsigned int)i);
@@ -38,6 +39,7 @@ namespace OpenWifi {
 			Clients_[Buffer] = Client;
 		}
         Scheduler_.in(std::chrono::seconds(10), ProgressUpdate, this);
+
 	}
 
     void SimulationRunner::ProgressUpdate(SimulationRunner *sim) {

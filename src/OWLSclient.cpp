@@ -127,6 +127,8 @@ namespace OpenWifi {
 	}
 
 	void OWLSclient::Reset() {
+        Memory_.reset();
+        Load_.reset();
 
 		for (auto &[_, radio] : AllRadios_) {
 			radio.reset();
@@ -141,6 +143,10 @@ namespace OpenWifi {
 		for (auto &[_, counter] : AllCounters_) {
 			counter.reset();
 		}
+
+        for(auto &lan_client:AllLanClients_) {
+            lan_client.reset();
+        }
 	}
 
 	void OWLSclient::UpdateConfiguration() {
@@ -404,6 +410,27 @@ namespace OpenWifi {
         }
 	}
 
+    void OWLSclient::Disconnect() {
+        if(Valid_) {
+            Runner_->Report().ev_disconnect++;
+            if (Connected_) {
+                Runner_->RemoveClientFd(fd_);
+                fd_ = -1;
+                Runner_->Reactor().removeEventHandler(
+                        *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
+                                *Runner_, &SimulationRunner::OnSocketReadable));
+                Runner_->Reactor().removeEventHandler(
+                        *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
+                                *Runner_, &SimulationRunner::OnSocketError));
+                Runner_->Reactor().removeEventHandler(
+                        *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
+                                *Runner_, &SimulationRunner::OnSocketShutdown));
+                (*WS_).close();
+            }
+            Connected_ = false;
+        }
+    }
+
 	void OWLSclient::DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
             if (Params->has("serial") && Params->has("when")) {
@@ -422,9 +449,9 @@ namespace OpenWifi {
                 Answer.set("result", Result);
                 poco_information(Logger_,fmt::format("reboot({}): done.", SerialNumber_));
                 SendObject(Answer);
-
-                std::this_thread::sleep_for(std::chrono::seconds(5));
-				Reset();
+                Disconnect();
+                Reset();
+                std::this_thread::sleep_for(std::chrono::seconds(20));
                 OWLSclientEvents::Disconnect(Client, Runner_, "Command: reboot", true);
 			} else {
 				Logger_.warning(fmt::format("reboot({}): Illegal command.", SerialNumber_));
@@ -471,9 +498,10 @@ namespace OpenWifi {
                 Answer.set("result", Result);
                 poco_information(Logger_,fmt::format("upgrade({}): from URI={}.", SerialNumber_, URI));
                 SendObject(Answer);
+                Disconnect();
 				Version_++;
 				SetFirmware(GetFirmware(URI));
-                std::this_thread::sleep_for(std::chrono::seconds(5));
+                std::this_thread::sleep_for(std::chrono::seconds(30));
                 Reset();
                 OWLSclientEvents::Disconnect(Client, Runner_, "Command: upgrade", true);
 			} else {
@@ -506,7 +534,7 @@ namespace OpenWifi {
                 Answer.set("result", Result);
                 poco_information(Logger_, fmt::format("factory({}): done.", SerialNumber_));
                 SendObject(Answer);
-
+                Disconnect();
 				CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
 				UpdateConfiguration();
                 std::this_thread::sleep_for(std::chrono::seconds(5));

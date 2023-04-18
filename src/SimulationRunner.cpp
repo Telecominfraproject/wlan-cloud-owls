@@ -78,7 +78,7 @@ namespace OpenWifi {
             return;
         }
         client = client_hint->second;
-        Clients_fd_.erase(socket);
+        client->Disconnect();
         Reactor_.removeEventHandler(
                 *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                         *this, &SimulationRunner::OnSocketReadable));
@@ -106,17 +106,7 @@ namespace OpenWifi {
             return;
         }
         client = client_hint->second;
-        Clients_fd_.erase(socket);
-        Reactor_.removeEventHandler(
-                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
-                        *this, &SimulationRunner::OnSocketReadable));
-        Reactor_.removeEventHandler(
-                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
-                        *this, &SimulationRunner::OnSocketError));
-        Reactor_.removeEventHandler(
-                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
-                        *this, &SimulationRunner::OnSocketShutdown));
-        client->fd_ = -1;
+        client->Disconnect();
         if(Running_)
             OWLSclientEvents::Reconnect(client,this);
     }

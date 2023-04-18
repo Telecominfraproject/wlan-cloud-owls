@@ -19,21 +19,7 @@ namespace OpenWifi::OWLSclientEvents {
 
         if(Client->Valid_) {
             Runner->Report().ev_disconnect++;
-            if (Client->Connected_) {
-                Runner->RemoveClientFd(Client->fd_);
-                Client->fd_ = -1;
-                Runner->Reactor().removeEventHandler(
-                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
-                                *Client->Runner_, &SimulationRunner::OnSocketReadable));
-                Runner->Reactor().removeEventHandler(
-                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
-                                *Client->Runner_, &SimulationRunner::OnSocketError));
-                Runner->Reactor().removeEventHandler(
-                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
-                                *Client->Runner_, &SimulationRunner::OnSocketShutdown));
-                (*Client->WS_).close();
-            }
-            Client->Connected_ = false;
+            Client->Disconnect();
             poco_debug(Client->Logger(),fmt::format("{}: disconnecting. Reason: {}", Client->SerialNumber_, Reason));
             if(Reconnect) {
                 Runner->Scheduler().in(std::chrono::seconds(OWLSutils::local_random(3, 15)),

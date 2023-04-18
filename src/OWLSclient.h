@@ -57,6 +57,8 @@ namespace OpenWifi {
         using interface_location_t = std::tuple<ap_interface_types, std::string, radio_bands>;
         using associations_map_t = std::map<interface_location_t, MockAssociations>;
 
+        void Disconnect();
+
 		void CreateAssociations(const interface_location_t &interface,const std::string &bssid, uint64_t min,
 												   uint64_t max);
 		void  CreateLanClients(uint64_t min, uint64_t max);

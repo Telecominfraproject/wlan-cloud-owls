@@ -6,7 +6,6 @@
 #include "SimStats.h"
 #include "StorageService.h"
 
-#include "Poco/Environment.h"
 #include "fmt/format.h"
 #include "framework/MicroServiceFuncs.h"
 #include "framework/utils.h"
@@ -50,23 +49,21 @@ namespace OpenWifi {
 	void SimulationCoordinator::run() {
 		Running_ = true;
 		while (Running_) {
-			Poco::Thread::trySleep(10000);
+			Poco::Thread::trySleep(20000);
 			if (!Running_)
 				break;
 
 			uint64_t Now = Utils::Now();
             std::lock_guard     G(Mutex_);
 
-            std::cout << "Checking sims..." << std::endl;
-
             for(auto it = Simulations_.begin(); it!=end(Simulations_); ) {
                 const auto &id = it->first;
                 const auto &simulation = it->second;
-                std::cout << "Checking sims...: " << simulation->Details.simulationLength << std::endl;
                 if (simulation->Details.simulationLength != 0 &&
                     (Now - SimStats()->GetStartTime(id)) > simulation->Details.simulationLength) {
+                    poco_information(Logger(),fmt::format("Simulation'{}' ({}) just completed.", simulation->Details.name,
+                                                          simulation->Runner.Id()));
                     std::string Error;
-                    std::cout << "Sim is done: " << simulation->Details.name << std::endl;
                     simulation->Runner.Stop();
                     SimStats()->EndSim(id);
                     OWLSObjects::SimulationStatus S;
@@ -75,7 +72,8 @@ namespace OpenWifi {
                     SimStats()->RemoveSim(id);
                     it = Simulations_.erase(it);
                 } else {
-                    std::cout << "Sim is good: " << simulation->Details.name << std::endl;
+                    poco_information(Logger(),fmt::format("Simulation'{}' ({}) still running.", simulation->Details.name,
+                                                          simulation->Runner.Id()));
                     ++it;
                 }
             }

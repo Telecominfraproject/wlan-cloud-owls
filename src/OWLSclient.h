@@ -53,6 +53,7 @@ namespace OpenWifi {
 		void DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
 		void DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
 		void DoLEDs(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+        void UNsupportedCommand(std::shared_ptr<OWLSclient> Client, uint64_t Id, const std::string &Method);
 
         using interface_location_t = std::tuple<ap_interface_types, std::string, radio_bands>;
         using associations_map_t = std::map<interface_location_t, MockAssociations>;

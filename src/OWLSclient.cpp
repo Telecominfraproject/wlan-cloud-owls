@@ -562,6 +562,23 @@ namespace OpenWifi {
 		}
 	}
 
+    void OWLSclient::UNsupportedCommand(std::shared_ptr<OWLSclient> Client, uint64_t Id,
+                                        const std::string & Method) {
+        try {
+            Poco::JSON::Object Answer, Result, Status;
+            Status.set("error", 1);
+            Status.set("text", "Command not supported");
+            Result.set("serial", Client->SerialNumber_);
+            Result.set("status", Status);
+            OWLSutils::MakeRPCHeader(Answer, Id, Result);
+            poco_information(Logger_,fmt::format("UNSUPPORTED({}): command {} not allowed for simulated devices.",
+                                                 SerialNumber_, Method));
+            SendObject(Answer);
+        } catch(const Poco::Exception &E) {
+
+        }
+    }
+
 	bool OWLSclient::Send(const std::string &Cmd) {
 
 		try {

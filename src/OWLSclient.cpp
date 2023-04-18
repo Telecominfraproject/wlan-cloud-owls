@@ -4,18 +4,13 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
-#include <sys/time.h>
 #include <thread>
 #include <tuple>
 
 #include "OWLS_utils.h"
 
 #include "Poco/NObserver.h"
-#include "Poco/Net/Context.h"
 #include "Poco/Net/HTTPRequest.h"
-#include "Poco/Net/HTTPResponse.h"
-#include "Poco/Net/HTTPSClientSession.h"
-#include "Poco/Net/SSLException.h"
 #include "Poco/URI.h"
 
 #include "OWLSclient.h"
@@ -25,7 +20,8 @@
 #include "SimStats.h"
 #include "SimulationCoordinator.h"
 #include "fmt/format.h"
-#include <nlohmann/json.hpp>
+
+#include <framework/ow_constants.h>
 
 using namespace std::chrono_literals;
 
@@ -403,9 +399,7 @@ namespace OpenWifi {
                 Result.set("serial", Serial);
                 Result.set("uuid", UUID);
                 Result.set("status", Status);
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-                Answer.set("result", Result);
+                OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
 				SendObject(Answer);
 			} else {
@@ -454,9 +448,7 @@ namespace OpenWifi {
                 Result.set("serial", Serial);
                 Result.set("uuid", UUID_);
                 Result.set("status", Status);
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-                Answer.set("result", Result);
+                OWLSutils::MakeRPCHeader(Answer,Id,Result);
                 poco_information(Logger_,fmt::format("reboot({}): done.", SerialNumber_));
                 SendObject(Answer);
                 Disconnect();
@@ -503,9 +495,7 @@ namespace OpenWifi {
                 Result.set("serial", Serial);
                 Result.set("uuid", UUID_);
                 Result.set("status", Status);
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-                Answer.set("result", Result);
+                OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("upgrade({}): from URI={}.", SerialNumber_, URI));
                 SendObject(Answer);
                 Disconnect();
@@ -539,9 +529,7 @@ namespace OpenWifi {
                 Result.set("serial", Serial);
                 Result.set("uuid", UUID_);
                 Result.set("status", Status);
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-                Answer.set("result", Result);
+                OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_, fmt::format("factory({}): done.", SerialNumber_));
                 SendObject(Answer);
                 Disconnect();
@@ -574,9 +562,7 @@ namespace OpenWifi {
                 Result.set("serial", Serial);
                 Result.set("uuid", UUID_);
                 Result.set("status", Status);
-                Answer.set("jsonrpc", "2.0");
-                Answer.set("id", Id);
-                Answer.set("result", Result);
+                OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
                                                 SerialNumber_, Duration, Pattern));
                 SendObject(Answer);

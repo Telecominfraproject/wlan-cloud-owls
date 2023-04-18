@@ -5,7 +5,8 @@
 #pragma once
 
 #include <random>
-#include "framework/MicroServiceFuncs.h"
+#include <framework/MicroServiceFuncs.h>
+#include <framework/ow_constants.h>
 
 namespace OpenWifi {
 
@@ -205,9 +206,15 @@ namespace OpenWifi {
         }
 
         inline void MakeHeader(Poco::JSON::Object &Message, const char *method, const Poco::JSON::Object &Params) {
-            Message.set("jsonrpc", "2.0");
-            Message.set("method", method);
-            Message.set("params", Params);
+            Message.set(uCentralProtocol::JSONRPC, "2.0");
+            Message.set(uCentralProtocol::METHOD, method);
+            Message.set(uCentralProtocol::PARAMS, Params);
+        }
+
+        inline void MakeRPCHeader(Poco::JSON::Object &Message, std::uint64_t Id, const Poco::JSON::Object &Result) {
+            Message.set(uCentralProtocol::JSONRPC, "2.0");
+            Message.set(uCentralProtocol::ID, Id);
+            Message.set(uCentralProtocol::RESULT, Result);
         }
 
         inline bool is_integer(const std::string &s) {

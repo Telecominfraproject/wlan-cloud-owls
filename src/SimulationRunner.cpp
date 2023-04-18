@@ -44,7 +44,6 @@ namespace OpenWifi {
 
     void SimulationRunner::ProgressUpdate(SimulationRunner *sim) {
         if(sim->Running_) {
-//            std::cout << "Progress update..." << std::endl;
             OWLSNotifications::SimulationUpdate_t Notification;
             SimStats()->GetCurrent(sim->Id_, Notification.content);
             OWLSNotifications::SimulationUpdate(Notification);
@@ -115,12 +114,10 @@ namespace OpenWifi {
         std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;
         std::shared_ptr<OWLSclient> client;
 
-        DEBUG_LINE("got some data")
         int socket;
         {
             std::lock_guard G(Mutex_);
 
-            DEBUG_LINE("locked and loaded")
             socket = pNf->socket().impl()->sockfd();
             client_hint = Clients_fd_.find(socket);
             if (client_hint == end(Clients_fd_)) {
@@ -129,8 +126,6 @@ namespace OpenWifi {
             }
             client = client_hint->second;
         }
-
-        DEBUG_LINE("found data")
 
         std::lock_guard Guard(client->Mutex_);
 

@@ -279,7 +279,7 @@ components:
           maxLength: 6
         devices:
           type: integer
-          minimum: 1
+          minimum: 5
           default: 10
           maximum: 50000
         healthCheckInterval:

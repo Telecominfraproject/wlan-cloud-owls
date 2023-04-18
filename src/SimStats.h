@@ -46,40 +46,24 @@ namespace OpenWifi {
 			return instance_;
 		}
 
-		inline void AddRX(const std::string &id, uint64_t N) {
-            std::lock_guard G(Mutex_);
-            auto stats_hint = Status_.find(id);
-            if(stats_hint==end(Status_)) {
-                return;
-            }
-            stats_hint->second.rx += N;
-		}
-
-		inline void AddOutMsg(const std::string &id) {
+		inline void AddOutMsg(const std::string &id, int64_t N) {
             std::lock_guard G(Mutex_);
             auto stats_hint = Status_.find(id);
             if(stats_hint==end(Status_)) {
                 return;
             }
             stats_hint->second.msgsTx++;
-		}
-
-		inline void AddInMsg(const std::string &id) {
-            std::lock_guard G(Mutex_);
-            auto stats_hint = Status_.find(id);
-            if(stats_hint==end(Status_)) {
-                return;
-            }
-            stats_hint->second.msgsRx++;
-		}
-
-		inline void AddTX(const std::string &id, uint64_t N) {
-            std::lock_guard G(Mutex_);
-            auto stats_hint = Status_.find(id);
-            if(stats_hint==end(Status_)) {
-                return;
-            }
             stats_hint->second.tx += N;
+		}
+
+		inline void AddInMsg(const std::string &id, int64_t N) {
+            std::lock_guard G(Mutex_);
+            auto stats_hint = Status_.find(id);
+            if(stats_hint==end(Status_)) {
+                return;
+            }
+            stats_hint->second.rx += N;
+            stats_hint->second.msgsRx++;
 		}
 
 		inline void GetCurrent(const std::string &id, OWLSObjects::SimulationStatus &S) {

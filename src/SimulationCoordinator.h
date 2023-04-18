@@ -60,8 +60,6 @@ namespace OpenWifi {
 		[[nodiscard]] inline const std::string &GetKeyFileName() { return KeyFileName_; }
 		[[nodiscard]] inline const std::string &GetRootCAFileName() { return RootCAFileName_; }
 		[[nodiscard]] inline int GetLevel() const { return Level_; }
-		[[nodiscard]] const nlohmann::json &GetSimCapabilities() { return DefaultCapabilities_; }
-		[[nodiscard]] nlohmann::json GetSimConfiguration(uint64_t uuid);
 
         [[nodiscard]] Poco::JSON::Object::Ptr GetSimConfigurationPtr(uint64_t uuid);
         [[nodiscard]] Poco::JSON::Object::Ptr GetSimCapabilitiesPtr();
@@ -75,7 +73,7 @@ namespace OpenWifi {
 		std::string CertFileName_;
 		std::string KeyFileName_;
 		std::string RootCAFileName_;
-		nlohmann::json DefaultCapabilities_;
+		Poco::JSON::Object::Ptr DefaultCapabilities_;
 		int Level_ = 0;
 
 		SimulationCoordinator() noexcept

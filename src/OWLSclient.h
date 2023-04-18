@@ -18,8 +18,6 @@
 #include "Poco/Thread.h"
 
 #include "framework/utils.h"
-
-#include "nlohmann/json.hpp"
 #include "OWLSdefinitions.h"
 
 #include "MockElements.h"
@@ -40,9 +38,7 @@ namespace OpenWifi {
 
 		bool Send(const std::string &Cmd);
 		bool SendWSPing();
-		bool SendObject(const nlohmann::json &O);
         bool SendObject(const Poco::JSON::Object &O);
-
 		void SetFirmware(const std::string &S = "sim-firmware-1") { Firmware_ = S; }
 
 		[[nodiscard]] const std::string &Serial() const { return SerialNumber_; }
@@ -52,13 +48,11 @@ namespace OpenWifi {
 		[[nodiscard]] bool Connected() const { return Connected_; }
 		[[nodiscard]] inline uint64_t GetStartTime() const { return StartTime_; }
 
-		void DoConfigure(uint64_t Id, nlohmann::json &Params);
-		void DoReboot(uint64_t Id, nlohmann::json &Params);
-		void DoUpgrade(uint64_t Id, nlohmann::json &Params);
-		void DoFactory(uint64_t Id, nlohmann::json &Params);
-		void DoLEDs(uint64_t Id, nlohmann::json &Params);
-		void DoPerform(uint64_t Id, nlohmann::json &Params);
-		void DoTrace(uint64_t Id, nlohmann::json &Params);
+		void DoConfigure(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+		void DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+		void DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+		void DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+		void DoLEDs(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
 
         using interface_location_t = std::tuple<ap_interface_types, std::string, radio_bands>;
         using associations_map_t = std::map<interface_location_t, MockAssociations>;
@@ -113,7 +107,7 @@ namespace OpenWifi {
 		// std::recursive_mutex Mutex_;
         std::mutex      Mutex_;
 		Poco::Logger &Logger_;
-		nlohmann::json CurrentConfig_;
+		Poco::JSON::Object::Ptr CurrentConfig_;
 		std::string SerialNumber_;
 		std::string Firmware_;
 		std::unique_ptr<Poco::Net::WebSocket> WS_;
@@ -125,8 +119,8 @@ namespace OpenWifi {
 		uint64_t                Version_ = 0;
 		uint64_t                StartTime_ = Utils::Now();
 		std::string             mac_lan;
-		std::atomic_uint64_t    HealthInterval_ = 60;
-		std::atomic_uint64_t    StatisticsInterval_ = 60;
+		std::uint64_t    HealthInterval_ = 60;
+		std::uint64_t    StatisticsInterval_ = 60;
 		uint64_t                bssid_index = 1;
         std::int64_t            fd_=-1;
 

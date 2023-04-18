@@ -71,11 +71,11 @@ namespace Bosma {
         explicit Scheduler(unsigned int max_n_tasks = 4) : done(false), threads(max_n_tasks + 1) {
             threads.push([this](int) {
                 while (!done) {
-                    if (tasks.empty()) {
-                        sleeper.sleep();
+                    Clock::time_point   sleep_until_time;
+                    if(find_sleep_time(sleep_until_time)) {
+                        sleeper.sleep_until(sleep_until_time);
                     } else {
-                        auto time_of_first_task = (*tasks.begin()).first;
-                        sleeper.sleep_until(time_of_first_task);
+                        sleeper.sleep();
                     }
                     manage_tasks();
                 }
@@ -181,6 +181,15 @@ namespace Bosma {
             std::lock_guard<std::mutex> l(lock);
             tasks.emplace(time, std::move(t));
             sleeper.interrupt();
+        }
+
+        bool find_sleep_time(Clock::time_point &sleep_value) {
+            std::lock_guard<std::mutex> l(lock);
+            if(tasks.empty()) {
+                return false;
+            }
+            sleep_value = (*tasks.begin()).first;
+            return true;
         }
 
         void manage_tasks() {

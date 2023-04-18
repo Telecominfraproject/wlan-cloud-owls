@@ -52,13 +52,13 @@ namespace OpenWifi {
 
 	void SimulationRunner::Stop() {
 		if (Running_) {
-			Running_ = false;
-			Reactor_.stop();
-			SocketReactorThread_.join();
+            Running_ = false;
             for(auto &client:Clients_) {
                 OWLSclientEvents::Disconnect(client.second, this, "Simulation shutting down", false);
                 client.second->Valid_ = false;
             }
+			Reactor_.stop();
+			SocketReactorThread_.join();
             Clients_.clear();
 		}
 	}

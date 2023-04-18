@@ -233,8 +233,9 @@ namespace OpenWifi {
                 std::string channel = radio->get("channel").toString();
                 if(OWLSutils::is_integer(channel)) {
                     R.channel = std::strtoll(channel.c_str(), nullptr,10);
+                } else {
+                    R.channel = OWLSutils::FindAutoChannel(R.radioBands, R.channel_width);
                 }
-                R.channel = OWLSutils::FindAutoChannel(R.radioBands, R.channel_width);
 			}
 
             OWLSutils::FillinFrequencies(R.channel, R.radioBands, R.channel_width, R.channels, R.frequency);

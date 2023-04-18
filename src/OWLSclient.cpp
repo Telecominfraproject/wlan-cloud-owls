@@ -376,6 +376,9 @@ namespace OpenWifi {
 				std::string Serial = Params->get("serial");
 				std::uint64_t UUID = Params->get("uuid");
 				auto Configuration = Params->getObject("config");
+                if(Configuration->has("uuid"))
+                    std::cout << "UUID from config: " << (std::uint64_t)Configuration->get("uuid");
+                std::cout << "UUID from call: " << UUID;
 				CurrentConfig_ = Configuration;
 				UUID_ = Active_ = UUID;
 

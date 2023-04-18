@@ -107,27 +107,27 @@ namespace OpenWifi {
 
     private:
 		// std::recursive_mutex Mutex_;
-        std::mutex      Mutex_;
-		Poco::Logger &Logger_;
+        std::mutex              Mutex_;
+		Poco::Logger            &Logger_;
 		Poco::JSON::Object::Ptr CurrentConfig_;
-		std::string SerialNumber_;
-		std::string Firmware_;
+		std::string             SerialNumber_;
+		std::string             Firmware_;
 		std::unique_ptr<Poco::Net::WebSocket> WS_;
-        volatile bool   Valid_=false;
-		std::uint64_t   Active_ = 0;
-        std::uint64_t   UUID_ = 0;
-		bool Connected_ = false;
-		bool KeepRedirector_ = false;
+        volatile bool           Valid_=false;
+		std::uint64_t           Active_ = 0;
+        std::uint64_t           UUID_ = 0;
+		bool                    Connected_ = false;
+		bool                    KeepRedirector_ = false;
 		uint64_t                Version_ = 0;
 		uint64_t                StartTime_ = Utils::Now();
 		std::string             mac_lan;
-		std::uint64_t    HealthInterval_ = 60;
-		std::uint64_t    StatisticsInterval_ = 60;
+		std::uint64_t           HealthInterval_ = 60;
+		std::uint64_t           StatisticsInterval_ = 60;
 		uint64_t                bssid_index = 1;
         std::int64_t            fd_=-1;
 
-        MockMemory      Memory_;
-        MockCPULoad     Load_;
+        MockMemory              Memory_;
+        MockCPULoad             Load_;
 
         SimulationRunner    *Runner_ = nullptr;
 

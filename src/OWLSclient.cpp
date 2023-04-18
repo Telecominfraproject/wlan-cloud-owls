@@ -21,8 +21,6 @@
 #include "SimulationCoordinator.h"
 #include "fmt/format.h"
 
-#include <framework/ow_constants.h>
-
 using namespace std::chrono_literals;
 
 namespace OpenWifi {
@@ -369,21 +367,11 @@ namespace OpenWifi {
 		try {
             DEBUG_LINE("start");
 			if (Params->has("serial") && Params->has("config")) {
-                std::cout << __LINE__ << std::endl;
 				uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
-                std::cout << __LINE__ << std::endl;
 				std::string Serial = Params->get("serial");
-                std::cout << __LINE__ << std::endl;
 				auto Configuration = Params->getObject("config");
-                std::cout << __LINE__ << std::endl;
-                std::uint64_t UUID = Configuration->get("uuid");
-                std::cout << __LINE__ << std::endl;
-                std::cout << "UUID from config: " << UUID << "  from mem: " << UUID_ << " active: " << Active_ << std::endl;
-                std::cout << __LINE__ << std::endl;
+                UUID_ = Active_ = Configuration->get("uuid");
 				CurrentConfig_ = Configuration;
-                std::cout << __LINE__ << std::endl;
-				UUID_ = Active_ = UUID;
-                std::cout << __LINE__ << std::endl;
 
                 auto Metrics = Configuration->getObject("metrics");
                 auto Health = Metrics->getObject("health");
@@ -397,7 +385,7 @@ namespace OpenWifi {
                 Status.set("when", When);
                 Status.set("text", "No errors were found");
                 Result.set("serial", Serial);
-                Result.set("uuid", UUID);
+                Result.set("uuid", UUID_);
                 Result.set("status", Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));

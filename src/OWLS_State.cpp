@@ -40,6 +40,7 @@ namespace OpenWifi::OWLSclientEvents {
                 Params.set("compress_64", CompressedBase64Encoded);
                 Params.set("compress_sz", os.str().size());
 
+                Message.set(uCentralProtocol::UUID, Client->UUID_);
                 OWLSutils::MakeHeader(Message,uCentralProtocol::STATE,Params);
 
                 if (Client->SendObject(Message)) {

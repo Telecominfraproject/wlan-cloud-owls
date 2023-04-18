@@ -372,13 +372,21 @@ namespace OpenWifi {
 		try {
             DEBUG_LINE("start");
 			if (Params->has("serial") && Params->has("config")) {
+                std::cout << __LINE__ << std::endl;
 				uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
+                std::cout << __LINE__ << std::endl;
 				std::string Serial = Params->get("serial");
+                std::cout << __LINE__ << std::endl;
 				auto Configuration = Params->getObject("config");
+                std::cout << __LINE__ << std::endl;
                 std::uint64_t UUID = Configuration->get("uuid");
+                std::cout << __LINE__ << std::endl;
                 std::cout << "UUID from config: " << UUID << "  from mem: " << UUID_ << " active: " << Active_ << std::endl;
+                std::cout << __LINE__ << std::endl;
 				CurrentConfig_ = Configuration;
+                std::cout << __LINE__ << std::endl;
 				UUID_ = Active_ = UUID;
+                std::cout << __LINE__ << std::endl;
 
                 auto Metrics = Configuration->getObject("metrics");
                 auto Health = Metrics->getObject("health");

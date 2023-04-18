@@ -114,8 +114,8 @@ namespace OpenWifi {
 		std::string Firmware_;
 		std::unique_ptr<Poco::Net::WebSocket> WS_;
         volatile bool    Valid_=false;
-		volatile uint64_t Active_ = 0;
-        volatile uint64_t UUID_ = 0;
+		volatile std::uint64_t Active_ = 0;
+        volatile std::uint64_t UUID_ = 0;
 		bool Connected_ = false;
 		bool KeepRedirector_ = false;
 		uint64_t                Version_ = 0;

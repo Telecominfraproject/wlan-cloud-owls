@@ -68,7 +68,7 @@ namespace OpenWifi {
 	  private:
 		Poco::Thread Worker_;
 		std::atomic_bool Running_ = false;
-		std::map<std::string,std::unique_ptr<SimulationRecord>> Simulations_;
+		std::map<std::string,std::shared_ptr<SimulationRecord>> Simulations_;
 		std::string CASLocation_;
 		std::string CertFileName_;
 		std::string KeyFileName_;

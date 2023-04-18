@@ -6,7 +6,6 @@
 
 #include <random>
 #include "framework/MicroServiceFuncs.h"
-#include <nlohmann/json.hpp>
 
 namespace OpenWifi {
 
@@ -25,12 +24,21 @@ namespace OpenWifi {
 
     namespace OWLSutils {
 
-        template<typename T>
+/*        template<typename T>
         void AssignIfPresent(const nlohmann::json &doc, const char *name, T &Value, T default_value) {
             if (doc.contains(name) && !doc[name].is_null())
                 Value = doc[name];
             else
                 Value = default_value;
+        }
+*/
+        template<typename T>
+        void AssignIfPresent(const Poco::JSON::Object::Ptr &doc, const char *name, T &Value, T default_value) {
+            if (doc->has(name) && !doc->isNull(name)) {
+                Value = doc->get(name);
+            } else {
+                Value = default_value;
+            }
         }
 
         inline std::string MakeMac(const char *S, int offset) {
@@ -200,6 +208,10 @@ namespace OpenWifi {
             Message.set("jsonrpc", "2.0");
             Message.set("method", method);
             Message.set("params", Params);
+        }
+
+        inline bool is_integer(const std::string &s) {
+            return std::all_of(s.begin(),s.end(),[](char c) { return std::isdigit(c); });
         }
 
     }

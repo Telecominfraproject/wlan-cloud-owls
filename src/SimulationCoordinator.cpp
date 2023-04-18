@@ -61,7 +61,7 @@ namespace OpenWifi {
                 const auto &id = it->first;
                 const auto &simulation = it->second;
                 if (simulation->Details.simulationLength != 0 &&
-                    (Now - SimStats()->GetStartTime(simulation->Runner.Id())) > simulation->Details.simulationLength) {
+                    (Now - SimStats()->GetStartTime(id)) > simulation->Details.simulationLength) {
                     std::string Error;
                     simulation->Runner.Stop();
                     SimStats()->EndSim(id);
@@ -95,10 +95,6 @@ namespace OpenWifi {
         Simulations_.clear();
 	}
 
-	static const nlohmann::json DefaultCapabilities = R"(
-        {"compatible":"edgecore_eap101","label_macaddr":"90:3c:b3:bb:1e:04","macaddr":{"lan":"90:3c:b3:bb:1e:05","wan":"90:3c:b3:bb:1e:04"},"model":"EdgeCore EAP101","network":{"lan":["eth1","eth2"],"wan":["eth0"]},"platform":"ap","switch":{"switch0":{"enable":false,"reset":false}},"wifi":{"platform/soc/c000000.wifi":{"band":["5G"],"channels":[36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],"dfs_channels":[52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144],"frequencies":[5180,5200,5220,5240,5260,5280,5300,5320,5500,5520,5540,5560,5580,5600,5620,5640,5660,5680,5700,5720,5745,5765,5785,5805,5825],"he_mac_capa":[13,39432,4160],"he_phy_capa":[28700,34892,49439,1155,11265,0],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80","HE20","HE40","HE80","HE160","HE80+80"],"rx_ant":3,"tx_ant":3,"vht_capa":1939470770},"platform/soc/c000000.wifi+1":{"band":["2G"],"channels":[1,2,3,4,5,6,7,8,9,10,11],"frequencies":[2412,2417,2422,2427,2432,2437,2442,2447,2452,2457,2462],"he_mac_capa":[13,39432,4160],"he_phy_capa":[28674,34828,49439,1155,11265,0],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80","HE20","HE40"],"rx_ant":3,"tx_ant":3,"vht_capa":1939437970}}}
-    )"_json;
-
     static const std::string DefaultCapabilitiesStr = R"(
         {"compatible":"edgecore_eap101","label_macaddr":"90:3c:b3:bb:1e:04","macaddr":{"lan":"90:3c:b3:bb:1e:05","wan":"90:3c:b3:bb:1e:04"},"model":"EdgeCore EAP101","network":{"lan":["eth1","eth2"],"wan":["eth0"]},"platform":"ap","switch":{"switch0":{"enable":false,"reset":false}},"wifi":{"platform/soc/c000000.wifi":{"band":["5G"],"channels":[36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165],"dfs_channels":[52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144],"frequencies":[5180,5200,5220,5240,5260,5280,5300,5320,5500,5520,5540,5560,5580,5600,5620,5640,5660,5680,5700,5720,5745,5765,5785,5805,5825],"he_mac_capa":[13,39432,4160],"he_phy_capa":[28700,34892,49439,1155,11265,0],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80","HE20","HE40","HE80","HE160","HE80+80"],"rx_ant":3,"tx_ant":3,"vht_capa":1939470770},"platform/soc/c000000.wifi+1":{"band":["2G"],"channels":[1,2,3,4,5,6,7,8,9,10,11],"frequencies":[2412,2417,2422,2427,2432,2437,2442,2447,2452,2457,2462],"he_mac_capa":[13,39432,4160],"he_phy_capa":[28674,34828,49439,1155,11265,0],"ht_capa":6639,"htmode":["HT20","HT40","VHT20","VHT40","VHT80","HE20","HE40"],"rx_ant":3,"tx_ant":3,"vht_capa":1939437970}}}
     )";
@@ -129,8 +125,8 @@ namespace OpenWifi {
 			return false;
 		}
 
-		DefaultCapabilities_ = DefaultCapabilities;
-		DefaultCapabilities_["compatible"] = NewSim.deviceType;
+		DefaultCapabilities_ = GetSimCapabilitiesPtr();
+        DefaultCapabilities_->set("compatible", NewSim.deviceType);
 
         SimId = MicroServiceCreateUUID();
         auto NewSimulation = std::make_unique<SimulationRecord>(NewSim, Logger(), SimId);
@@ -177,185 +173,6 @@ namespace OpenWifi {
 
 		return true;
 	}
-
-	static const nlohmann::json DefaultConfiguration = R"~~~(
-        {
-            "interfaces": [
-                {
-                    "ethernet": [
-                        {
-                            "select-ports": [
-                                "WAN*"
-                            ]
-                        }
-                    ],
-                    "ipv4": {
-                        "addressing": "dynamic"
-                    },
-                    "ipv6": {
-                        "addressing": "dynamic"
-                    },
-                    "name": "WAN",
-                    "role": "upstream",
-                    "services": [
-                        "lldp"
-                    ],
-                    "ssids": [
-                        {
-                            "bss-mode": "ap",
-                            "encryption": {
-                                "ieee80211w": "optional",
-                                "key": "OpenWifi",
-                                "proto": "psk2"
-                            },
-                            "name": "OpenWifi-test5",
-                            "wifi-bands": [
-                                "5G"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "ethernet": [
-                        {
-                            "select-ports": [
-                                "LAN*"
-                            ]
-                        }
-                    ],
-                    "ipv4": {
-                        "addressing": "static",
-                        "dhcp": {
-                            "lease-count": 100,
-                            "lease-first": 10,
-                            "lease-time": "6h"
-                        },
-                        "subnet": "192.168.1.1/24"
-                    },
-                    "name": "LAN",
-                    "role": "downstream",
-                    "services": [
-                        "ssh",
-                        "lldp"
-                    ],
-                    "ssids": [
-                        {
-                            "bss-mode": "ap",
-                            "encryption": {
-                                "ieee80211w": "optional",
-                                "key": "OpenWifi",
-                                "proto": "psk2"
-                            },
-                            "name": "OpenWifi-test2",
-                            "wifi-bands": [
-                                "2G", "5G"
-                            ]
-                        }
-                    ]
-                }
-            ],
-            "metrics": {
-                "dhcp-snooping": {
-                    "filters": [
-                        "ack",
-                        "discover",
-                        "offer",
-                        "request",
-                        "solicit",
-                        "reply",
-                        "renew"
-                    ]
-                },
-                "health": {
-                    "interval": 60
-                },
-                "statistics": {
-                    "interval": 60,
-                    "types": [
-                        "ssids",
-                        "lldp",
-                        "clients"
-                    ]
-                },
-                "wifi-frames": {
-                    "filters": [
-                        "probe",
-                        "auth",
-                        "assoc",
-                        "disassoc",
-                        "deauth",
-                        "local-deauth",
-                        "inactive-deauth",
-                        "key-mismatch",
-                        "beacon-report",
-                        "radar-detected"
-                    ]
-                }
-            },
-            "radios": [
-                {
-                    "band": "2G",
-                    "bandwidth": 20,
-                    "beacon-interval": 100,
-                    "channel": "auto",
-                    "channel-mode": "VHT",
-                    "channel-width": 20,
-                    "country": "CA",
-                    "dtim-period": 2,
-                    "hostapd-iface-raw": [],
-                    "legacy-rates": false,
-                    "maximum-clients": 64,
-                    "rates": {
-                        "beacon": 6000,
-                        "multicast": 24000
-                    },
-                    "tx-power": 23
-                },
-                {
-                    "band": "5G",
-                    "bandwidth": 20,
-                    "beacon-interval": 100,
-                    "channel": "auto",
-                    "channel-mode": "HE",
-                    "channel-width": 80,
-                    "country": "CA",
-                    "dtim-period": 2,
-                    "he": {
-                        "bss-color": 64,
-                        "ema": false,
-                        "multiple-bssid": false
-                    },
-                    "hostapd-iface-raw": [],
-                    "legacy-rates": false,
-                    "maximum-clients": 50,
-                    "rates": {
-                        "beacon": 6000,
-                        "multicast": 24000
-                    },
-                    "tx-power": 23
-                }
-            ],
-            "services": {
-                "lldp": {
-                    "describe": "",
-                    "location": ""
-                },
-                "ssh": {
-                    "authorized-keys": [],
-                    "password-authentication": false,
-                    "port": 22
-                }
-            },
-            "unit": {
-                "leds-active": true,
-                "location": "bowen island",
-                "name": "Bowen Development Unit",
-                "random-password": false,
-                "timezone": "UTC-8:00"
-            },
-            "uuid": 1635660963
-        }
-    )~~~"_json;
 
     static const std::string DefaultConfigurationStr = R"~~~(
         {
@@ -535,12 +352,6 @@ namespace OpenWifi {
             "uuid": 1635660963
         }
     )~~~";
-
-    nlohmann::json SimulationCoordinator::GetSimConfiguration(uint64_t uuid) {
-		nlohmann::json Temp = DefaultConfiguration;
-		Temp["uuid"] = uuid;
-		return Temp;
-	}
 
     Poco::JSON::Object::Ptr SimulationCoordinator::GetSimConfigurationPtr(uint64_t uuid) {
         Poco::JSON::Object::Ptr res;

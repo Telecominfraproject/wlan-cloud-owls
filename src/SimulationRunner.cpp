@@ -139,10 +139,10 @@ namespace OpenWifi {
         std::lock_guard Guard(client->Mutex_);
 
         try {
-            char Message[16000];
+            Poco::Buffer<char> IncomingFrame(0);
             int Flags;
 
-            auto MessageSize = client->WS_->receiveFrame(Message, sizeof(Message), Flags);
+            auto MessageSize = client->WS_->receiveFrame(IncomingFrame, Flags);
             auto Op = Flags & Poco::Net::WebSocket::FRAME_OP_BITMASK;
 
             if (MessageSize == 0 && Flags == 0 && Op == 0) {
@@ -150,8 +150,8 @@ namespace OpenWifi {
                 OWLSclientEvents::Disconnect(client, this, "Error while waiting for data in WebSocket", true);
                 return;
             }
+            IncomingFrame.append(0);
 
-            Message[MessageSize] = 0;
             switch (Op) {
                 case Poco::Net::WebSocket::FRAME_OP_PING: {
                     client->WS_->sendFrame("", 0,
@@ -164,13 +164,13 @@ namespace OpenWifi {
 
                 case Poco::Net::WebSocket::FRAME_OP_TEXT: {
                     if (MessageSize > 0) {
-                        SimStats()->AddRX(Id_,MessageSize);
-                        SimStats()->AddInMsg(Id_);
-                        auto Vars = nlohmann::json::parse(Message);
+                        SimStats()->AddInMsg(Id_, MessageSize);
+                        Poco::JSON::Parser  parser;
+                        auto Frame = parser.parse(IncomingFrame.begin()).extract<Poco::JSON::Object::Ptr>();
 
-                        if (Vars.contains("jsonrpc") && Vars.contains("id") &&
-                            Vars.contains("method") && Vars.contains("params")) {
-                            ProcessCommand(client, Vars);
+                        if (Frame->has("jsonrpc") && Frame->has("id") &&
+                            Frame->has("method") && Frame->has("params")) {
+                            ProcessCommand(client, Frame);
                         } else {
                             Logger_.warning(
                                     fmt::format("MESSAGE({}): invalid incoming message.", client->SerialNumber_));
@@ -193,37 +193,27 @@ namespace OpenWifi {
         OWLSclientEvents::Disconnect(client, this, "Error while waiting for data in WebSocket", true);
     }
 
-    void SimulationRunner::ProcessCommand(std::shared_ptr<OWLSclient> Client, nlohmann::json &Vars) {
+    void SimulationRunner::ProcessCommand(std::shared_ptr<OWLSclient> Client, Poco::JSON::Object::Ptr Frame) {
 
-        std::string Method = Vars["method"];
-
-        auto Id = Vars["id"];
-        auto Params = Vars["params"];
+        std::string Method = Frame->get("method");
+        std::uint64_t Id = Frame->get("id");
+        auto Params = Frame->getObject("params");
 
         if (Method == "configure") {
             CensusReport_.ev_configure++;
-            Client->DoConfigure(Id, Params);
+            Client->DoConfigure(Client, Id, Params);
         } else if (Method == "reboot") {
-            Client->DoReboot(Id, Params);
+            Client->DoReboot(Client, Id, Params);
             CensusReport_.ev_reboot++;
-            OWLSclientEvents::Disconnect(Client,this,"Performing reboot", true);
         } else if (Method == "upgrade") {
-            Client->DoUpgrade(Id, Params);
+            Client->DoUpgrade(Client, Id, Params);
             CensusReport_.ev_firmwareupgrade++;
-            OWLSclientEvents::Disconnect(Client,this,"Performing firmware upgrade", true);
         } else if (Method == "factory") {
-            Client->DoFactory(Id, Params);
+            Client->DoFactory(Client, Id, Params);
             CensusReport_.ev_factory++;
-            OWLSclientEvents::Disconnect(Client,this,"Performing factory reset", true);
         } else if (Method == "leds") {
             CensusReport_.ev_leds++;
-            Client->DoLEDs(Id, Params);
-        } else if (Method == "perform") {
-            CensusReport_.ev_perform++;
-            Client->DoPerform(Id, Params);
-        } else if (Method == "trace") {
-            CensusReport_.ev_trace++;
-            Client->DoTrace(Id, Params);
+            Client->DoLEDs(Client, Id, Params);
         } else {
             Logger_.warning(fmt::format("COMMAND({}): unknown method '{}'", Client->SerialNumber_, Method));
         }

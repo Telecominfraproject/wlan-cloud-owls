@@ -48,7 +48,7 @@ namespace OpenWifi {
 		Active_ = UUID_ = Utils::Now();
 		srand(UUID_);
 		mac_lan = OWLSutils::MakeMac(SerialNumber_.c_str(), 0);
-		CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
+		CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
 		UpdateConfiguration();
         Valid_ = true;
 	}
@@ -145,57 +145,65 @@ namespace OpenWifi {
 
 	void OWLSclient::UpdateConfiguration() {
 		//  go through the config and harvest the SSID names, also update all the client stuff
-		auto Interfaces = CurrentConfig_["interfaces"];
+		auto Interfaces = CurrentConfig_->getArray("interfaces");
 		AllAssociations_.clear();
 		AllLanClients_.clear();
 		AllRadios_.clear();
 		bssid_index = 1;
-		for (const auto &interface : Interfaces) {
-			if (interface.contains("role")) {
-				ap_interface_types current_interface_role = upstream;
-				if (FindInterfaceRole(interface["role"], current_interface_role)) {
-					auto SSIDs = interface["ssids"];
-					for (const auto &ssid : SSIDs) {
-						for (const auto &band : ssid["wifi-bands"]) {
-							auto ssidName = ssid["name"];
+		for (uint interface_index=0;interface_index<Interfaces->size();interface_index++) {
+            auto interfacePtr = Interfaces->get(interface_index);
+            auto interface = interfacePtr.extract<Poco::JSON::Object::Ptr>();
+            if (interface->has("role")) {
+                ap_interface_types current_interface_role = upstream;
+                if (FindInterfaceRole(interface->get("role"), current_interface_role)) {
+                    auto SSIDs = interface->getArray("ssids");
+                    for (uint ssid_index=0; ssid_index< SSIDs->size(); ++ssid_index) {
+                        auto SSIDptr = SSIDs->get(ssid_index);
+                        auto SSID = SSIDptr.extract<Poco::JSON::Object::Ptr>();
+                        auto Bands = SSID->getArray("wifi-bands");
+                        for(uint band_index=0;band_index<Bands->size(); band_index++) {
+                            std::string band = Bands->get(band_index);
+                            auto ssidName = SSID->get("name");
                             auto bssid_num = Utils::SerialToMAC(Utils::IntToSerialNumber(
                                     Utils::SerialNumberToInt(SerialNumber_) +
                                     bssid_index++));
-							if (band == "2G") {
+                            if (band == "2G") {
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_2g);
-									CreateAssociations(index, bssid_num,
-                                                       Runner_->Details().minAssociations,
-                                                       Runner_->Details().maxAssociations);
-							}
-							if (band == "5G") {
+                                CreateAssociations(index, bssid_num,
+                                                   Runner_->Details().minAssociations,
+                                                   Runner_->Details().maxAssociations);
+                            }
+                            if (band == "5G") {
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_5g);
-									CreateAssociations(index, bssid_num,
-                                                       Runner_->Details().minAssociations,
-                                                       Runner_->Details().maxAssociations);
-							}
-							if (band == "6G") {
+                                CreateAssociations(index, bssid_num,
+                                                   Runner_->Details().minAssociations,
+                                                   Runner_->Details().maxAssociations);
+                            }
+                            if (band == "6G") {
                                 auto index = std::make_tuple(current_interface_role, ssidName,
                                                              radio_bands::band_6g);
-									CreateAssociations(index,bssid_num,
-                                                       Runner_->Details().minAssociations,
-                                                       Runner_->Details().maxAssociations);
-							}
-						}
-					}
-					MockCounters F;
-					AllCounters_[current_interface_role] = F;
-				}
-			}
-		}
+                                CreateAssociations(index,bssid_num,
+                                                   Runner_->Details().minAssociations,
+                                                   Runner_->Details().maxAssociations);
+                            }
+                        }
+                    }
+                    MockCounters F;
+                    AllCounters_[current_interface_role] = F;
+                }
+            }
+        }
 
 		CreateLanClients(Runner_->Details().minClients, Runner_->Details().maxClients);
 
-		auto radios = CurrentConfig_["radios"];
-		uint index = 0;
-		for (const auto &radio : radios) {
-			auto band = radio["band"];
+		auto radios = CurrentConfig_->getArray("radios");
+		for (uint radio_index=0;radio_index<radios->size();radio_index++) {
+            auto radioPtr = radios->get(radio_index);
+            auto radio = radioPtr.extract<Poco::JSON::Object::Ptr>();
+
+			std::string band = radio->get("band");
 			MockRadio R;
 
             R.band.push_back(band);
@@ -207,30 +215,32 @@ namespace OpenWifi {
                 R.radioBands =  radio_bands::band_6g;
             }
 
-            if(radio.contains("channel-width") && radio["channel-width"].is_number_integer())
-                R.channel_width = radio["channel-width"];
-            else
+            if(radio->has("channel-width")) {
+                R.channel_width = radio->get("channel-width");
+            } else {
                 R.channel_width = 20;
+            }
 
-			if ((!radio.contains("channel"))
-                ||  (radio.contains("channel") && radio["channel"].is_string() && radio["channel"] == "auto")
-                ||  (!radio["channel"].is_number_integer())) {
+			if (!radio->has("channel")) {
+                R.channel = OWLSutils::FindAutoChannel(R.radioBands,R.channel_width);
+            } else {
+                std::string channel = radio->get("channel").toString();
+                if(OWLSutils::is_integer(channel)) {
+                    R.channel = std::strtoll(channel.c_str(), nullptr,10);
+                }
                 R.channel = OWLSutils::FindAutoChannel(R.radioBands, R.channel_width);
-            } else if (radio["channel"].is_number_integer()) {
-                R.channel = radio["channel"];
 			}
 
             OWLSutils::FillinFrequencies(R.channel, R.radioBands, R.channel_width, R.channels, R.frequency);
 
 			OWLSutils::AssignIfPresent(radio, "tx_power", R.tx_power, (uint_fast64_t)23);
 
-			if (index == 0)
+			if (radio_index == 0)
 				R.phy = "platform/soc/c000000.wifi";
 			else
-				R.phy = "platform/soc/c000000.wifi+" + std::to_string(index);
-			R.index = index;
+				R.phy = "platform/soc/c000000.wifi+" + std::to_string(radio_index);
+			R.index = radio_index;
 			AllRadios_[R.radioBands] = R;
-			++index;
 		}
 	}
 
@@ -352,37 +362,34 @@ namespace OpenWifi {
         return State;
     }
 
-    void OWLSclient::DoConfigure(uint64_t Id, nlohmann::json &Params) {
+    void OWLSclient::DoConfigure([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
             DEBUG_LINE("start");
-			if (Params.contains("serial") && Params.contains("uuid") && Params.contains("config")) {
-				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
-				auto Serial = Params["serial"];
-				uint64_t UUID = Params["uuid"];
-				auto Configuration = Params["config"];
+			if (Params->has("serial") && Params->has("uuid") && Params->has("config")) {
+				uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
+				std::string Serial = Params->get("serial");
+				std::uint64_t UUID = Params->get("uuid");
+				auto Configuration = Params->getObject("config");
 				CurrentConfig_ = Configuration;
 				UUID_ = Active_ = UUID;
 
-				//  We need to digest the configuration and generate what we will need for
-				//  state messages.
-				auto Radios = CurrentConfig_["radios"];			//  array
-				auto Metrics = CurrentConfig_["metrics"];		//  object
-				auto Interfaces = CurrentConfig_["interfaces"]; //  array
-
-				HealthInterval_ = Metrics["health"]["interval"];
-				StatisticsInterval_ = Metrics["statistics"]["interval"];
+                auto Metrics = Configuration->getObject("metrics");
+                auto Health = Metrics->getObject("health");
+				HealthInterval_ = Health->get("interval");
+                auto Statistics = Metrics->getObject("statistics");
+				StatisticsInterval_ = Statistics->get("interval");
 
 				//  prepare response...
-				nlohmann::json Answer;
-
-				Answer["jsonrpc"] = "2.0";
-				Answer["id"] = Id;
-				Answer["result"]["serial"] = Serial;
-				Answer["result"]["uuid"] = UUID;
-				Answer["result"]["status"]["error"] = 0;
-				Answer["result"]["status"]["when"] = When;
-				Answer["result"]["status"]["text"] = "No errors were found";
-				Answer["result"]["status"]["error"] = 0;
+				Poco::JSON::Object Answer, Result, Status;
+                Status.set("error", 0);
+                Status.set("when", When);
+                Status.set("text", "No errors were found");
+                Result.set("serial", Serial);
+                Result.set("uuid", UUID);
+                Result.set("status", Status);
+                Answer.set("jsonrpc", "2.0");
+                Answer.set("id", Id);
+                Answer.set("result", Result);
                 poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
 				SendObject(Answer);
 			} else {
@@ -397,26 +404,28 @@ namespace OpenWifi {
         }
 	}
 
-	void OWLSclient::DoReboot(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
-			if (Params.contains("serial")) {
-				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
-				auto Serial = Params["serial"];
+            if (Params->has("serial") && Params->has("when")) {
+                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
+                std::string Serial = Params->get("serial");
 
-				//  prepare response...
-				nlohmann::json Answer;
+                Poco::JSON::Object Answer, Result, Status;
+                Status.set("error", 0);
+                Status.set("when", When);
+                Status.set("text", "No errors were found");
+                Result.set("serial", Serial);
+                Result.set("uuid", UUID_);
+                Result.set("status", Status);
+                Answer.set("jsonrpc", "2.0");
+                Answer.set("id", Id);
+                Answer.set("result", Result);
+                poco_information(Logger_,fmt::format("reboot({}): done.", SerialNumber_));
+                SendObject(Answer);
 
-				Answer["jsonrpc"] = "2.0";
-				Answer["id"] = Id;
-				Answer["result"]["serial"] = Serial;
-				Answer["result"]["status"]["error"] = 0;
-				Answer["result"]["status"]["when"] = When;
-				Answer["result"]["status"]["text"] = "No errors were found";
-
-				SendObject(Answer);
-
-				Logger_.information(fmt::format("reboot({}): done.", SerialNumber_));
+                std::this_thread::sleep_for(std::chrono::seconds(5));
 				Reset();
+                OWLSclientEvents::Disconnect(Client, Runner_, "Command: reboot", true);
 			} else {
 				Logger_.warning(fmt::format("reboot({}): Illegal command.", SerialNumber_));
 			}
@@ -443,29 +452,30 @@ namespace OpenWifi {
 		return p;
 	}
 
-	void OWLSclient::DoUpgrade(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
-			if (Params.contains("serial") && Params.contains("uri")) {
+            if (Params->has("serial") && Params->has("uri")) {
+                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
+                std::string Serial = Params->get("serial");
+                std::string URI = Params->get("uri");
 
-				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
-				auto Serial = to_string(Params["serial"]);
-				auto URI = to_string(Params["uri"]);
-
-				//  prepare response...
-				nlohmann::json Answer;
-
-				Answer["jsonrpc"] = "2.0";
-				Answer["id"] = Id;
-				Answer["result"]["serial"] = Serial;
-				Answer["result"]["status"]["error"] = 0;
-				Answer["result"]["status"]["when"] = When;
-				Answer["result"]["status"]["text"] = "No errors were found";
-
+                Poco::JSON::Object Answer, Result, Status;
+                Status.set("error", 0);
+                Status.set("when", When);
+                Status.set("text", "No errors were found");
+                Result.set("serial", Serial);
+                Result.set("uuid", UUID_);
+                Result.set("status", Status);
+                Answer.set("jsonrpc", "2.0");
+                Answer.set("id", Id);
+                Answer.set("result", Result);
+                poco_information(Logger_,fmt::format("upgrade({}): from URI={}.", SerialNumber_, URI));
+                SendObject(Answer);
 				Version_++;
 				SetFirmware(GetFirmware(URI));
-
-				SendObject(Answer);
-				Logger_.information(fmt::format("upgrade({}): from URI={}.", SerialNumber_, URI));
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+                Reset();
+                OWLSclientEvents::Disconnect(Client, Runner_, "Command: upgrade", true);
 			} else {
 				Logger_.warning(fmt::format("upgrade({}): Illegal command.", SerialNumber_));
 			}
@@ -475,32 +485,33 @@ namespace OpenWifi {
 		}
 	}
 
-	void OWLSclient::DoFactory(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
-			if (Params.contains("serial") && Params.contains("keep_redirector")) {
-
-				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
-				auto Serial = to_string(Params["serial"]);
-				auto KeepRedirector = Params["uri"];
+            if (Params->has("serial") && Params->has("when")) {
+                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
+                std::string Serial = Params->get("serial");
 
 				Version_ = 1;
 				SetFirmware();
-				KeepRedirector_ = KeepRedirector;
 
-				nlohmann::json Answer;
+                Poco::JSON::Object Answer, Result, Status;
+                Status.set("error", 0);
+                Status.set("when", When);
+                Status.set("text", "No errors were found");
+                Result.set("serial", Serial);
+                Result.set("uuid", UUID_);
+                Result.set("status", Status);
+                Answer.set("jsonrpc", "2.0");
+                Answer.set("id", Id);
+                Answer.set("result", Result);
+                poco_information(Logger_, fmt::format("factory({}): done.", SerialNumber_));
+                SendObject(Answer);
 
-				Answer["jsonrpc"] = "2.0";
-				Answer["id"] = Id;
-				Answer["result"]["serial"] = Serial;
-				Answer["result"]["status"]["error"] = 0;
-				Answer["result"]["status"]["when"] = When;
-				Answer["result"]["status"]["text"] = "No errors were found";
-				SendObject(Answer);
-
-				Logger_.information(fmt::format("factory({}): done.", SerialNumber_));
-
-				CurrentConfig_ = SimulationCoordinator()->GetSimConfiguration(Utils::Now());
+				CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
 				UpdateConfiguration();
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+                Reset();
+                OWLSclientEvents::Disconnect(Client, Runner_, "Command: upgrade", true);
 			} else {
 				Logger_.warning(fmt::format("factory({}): Illegal command.", SerialNumber_));
 			}
@@ -510,28 +521,27 @@ namespace OpenWifi {
 		}
 	}
 
-	void OWLSclient::DoLEDs(uint64_t Id, nlohmann::json &Params) {
+	void OWLSclient::DoLEDs([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
-			if (Params.contains("serial") && Params.contains("pattern")) {
+            if (Params->has("serial") && Params->has("pattern")) {
+                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
+                std::string Serial = Params->get("serial");
+                auto Pattern = Params->get("pattern").toString();
+                uint64_t Duration = Params->has("when") ? (uint64_t)Params->get("durarion") : 10;
 
-				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
-				auto Serial = to_string(Params["serial"]);
-				auto Pattern = to_string(Params["pattern"]);
-				uint64_t Duration = Params.contains("duration") ? (uint64_t)Params["durarion"] : 10;
-
-				//  prepare response...
-				nlohmann::json Answer;
-
-				Answer["jsonrpc"] = "2.0";
-				Answer["id"] = Id;
-				Answer["result"]["serial"] = Serial;
-				Answer["result"]["status"]["error"] = 0;
-				Answer["result"]["status"]["when"] = When;
-				Answer["result"]["status"]["text"] = "No errors were found";
-				SendObject(Answer);
-
-				Logger_.information(fmt::format("LEDs({}): pattern set to: {} for {} ms.",
-												SerialNumber_, Duration, Pattern));
+                Poco::JSON::Object Answer, Result, Status;
+                Status.set("error", 0);
+                Status.set("when", When);
+                Status.set("text", "No errors were found");
+                Result.set("serial", Serial);
+                Result.set("uuid", UUID_);
+                Result.set("status", Status);
+                Answer.set("jsonrpc", "2.0");
+                Answer.set("id", Id);
+                Answer.set("result", Result);
+                poco_information(Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
+                                                SerialNumber_, Duration, Pattern));
+                SendObject(Answer);
 			} else {
 				Logger_.warning(fmt::format("LEDs({}): Illegal command.", SerialNumber_));
 			}
@@ -540,92 +550,12 @@ namespace OpenWifi {
 		}
 	}
 
-	void OWLSclient::DoPerform(uint64_t Id, nlohmann::json &Params) {
-		try {
-            DEBUG_LINE("start");
-			if (Params.contains("serial") && Params.contains("command") &&
-				Params.contains("payload")) {
-
-				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
-				auto Serial = to_string(Params["serial"]);
-				auto Command = to_string(Params["command"]);
-				auto Payload = Params["payload"];
-
-				//  prepare response...
-				nlohmann::json Answer;
-
-				Answer["jsonrpc"] = "2.0";
-				Answer["id"] = Id;
-				Answer["result"]["serial"] = Serial;
-				Answer["result"]["status"]["error"] = 0;
-				Answer["result"]["status"]["when"] = When;
-				Answer["result"]["status"]["text"] = "No errors were found";
-				Answer["result"]["status"]["text"]["resultCode"] = 0;
-				Answer["result"]["status"]["text"]["resultText"] = "no return status";
-				SendObject(Answer);
-				Logger_.information(
-					fmt::format("perform({}): command={}.", SerialNumber_, Command));
-			} else {
-				Logger_.warning(fmt::format("perform({}): Illegal command.", SerialNumber_));
-			}
-		} catch (const Poco::Exception &E) {
-			Logger_.warning(
-				fmt::format("perform({}): Exception. {}", SerialNumber_, E.displayText()));
-        } catch (const std::exception &E) {
-            DEBUG_LINE("exception2");
-        }
-	}
-
-	void OWLSclient::DoTrace(uint64_t Id, nlohmann::json &Params) {
-		try {
-            DEBUG_LINE("start");
-			if (Params.contains("serial") && Params.contains("duration") &&
-				Params.contains("network") && Params.contains("interface") &&
-				Params.contains("packets") && Params.contains("uri")) {
-
-				uint64_t When = Params.contains("when") ? (uint64_t)Params["when"] : 0;
-				auto Serial = to_string(Params["serial"]);
-				auto Network = to_string(Params["network"]);
-				auto Interface = to_string(Params["interface"]);
-				uint64_t Duration = Params["duration"];
-				uint64_t Packets = Params["packets"];
-				auto URI = to_string(Params["uri"]);
-
-				//  prepare response...
-				nlohmann::json Answer;
-
-				Answer["jsonrpc"] = "2.0";
-				Answer["id"] = Id;
-				Answer["result"]["serial"] = Serial;
-				Answer["result"]["status"]["error"] = 0;
-				Answer["result"]["status"]["when"] = When;
-				Answer["result"]["status"]["text"] = "No errors were found";
-				Answer["result"]["status"]["text"]["resultCode"] = 0;
-				Answer["result"]["status"]["text"]["resultText"] = "no return status";
-				SendObject(Answer);
-
-				Logger_.information(
-					fmt::format("trace({}): network={} interface={} packets={} duration={} URI={}.",
-								SerialNumber_, Network, Interface, Packets, Duration, URI));
-			} else {
-				Logger_.warning(fmt::format("trace({}): Illegal command.", SerialNumber_));
-			}
-		} catch (const Poco::Exception &E) {
-            DEBUG_LINE("exception1");
-			Logger_.warning(
-				fmt::format("trace({}): Exception. {}", SerialNumber_, E.displayText()));
-        } catch (const std::exception &E) {
-            DEBUG_LINE("exception2");
-        }
-	}
-
 	bool OWLSclient::Send(const std::string &Cmd) {
 
 		try {
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
 			if (BytesSent == Cmd.size()) {
-				SimStats()->AddTX(Runner_->Id(),Cmd.size());
-				SimStats()->AddOutMsg(Runner_->Id());
+				SimStats()->AddOutMsg(Runner_->Id(),Cmd.size());
 				return true;
 			} else {
                 DEBUG_LINE("fail to send");
@@ -657,36 +587,13 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool OWLSclient::SendObject(const nlohmann::json &O) {
-		try {
-			std::string M = to_string(O);
-			uint32_t BytesSent = WS_->sendFrame(M.c_str(), M.size());
-			if (BytesSent == M.size()) {
-				SimStats()->AddTX(Runner_->Id(),BytesSent);
-				SimStats()->AddOutMsg(Runner_->Id());
-				return true;
-			} else {
-                DEBUG_LINE("failed");
-				Logger_.warning(
-					fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
-			}
-		} catch (const Poco::Exception &E) {
-            DEBUG_LINE("exception1");
-			Logger_.log(E);
-        } catch (const std::exception &E) {
-            DEBUG_LINE("exception2");
-        }
-		return false;
-	}
-
     bool OWLSclient::SendObject(const Poco::JSON::Object &O) {
         try {
             std::ostringstream os;
             O.stringify(os);
             uint32_t BytesSent = WS_->sendFrame(os.str().c_str(), os.str().size());
             if (BytesSent == os.str().size()) {
-                SimStats()->AddTX(Runner_->Id(),BytesSent);
-                SimStats()->AddOutMsg(Runner_->Id());
+                SimStats()->AddOutMsg(Runner_->Id(),BytesSent);
                 return true;
             } else {
                 DEBUG_LINE("failed");

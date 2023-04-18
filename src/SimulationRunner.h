@@ -46,7 +46,7 @@ namespace OpenWifi {
             Clients_fd_.erase(fd);
         }
 
-        void ProcessCommand(std::shared_ptr<OWLSclient> Client, nlohmann::json &Vars);
+        void ProcessCommand(std::shared_ptr<OWLSclient> Client, Poco::JSON::Object::Ptr Vars);
         Poco::Net::SocketReactor & Reactor() { return Reactor_; }
 
         inline auto & Scheduler() { return Scheduler_; }

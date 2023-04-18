@@ -371,14 +371,13 @@ namespace OpenWifi {
     void OWLSclient::DoConfigure([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
             DEBUG_LINE("start");
-			if (Params->has("serial") && Params->has("uuid") && Params->has("config")) {
+			if (Params->has("serial") && Params->has("config")) {
 				uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
 				std::string Serial = Params->get("serial");
-				std::uint64_t UUID = Params->get("uuid");
 				auto Configuration = Params->getObject("config");
+                std::uint64_t UUID = Configuration->get("uuid");
                 if(Configuration->has("uuid"))
                     std::cout << "UUID from config: " << (std::uint64_t)Configuration->get("uuid");
-                std::cout << "UUID from call: " << UUID;
 				CurrentConfig_ = Configuration;
 				UUID_ = Active_ = UUID;
 

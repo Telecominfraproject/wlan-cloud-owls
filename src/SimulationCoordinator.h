@@ -15,6 +15,7 @@ namespace OpenWifi {
 
     struct SimulationRecord {
         SimulationRecord(const OWLSObjects::SimulationDetails & details,Poco::Logger &L, const std::string &id) :
+                Details(details),
                 Runner(details, L, id) {
 
         }

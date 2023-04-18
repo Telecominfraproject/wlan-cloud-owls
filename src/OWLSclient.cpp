@@ -163,7 +163,7 @@ namespace OpenWifi {
                         auto Bands = SSID->getArray("wifi-bands");
                         for(uint band_index=0;band_index<Bands->size(); band_index++) {
                             std::string band = Bands->get(band_index);
-                            auto ssidName = SSID->get("name");
+                            std::string ssidName = SSID->get("name");
                             auto bssid_num = Utils::SerialToMAC(Utils::IntToSerialNumber(
                                     Utils::SerialNumberToInt(SerialNumber_) +
                                     bssid_index++));

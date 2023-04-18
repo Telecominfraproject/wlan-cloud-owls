@@ -62,7 +62,7 @@ namespace OpenWifi {
             for(auto it = Simulations_.begin(); it!=end(Simulations_); ) {
                 const auto &id = it->first;
                 const auto &simulation = it->second;
-                std::cout << "Checking sims..." << std::endl;
+                std::cout << "Checking sims...: " << simulation->Details.simulationLength << std::endl;
                 if (simulation->Details.simulationLength != 0 &&
                     (Now - SimStats()->GetStartTime(id)) > simulation->Details.simulationLength) {
                     std::string Error;
@@ -124,6 +124,7 @@ namespace OpenWifi {
 	bool SimulationCoordinator::StartSim(std::string &SimId, const std::string &Id,
 										 std::string &Error, const std::string &Owner) {
         std::lock_guard G(Mutex_);
+
         OWLSObjects::SimulationDetails  NewSim;
 		if (!StorageService()->SimulationDB().GetRecord("id", Id, NewSim)) {
 			Error = "Simulation ID specified does not exist.";

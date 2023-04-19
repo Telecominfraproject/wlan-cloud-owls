@@ -120,12 +120,12 @@ namespace OpenWifi {
     }
 
 	bool SimulationCoordinator::StartSim(std::string &SimId, const std::string &Id,
-										 std::string &Error, const SecurityObjects::UserInfo &UInfo) {
+            RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo) {
         std::lock_guard G(Mutex_);
 
         OWLSObjects::SimulationDetails  NewSim;
 		if (!StorageService()->SimulationDB().GetRecord("id", Id, NewSim)) {
-			Error = "Simulation ID specified does not exist.";
+            Error = RESTAPI::Errors::SimulationDoesNotExist;
 			return false;
 		}
 
@@ -140,12 +140,12 @@ namespace OpenWifi {
 		return true;
 	}
 
-	bool SimulationCoordinator::StopSim(const std::string &Id, std::string &Error, const SecurityObjects::UserInfo &UInfo) {
+	bool SimulationCoordinator::StopSim(const std::string &Id, RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo) {
         std::lock_guard G(Mutex_);
 
         auto sim_hint = Simulations_.find(Id);
         if(sim_hint==end(Simulations_)) {
-            Error = "Simulation ID is not valid";
+            Error = RESTAPI::Errors::SimulationDoesNotExist;
             return false;
         }
 
@@ -159,18 +159,16 @@ namespace OpenWifi {
             Simulations_.erase(sim_hint);
             return true;
         }
-
-        Error = RESTAPI::Errors::ACCESS_DENIED.err_txt;
+        Error = RESTAPI::Errors::ACCESS_DENIED;
         return false;
 	}
 
-	bool SimulationCoordinator::CancelSim(const std::string &Id,
-										  std::string &Error, const SecurityObjects::UserInfo &UInfo) {
+	bool SimulationCoordinator::CancelSim(const std::string &Id, RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo) {
         std::lock_guard G(Mutex_);
 
         auto sim_hint = Simulations_.find(Id);
         if(sim_hint==end(Simulations_)) {
-            Error = "Simulation ID is not valid";
+            Error = RESTAPI::Errors::SimulationDoesNotExist;
             return false;
         }
 
@@ -181,8 +179,7 @@ namespace OpenWifi {
             Simulations_.erase(sim_hint);
             return true;
         }
-
-        Error = RESTAPI::Errors::ACCESS_DENIED.err_txt;
+        Error = RESTAPI::Errors::ACCESS_DENIED;
         return false;
 	}
 

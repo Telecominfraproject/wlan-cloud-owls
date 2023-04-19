@@ -38,9 +38,9 @@ namespace OpenWifi {
 		void Stop() final;
 		void run() final;
 
-		bool StartSim(std::string &SimId, const std::string &Id, std::string &Error, const SecurityObjects::UserInfo &UInfo);
-		bool StopSim(const std::string &Id, std::string &Error, const SecurityObjects::UserInfo &UInfo);
-		bool CancelSim(const std::string &Id, std::string &Error, const SecurityObjects::UserInfo &UInfo);
+		bool StartSim(std::string &SimId, const std::string &Id, RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo);
+		bool StopSim(const std::string &Id, RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo);
+		bool CancelSim(const std::string &Id, RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo);
 
 		[[nodiscard]] inline bool GetSimulationInfo( OWLSObjects::SimulationDetails & Details , const std::string &uuid = "" ) {
             std::lock_guard G(Mutex_);

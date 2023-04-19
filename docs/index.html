@@ -854,18 +854,12 @@ ul.nav-tabs {
     }
   }
 };
-    defs["deleteSimulation_404_response"] = {
-  "properties" : {
-    "ErrorCode" : {
-      "type" : "integer"
-    },
-    "ErrorDetails" : {
-      "type" : "string"
-    },
-    "ErrorDescription" : {
-      "type" : "string"
-    }
-  }
+    defs["getSimulations_200_response"] = {
+  "oneOf" : [ {
+    "$ref" : "#/components/schemas/SimulationDetailsList"
+  }, {
+    "$ref" : "#/components/schemas/SimulationDetails"
+  } ]
 };
     defs["getSimulations_400_response"] = {
   "properties" : {
@@ -877,6 +871,19 @@ ul.nav-tabs {
     },
     "Code" : {
       "type" : "integer"
+    }
+  }
+};
+    defs["getSimulations_403_response"] = {
+  "properties" : {
+    "ErrorCode" : {
+      "type" : "integer"
+    },
+    "ErrorDetails" : {
+      "type" : "string"
+    },
+    "ErrorDescription" : {
+      "type" : "string"
     }
   }
 };
@@ -927,7 +934,7 @@ ul.nav-tabs {
     },
     "devices" : {
       "maximum" : 50000,
-      "minimum" : 1,
+      "minimum" : 5,
       "type" : "integer",
       "default" : 10
     },
@@ -950,7 +957,7 @@ ul.nav-tabs {
       "default" : 2
     },
     "maxAssociations" : {
-      "maximum" : 32,
+      "maximum" : 64,
       "minimum" : 0,
       "type" : "integer",
       "default" : 8
@@ -962,7 +969,7 @@ ul.nav-tabs {
       "default" : 2
     },
     "maxClients" : {
-      "maximum" : 32,
+      "maximum" : 16,
       "minimum" : 0,
       "type" : "integer",
       "default" : 4
@@ -1362,7 +1369,7 @@ ul.nav-tabs {
         <div id="header">
           <div id="api-_">
             <h2 id="welcome-to-apidoc">API and SDK Documentation</h2>
-              <div class="app-desc">Version: 2.5.0</div>
+              <div class="app-desc">Version: 2.10.0</div>
             <hr>
             <div id="app-description" class="app-desc">
                 An application to test load on an OpenWifi system.
@@ -1384,7 +1391,7 @@ ul.nav-tabs {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/operation</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/operation/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -1409,7 +1416,7 @@ ul.nav-tabs {
 -H "X-API-KEY: [[apiKey]]" \
  -H "Authorization: Bearer [[accessToken]]" \
  -H "Accept: application/json" \
- "https://localhost:16007/api/v1/operation?id=38400000-8cf0-11bd-b23e-10b96e4ef00d&simulationId=38400000-8cf0-11bd-b23e-10b96e4ef00d&operation=operation_example"
+ "https://localhost:16007/api/v1/operation/{id}?operation=operation_example&runningId=38400000-8cf0-11bd-b23e-10b96e4ef00d"
 </code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Operations-createARunningSimulation-0-java">
@@ -1437,12 +1444,12 @@ public class OperationsApiExample {
 
         // Create an instance of the API class
         OperationsApi apiInstance = new OperationsApi();
-        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
-        UUID simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation
         String operation = operation_example; // String | 
+        UUID runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | Must be specified when stop or cancel re used.
 
         try {
-            apiInstance.createARunningSimulation(id, simulationId, operation);
+            apiInstance.createARunningSimulation(id, operation, runningId);
         } catch (ApiException e) {
             System.err.println("Exception when calling OperationsApi#createARunningSimulation");
             e.printStackTrace();
@@ -1458,12 +1465,12 @@ public class OperationsApiExample {
 public class OperationsApiExample {
     public static void main(String[] args) {
         OperationsApi apiInstance = new OperationsApi();
-        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
-        UUID simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation
         String operation = operation_example; // String | 
+        UUID runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | Must be specified when stop or cancel re used.
 
         try {
-            apiInstance.createARunningSimulation(id, simulationId, operation);
+            apiInstance.createARunningSimulation(id, operation, runningId);
         } catch (ApiException e) {
             System.err.println("Exception when calling OperationsApi#createARunningSimulation");
             e.printStackTrace();
@@ -1488,13 +1495,13 @@ public class OperationsApiExample {
 
 // Create an instance of the API class
 OperationsApi *apiInstance = [[OperationsApi alloc] init];
-UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; //  (optional) (default to null)
-UUID *simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; //  (optional) (default to null)
-String *operation = operation_example; //  (optional) (default to null)
+UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation (default to null)
+String *operation = operation_example; //  (default to null)
+UUID *runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // Must be specified when stop or cancel re used. (optional) (default to null)
 
 [apiInstance createARunningSimulationWith:id
-    simulationId:simulationId
     operation:operation
+    runningId:runningId
               completionHandler: ^(NSError* error) {
     if (error) {
         NSLog(@"Error: %@", error);
@@ -1519,10 +1526,10 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.OperationsApi()
+var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // {UUID} The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation
+var operation = operation_example; // {String} 
 var opts = {
-  'id': 38400000-8cf0-11bd-b23e-10b96e4ef00d, // {UUID} 
-  'simulationId': 38400000-8cf0-11bd-b23e-10b96e4ef00d, // {UUID} 
-  'operation': operation_example // {String} 
+  'runningId': 38400000-8cf0-11bd-b23e-10b96e4ef00d // {UUID} Must be specified when stop or cancel re used.
 };
 
 var callback = function(error, data, response) {
@@ -1532,7 +1539,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.createARunningSimulation(opts, callback);
+api.createARunningSimulation(id, operation, opts, callback);
 </code></pre>
                             </div>
 
@@ -1561,12 +1568,12 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new OperationsApi();
-            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID |  (optional)  (default to null)
-            var simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID |  (optional)  (default to null)
-            var operation = operation_example;  // String |  (optional)  (default to null)
+            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID | The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation (default to null)
+            var operation = operation_example;  // String |  (default to null)
+            var runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID | Must be specified when stop or cancel re used. (optional)  (default to null)
 
             try {
-                apiInstance.createARunningSimulation(id, simulationId, operation);
+                apiInstance.createARunningSimulation(id, operation, runningId);
             } catch (Exception e) {
                 Debug.Print("Exception when calling OperationsApi.createARunningSimulation: " + e.Message );
             }
@@ -1590,12 +1597,12 @@ OpenAPITools\Client\Configuration::getDefaultConfiguration()->setAccessToken('',
 
 // Create an instance of the API class
 $api_instance = new OpenAPITools\Client\Api\OperationsApi();
-$id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
-$simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+$id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation
 $operation = operation_example; // String | 
+$runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | Must be specified when stop or cancel re used.
 
 try {
-    $api_instance->createARunningSimulation($id, $simulationId, $operation);
+    $api_instance->createARunningSimulation($id, $operation, $runningId);
 } catch (Exception $e) {
     echo 'Exception when calling OperationsApi->createARunningSimulation: ', $e->getMessage(), PHP_EOL;
 }
@@ -1617,12 +1624,12 @@ $WWW::OPenAPIClient::Configuration::access_token = 'YOUR_ACCESS_TOKEN';
 
 # Create an instance of the API class
 my $api_instance = WWW::OPenAPIClient::OperationsApi->new();
-my $id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | 
-my $simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | 
+my $id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation
 my $operation = operation_example; # String | 
+my $runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | Must be specified when stop or cancel re used.
 
 eval {
-    $api_instance->createARunningSimulation(id => $id, simulationId => $simulationId, operation => $operation);
+    $api_instance->createARunningSimulation(id => $id, operation => $operation, runningId => $runningId);
 };
 if ($@) {
     warn "Exception when calling OperationsApi->createARunningSimulation: $@\n";
@@ -1646,12 +1653,12 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.OperationsApi()
-id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID |  (optional) (default to null)
-simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID |  (optional) (default to null)
-operation = operation_example # String |  (optional) (default to null)
+id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID | The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation (default to null)
+operation = operation_example # String |  (default to null)
+runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID | Must be specified when stop or cancel re used. (optional) (default to null)
 
 try:
-    api_instance.create_a_running_simulation(id=id, simulationId=simulationId, operation=operation)
+    api_instance.create_a_running_simulation(id, operation, runningId=runningId)
 except ApiException as e:
     print("Exception when calling OperationsApi->createARunningSimulation: %s\n" % e)</code></pre>
                             </div>
@@ -1661,11 +1668,11 @@ except ApiException as e:
 
 pub fn main() {
     let id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID
-    let simulationId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID
     let operation = operation_example; // String
+    let runningId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID
 
     let mut context = OperationsApi::Context::default();
-    let result = client.createARunningSimulation(id, simulationId, operation, &context).wait();
+    let result = client.createARunningSimulation(id, operation, runningId, &context).wait();
 
     println!("{:?}", result);
 }
@@ -1680,17 +1687,13 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
-
-
-
-
-                            <div class="methodsubtabletitle">Query parameters</div>
+                            <div class="methodsubtabletitle">Path parameters</div>
                             <table id="methodsubtable">
-                              <tr>
-                                <th width="150px">Name</th>
-                                <th>Description</th>
-                              </tr>
-                                <tr><td style="width:150px;">id</td>
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
 <td>
 
 
@@ -1704,33 +1707,30 @@ pub fn main() {
                         (uuid)
                     </span>
 
+                    <div class="inner description marked">
+The UUID of the specific simulation definition. Set this to 0 when creating a new running simulation
+                    </div>
             </div>
+                <div class="inner required">
+                    Required
+                </div>
         </div>
     </div>
 </td>
 </tr>
 
-                                <tr><td style="width:150px;">simulationId</td>
-<td>
+                            </table>
 
 
-    <div id="d2e199_createARunningSimulation_simulationId">
-        <div class="json-schema-view">
-            <div class="primitive">
-                <span class="type">
-                    UUID
-                </span>
-                    <span class="format">
-                        (uuid)
-                    </span>
 
-            </div>
-        </div>
-    </div>
-</td>
-</tr>
 
-                                <tr><td style="width:150px;">operation</td>
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">operation*</td>
 <td>
 
 
@@ -1741,6 +1741,32 @@ pub fn main() {
                     String
                 </span>
 
+            </div>
+                <div class="inner required">
+                    Required
+                </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">runningId</td>
+<td>
+
+
+    <div id="d2e199_createARunningSimulation_runningId">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    UUID
+                </span>
+                    <span class="format">
+                        (uuid)
+                    </span>
+
+                    <div class="inner description marked">
+Must be specified when stop or cancel re used.
+                    </div>
             </div>
         </div>
     </div>
@@ -1834,6 +1860,68 @@ pub fn main() {
                                   <input id='responses-Operations-createARunningSimulation-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
+                            <h3 id="examples-Operations-createARunningSimulation-title-403"></h3>
+                            <p id="examples-Operations-createARunningSimulation-description-403" class="marked"></p>
+                            <script>
+                              var responseOperations403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseOperations403_description_break = responseOperations403_description.indexOf('\n');
+                              if (responseOperations403_description_break == -1) {
+                                $("#examples-Operations-createARunningSimulation-title-403").text("Status: 403 - " + responseOperations403_description);
+                              } else {
+                                $("#examples-Operations-createARunningSimulation-title-403").text("Status: 403 - " + responseOperations403_description.substring(0, responseOperations403_description_break));
+                                $("#examples-Operations-createARunningSimulation-description-403").html(responseOperations403_description.substring(responseOperations403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Operations-createARunningSimulation-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Operations-createARunningSimulation-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Operations-createARunningSimulation-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Operations-createARunningSimulation-403-schema">
+                                  <div id="responses-Operations-createARunningSimulation-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Operations-createARunningSimulation-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Operations-createARunningSimulation-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Operations-createARunningSimulation-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
                             <h3 id="examples-Operations-createARunningSimulation-title-404"></h3>
                             <p id="examples-Operations-createARunningSimulation-description-404" class="marked"></p>
                             <script>
@@ -1914,7 +2002,7 @@ pub fn main() {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/results</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/results/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -1939,7 +2027,7 @@ pub fn main() {
 -H "X-API-KEY: [[apiKey]]" \
  -H "Authorization: Bearer [[accessToken]]" \
  -H "Accept: application/json" \
- "https://localhost:16007/api/v1/results?id=38400000-8cf0-11bd-b23e-10b96e4ef00d"
+ "https://localhost:16007/api/v1/results/{id}"
 </code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Results-deleteSimulationResults-0-java">
@@ -1967,7 +2055,7 @@ public class ResultsApiExample {
 
         // Create an instance of the API class
         ResultsApi apiInstance = new ResultsApi();
-        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+        UUID id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID | The UUID of the results to remove.
 
         try {
             getSimulations_400_response result = apiInstance.deleteSimulationResults(id);
@@ -1987,7 +2075,7 @@ public class ResultsApiExample {
 public class ResultsApiExample {
     public static void main(String[] args) {
         ResultsApi apiInstance = new ResultsApi();
-        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+        UUID id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID | The UUID of the results to remove.
 
         try {
             getSimulations_400_response result = apiInstance.deleteSimulationResults(id);
@@ -2016,7 +2104,7 @@ public class ResultsApiExample {
 
 // Create an instance of the API class
 ResultsApi *apiInstance = [[ResultsApi alloc] init];
-UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; //  (optional) (default to null)
+UUID *id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // The UUID of the results to remove. (default to null)
 
 [apiInstance deleteSimulationResultsWith:id
               completionHandler: ^(getSimulations_400_response output, NSError* error) {
@@ -2046,9 +2134,7 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.ResultsApi()
-var opts = {
-  'id': 38400000-8cf0-11bd-b23e-10b96e4ef00d // {UUID} 
-};
+var id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // {UUID} The UUID of the results to remove.
 
 var callback = function(error, data, response) {
   if (error) {
@@ -2057,7 +2143,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.deleteSimulationResults(opts, callback);
+api.deleteSimulationResults(id, callback);
 </code></pre>
                             </div>
 
@@ -2086,7 +2172,7 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new ResultsApi();
-            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID |  (optional)  (default to null)
+            var id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*';  // UUID | The UUID of the results to remove. (default to null)
 
             try {
                 getSimulations_400_response result = apiInstance.deleteSimulationResults(id);
@@ -2114,7 +2200,7 @@ OpenAPITools\Client\Configuration::getDefaultConfiguration()->setAccessToken('',
 
 // Create an instance of the API class
 $api_instance = new OpenAPITools\Client\Api\ResultsApi();
-$id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+$id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID | The UUID of the results to remove.
 
 try {
     $result = $api_instance->deleteSimulationResults($id);
@@ -2140,7 +2226,7 @@ $WWW::OPenAPIClient::Configuration::access_token = 'YOUR_ACCESS_TOKEN';
 
 # Create an instance of the API class
 my $api_instance = WWW::OPenAPIClient::ResultsApi->new();
-my $id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | 
+my $id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; # UUID | The UUID of the results to remove.
 
 eval {
     my $result = $api_instance->deleteSimulationResults(id => $id);
@@ -2168,10 +2254,10 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.ResultsApi()
-id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID |  (optional) (default to null)
+id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*' # UUID | The UUID of the results to remove. (default to null)
 
 try:
-    api_response = api_instance.delete_simulation_results(id=id)
+    api_response = api_instance.delete_simulation_results(id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling ResultsApi->deleteSimulationResults: %s\n" % e)</code></pre>
@@ -2181,7 +2267,7 @@ except ApiException as e:
                               <pre class="prettyprint"><code class="language-rust">extern crate ResultsApi;
 
 pub fn main() {
-    let id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID
+    let id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID
 
     let mut context = ResultsApi::Context::default();
     let result = client.deleteSimulationResults(id, &context).wait();
@@ -2199,17 +2285,13 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
-
-
-
-
-                            <div class="methodsubtabletitle">Query parameters</div>
+                            <div class="methodsubtabletitle">Path parameters</div>
                             <table id="methodsubtable">
-                              <tr>
-                                <th width="150px">Name</th>
-                                <th>Description</th>
-                              </tr>
-                                <tr><td style="width:150px;">id</td>
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
 <td>
 
 
@@ -2223,13 +2305,23 @@ pub fn main() {
                         (uuid)
                     </span>
 
+                    <div class="inner description marked">
+The UUID of the results to remove.
+                    </div>
             </div>
+                <div class="inner required">
+                    Required
+                </div>
         </div>
     </div>
 </td>
 </tr>
 
                             </table>
+
+
+
+
 
                           <h2>Responses</h2>
                             <h3 id="examples-Results-deleteSimulationResults-title-200"></h3>
@@ -2356,6 +2448,68 @@ pub fn main() {
                                   <input id='responses-Results-deleteSimulationResults-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
+                            <h3 id="examples-Results-deleteSimulationResults-title-403"></h3>
+                            <p id="examples-Results-deleteSimulationResults-description-403" class="marked"></p>
+                            <script>
+                              var responseResults403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseResults403_description_break = responseResults403_description.indexOf('\n');
+                              if (responseResults403_description_break == -1) {
+                                $("#examples-Results-deleteSimulationResults-title-403").text("Status: 403 - " + responseResults403_description);
+                              } else {
+                                $("#examples-Results-deleteSimulationResults-title-403").text("Status: 403 - " + responseResults403_description.substring(0, responseResults403_description_break));
+                                $("#examples-Results-deleteSimulationResults-description-403").html(responseResults403_description.substring(responseResults403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Results-deleteSimulationResults-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Results-deleteSimulationResults-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Results-deleteSimulationResults-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Results-deleteSimulationResults-403-schema">
+                                  <div id="responses-Results-deleteSimulationResults-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Results-deleteSimulationResults-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Results-deleteSimulationResults-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Results-deleteSimulationResults-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
                             <h3 id="examples-Results-deleteSimulationResults-title-404"></h3>
                             <p id="examples-Results-deleteSimulationResults-description-404" class="marked"></p>
                             <script>
@@ -2433,7 +2587,7 @@ pub fn main() {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/results</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/results/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -2458,7 +2612,7 @@ pub fn main() {
 -H "X-API-KEY: [[apiKey]]" \
  -H "Authorization: Bearer [[accessToken]]" \
  -H "Accept: application/json" \
- "https://localhost:16007/api/v1/results"
+ "https://localhost:16007/api/v1/results/{id}?offset=789&limit=789"
 </code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Results-getSimulationResults-0-java">
@@ -2486,9 +2640,12 @@ public class ResultsApiExample {
 
         // Create an instance of the API class
         ResultsApi apiInstance = new ResultsApi();
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the Simulation Definition
+        Long offset = 789; // Long | 
+        Long limit = 789; // Long | 
 
         try {
-            apiInstance.getSimulationResults();
+            apiInstance.getSimulationResults(id, offset, limit);
         } catch (ApiException e) {
             System.err.println("Exception when calling ResultsApi#getSimulationResults");
             e.printStackTrace();
@@ -2504,9 +2661,12 @@ public class ResultsApiExample {
 public class ResultsApiExample {
     public static void main(String[] args) {
         ResultsApi apiInstance = new ResultsApi();
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the Simulation Definition
+        Long offset = 789; // Long | 
+        Long limit = 789; // Long | 
 
         try {
-            apiInstance.getSimulationResults();
+            apiInstance.getSimulationResults(id, offset, limit);
         } catch (ApiException e) {
             System.err.println("Exception when calling ResultsApi#getSimulationResults");
             e.printStackTrace();
@@ -2531,9 +2691,14 @@ public class ResultsApiExample {
 
 // Create an instance of the API class
 ResultsApi *apiInstance = [[ResultsApi alloc] init];
+UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // The UUID of the Simulation Definition (default to null)
+Long *offset = 789; //  (optional) (default to null)
+Long *limit = 789; //  (optional) (default to null)
 
-[apiInstance getSimulationResultsWithCompletionHandler: 
-              ^(NSError* error) {
+[apiInstance getSimulationResultsWith:id
+    offset:offset
+    limit:limit
+              completionHandler: ^(NSError* error) {
     if (error) {
         NSLog(@"Error: %@", error);
     }
@@ -2557,6 +2722,12 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.ResultsApi()
+var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // {UUID} The UUID of the Simulation Definition
+var opts = {
+  'offset': 789, // {Long} 
+  'limit': 789 // {Long} 
+};
+
 var callback = function(error, data, response) {
   if (error) {
     console.error(error);
@@ -2564,7 +2735,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.getSimulationResults(callback);
+api.getSimulationResults(id, opts, callback);
 </code></pre>
                             </div>
 
@@ -2593,9 +2764,12 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new ResultsApi();
+            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID | The UUID of the Simulation Definition (default to null)
+            var offset = 789;  // Long |  (optional)  (default to null)
+            var limit = 789;  // Long |  (optional)  (default to null)
 
             try {
-                apiInstance.getSimulationResults();
+                apiInstance.getSimulationResults(id, offset, limit);
             } catch (Exception e) {
                 Debug.Print("Exception when calling ResultsApi.getSimulationResults: " + e.Message );
             }
@@ -2619,9 +2793,12 @@ OpenAPITools\Client\Configuration::getDefaultConfiguration()->setAccessToken('',
 
 // Create an instance of the API class
 $api_instance = new OpenAPITools\Client\Api\ResultsApi();
+$id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the Simulation Definition
+$offset = 789; // Long | 
+$limit = 789; // Long | 
 
 try {
-    $api_instance->getSimulationResults();
+    $api_instance->getSimulationResults($id, $offset, $limit);
 } catch (Exception $e) {
     echo 'Exception when calling ResultsApi->getSimulationResults: ', $e->getMessage(), PHP_EOL;
 }
@@ -2643,9 +2820,12 @@ $WWW::OPenAPIClient::Configuration::access_token = 'YOUR_ACCESS_TOKEN';
 
 # Create an instance of the API class
 my $api_instance = WWW::OPenAPIClient::ResultsApi->new();
+my $id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | The UUID of the Simulation Definition
+my $offset = 789; # Long | 
+my $limit = 789; # Long | 
 
 eval {
-    $api_instance->getSimulationResults();
+    $api_instance->getSimulationResults(id => $id, offset => $offset, limit => $limit);
 };
 if ($@) {
     warn "Exception when calling ResultsApi->getSimulationResults: $@\n";
@@ -2669,9 +2849,12 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.ResultsApi()
+id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID | The UUID of the Simulation Definition (default to null)
+offset = 789 # Long |  (optional) (default to null)
+limit = 789 # Long |  (optional) (default to null)
 
 try:
-    api_instance.get_simulation_results()
+    api_instance.get_simulation_results(id, offset=offset, limit=limit)
 except ApiException as e:
     print("Exception when calling ResultsApi->getSimulationResults: %s\n" % e)</code></pre>
                             </div>
@@ -2680,9 +2863,12 @@ except ApiException as e:
                               <pre class="prettyprint"><code class="language-rust">extern crate ResultsApi;
 
 pub fn main() {
+    let id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID
+    let offset = 789; // Long
+    let limit = 789; // Long
 
     let mut context = ResultsApi::Context::default();
-    let result = client.getSimulationResults(&context).wait();
+    let result = client.getSimulationResults(id, offset, limit, &context).wait();
 
     println!("{:?}", result);
 }
@@ -2697,10 +2883,90 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
+<td>
+
+
+    <div id="d2e199_getSimulationResults_id">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    UUID
+                </span>
+                    <span class="format">
+                        (uuid)
+                    </span>
+
+                    <div class="inner description marked">
+The UUID of the Simulation Definition
+                    </div>
+            </div>
+                <div class="inner required">
+                    Required
+                </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
 
 
 
 
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">offset</td>
+<td>
+
+
+    <div id="d2e199_getSimulationResults_offset">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    Long
+                </span>
+                    <span class="format">
+                        (int64)
+                    </span>
+
+            </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">limit</td>
+<td>
+
+
+    <div id="d2e199_getSimulationResults_limit">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    Long
+                </span>
+                    <span class="format">
+                        (int64)
+                    </span>
+
+            </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
 
                           <h2>Responses</h2>
                             <h3 id="examples-Results-getSimulationResults-title-200"></h3>
@@ -2787,6 +3053,130 @@ pub fn main() {
                                   <input id='responses-Results-getSimulationResults-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
+                            <h3 id="examples-Results-getSimulationResults-title-403"></h3>
+                            <p id="examples-Results-getSimulationResults-description-403" class="marked"></p>
+                            <script>
+                              var responseResults403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseResults403_description_break = responseResults403_description.indexOf('\n');
+                              if (responseResults403_description_break == -1) {
+                                $("#examples-Results-getSimulationResults-title-403").text("Status: 403 - " + responseResults403_description);
+                              } else {
+                                $("#examples-Results-getSimulationResults-title-403").text("Status: 403 - " + responseResults403_description.substring(0, responseResults403_description_break));
+                                $("#examples-Results-getSimulationResults-description-403").html(responseResults403_description.substring(responseResults403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Results-getSimulationResults-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Results-getSimulationResults-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Results-getSimulationResults-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Results-getSimulationResults-403-schema">
+                                  <div id="responses-Results-getSimulationResults-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Results-getSimulationResults-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Results-getSimulationResults-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Results-getSimulationResults-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+                            <h3 id="examples-Results-getSimulationResults-title-404"></h3>
+                            <p id="examples-Results-getSimulationResults-description-404" class="marked"></p>
+                            <script>
+                              var responseResults404_description = `The specified resource was not found.`;
+                              var responseResults404_description_break = responseResults404_description.indexOf('\n');
+                              if (responseResults404_description_break == -1) {
+                                $("#examples-Results-getSimulationResults-title-404").text("Status: 404 - " + responseResults404_description);
+                              } else {
+                                $("#examples-Results-getSimulationResults-title-404").text("Status: 404 - " + responseResults404_description.substring(0, responseResults404_description_break));
+                                $("#examples-Results-getSimulationResults-description-404").html(responseResults404_description.substring(responseResults404_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Results-getSimulationResults-404" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Results-getSimulationResults-404-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Results-getSimulationResults-404-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Results-getSimulationResults-404-schema">
+                                  <div id="responses-Results-getSimulationResults-schema-404" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Results-getSimulationResults-404-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Results-getSimulationResults-schema-404');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Results-getSimulationResults-404-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
                         </article>
                       </div>
                       <hr>
@@ -2805,7 +3195,7 @@ pub fn main() {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/simulation</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="post"><code><span class="pln">/simulation/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -2831,15 +3221,15 @@ pub fn main() {
  -H "Authorization: Bearer [[accessToken]]" \
  -H "Accept: application/json" \
  -H "Content-Type: application/json" \
- "https://localhost:16007/api/v1/simulation" \
+ "https://localhost:16007/api/v1/simulation/{id}" \
  -d '{
-  &quot;maxClients&quot; : 22,
+  &quot;maxClients&quot; : 11,
   &quot;deviceType&quot; : &quot;deviceType&quot;,
   &quot;keepAlive&quot; : 1313,
-  &quot;devices&quot; : 4005,
+  &quot;devices&quot; : 4008,
   &quot;simulationLength&quot; : 120,
   &quot;certificate&quot; : &quot;certificate&quot;,
-  &quot;maxAssociations&quot; : 18,
+  &quot;maxAssociations&quot; : 36,
   &quot;threads&quot; : 372,
   &quot;reconnectInterval&quot; : 224,
   &quot;minAssociations&quot; : 2,
@@ -2881,10 +3271,11 @@ public class SimulationsApiExample {
 
         // Create an instance of the API class
         SimulationsApi apiInstance = new SimulationsApi();
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation ID. Must be set to 0 for a POST
         SimulationDetails simulationDetails = ; // SimulationDetails | 
 
         try {
-            apiInstance.createSimulation(simulationDetails);
+            apiInstance.createSimulation(id, simulationDetails);
         } catch (ApiException e) {
             System.err.println("Exception when calling SimulationsApi#createSimulation");
             e.printStackTrace();
@@ -2900,10 +3291,11 @@ public class SimulationsApiExample {
 public class SimulationsApiExample {
     public static void main(String[] args) {
         SimulationsApi apiInstance = new SimulationsApi();
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation ID. Must be set to 0 for a POST
         SimulationDetails simulationDetails = ; // SimulationDetails | 
 
         try {
-            apiInstance.createSimulation(simulationDetails);
+            apiInstance.createSimulation(id, simulationDetails);
         } catch (ApiException e) {
             System.err.println("Exception when calling SimulationsApi#createSimulation");
             e.printStackTrace();
@@ -2928,9 +3320,11 @@ public class SimulationsApiExample {
 
 // Create an instance of the API class
 SimulationsApi *apiInstance = [[SimulationsApi alloc] init];
+UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // The UUID of the specific simulation ID. Must be set to 0 for a POST (default to null)
 SimulationDetails *simulationDetails = ; //  (optional)
 
-[apiInstance createSimulationWith:simulationDetails
+[apiInstance createSimulationWith:id
+    simulationDetails:simulationDetails
               completionHandler: ^(NSError* error) {
     if (error) {
         NSLog(@"Error: %@", error);
@@ -2955,6 +3349,7 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.SimulationsApi()
+var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // {UUID} The UUID of the specific simulation ID. Must be set to 0 for a POST
 var opts = {
   'simulationDetails':  // {SimulationDetails} 
 };
@@ -2966,7 +3361,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.createSimulation(opts, callback);
+api.createSimulation(id, opts, callback);
 </code></pre>
                             </div>
 
@@ -2995,10 +3390,11 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new SimulationsApi();
+            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID | The UUID of the specific simulation ID. Must be set to 0 for a POST (default to null)
             var simulationDetails = new SimulationDetails(); // SimulationDetails |  (optional) 
 
             try {
-                apiInstance.createSimulation(simulationDetails);
+                apiInstance.createSimulation(id, simulationDetails);
             } catch (Exception e) {
                 Debug.Print("Exception when calling SimulationsApi.createSimulation: " + e.Message );
             }
@@ -3022,10 +3418,11 @@ OpenAPITools\Client\Configuration::getDefaultConfiguration()->setAccessToken('',
 
 // Create an instance of the API class
 $api_instance = new OpenAPITools\Client\Api\SimulationsApi();
+$id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation ID. Must be set to 0 for a POST
 $simulationDetails = ; // SimulationDetails | 
 
 try {
-    $api_instance->createSimulation($simulationDetails);
+    $api_instance->createSimulation($id, $simulationDetails);
 } catch (Exception $e) {
     echo 'Exception when calling SimulationsApi->createSimulation: ', $e->getMessage(), PHP_EOL;
 }
@@ -3047,10 +3444,11 @@ $WWW::OPenAPIClient::Configuration::access_token = 'YOUR_ACCESS_TOKEN';
 
 # Create an instance of the API class
 my $api_instance = WWW::OPenAPIClient::SimulationsApi->new();
+my $id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | The UUID of the specific simulation ID. Must be set to 0 for a POST
 my $simulationDetails = WWW::OPenAPIClient::Object::SimulationDetails->new(); # SimulationDetails | 
 
 eval {
-    $api_instance->createSimulation(simulationDetails => $simulationDetails);
+    $api_instance->createSimulation(id => $id, simulationDetails => $simulationDetails);
 };
 if ($@) {
     warn "Exception when calling SimulationsApi->createSimulation: $@\n";
@@ -3074,10 +3472,11 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.SimulationsApi()
+id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID | The UUID of the specific simulation ID. Must be set to 0 for a POST (default to null)
 simulationDetails =  # SimulationDetails |  (optional)
 
 try:
-    api_instance.create_simulation(simulationDetails=simulationDetails)
+    api_instance.create_simulation(id, simulationDetails=simulationDetails)
 except ApiException as e:
     print("Exception when calling SimulationsApi->createSimulation: %s\n" % e)</code></pre>
                             </div>
@@ -3086,10 +3485,11 @@ except ApiException as e:
                               <pre class="prettyprint"><code class="language-rust">extern crate SimulationsApi;
 
 pub fn main() {
+    let id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID
     let simulationDetails = ; // SimulationDetails
 
     let mut context = SimulationsApi::Context::default();
-    let result = client.createSimulation(simulationDetails, &context).wait();
+    let result = client.createSimulation(id, simulationDetails, &context).wait();
 
     println!("{:?}", result);
 }
@@ -3104,6 +3504,39 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
+<td>
+
+
+    <div id="d2e199_createSimulation_id">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    UUID
+                </span>
+                    <span class="format">
+                        (uuid)
+                    </span>
+
+                    <div class="inner description marked">
+The UUID of the specific simulation ID. Must be set to 0 for a POST
+                    </div>
+            </div>
+                <div class="inner required">
+                    Required
+                </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
 
 
                             <div class="methodsubtabletitle">Body parameters</div>
@@ -3240,6 +3673,68 @@ $(document).ready(function() {
                                   <input id='responses-Simulations-createSimulation-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
+                            <h3 id="examples-Simulations-createSimulation-title-403"></h3>
+                            <p id="examples-Simulations-createSimulation-description-403" class="marked"></p>
+                            <script>
+                              var responseSimulations403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseSimulations403_description_break = responseSimulations403_description.indexOf('\n');
+                              if (responseSimulations403_description_break == -1) {
+                                $("#examples-Simulations-createSimulation-title-403").text("Status: 403 - " + responseSimulations403_description);
+                              } else {
+                                $("#examples-Simulations-createSimulation-title-403").text("Status: 403 - " + responseSimulations403_description.substring(0, responseSimulations403_description_break));
+                                $("#examples-Simulations-createSimulation-description-403").html(responseSimulations403_description.substring(responseSimulations403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Simulations-createSimulation-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Simulations-createSimulation-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Simulations-createSimulation-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Simulations-createSimulation-403-schema">
+                                  <div id="responses-Simulations-createSimulation-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Simulations-createSimulation-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Simulations-createSimulation-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Simulations-createSimulation-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
                         </article>
                       </div>
                       <hr>
@@ -3255,7 +3750,7 @@ $(document).ready(function() {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/simulation</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="delete"><code><span class="pln">/simulation/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -3280,7 +3775,7 @@ $(document).ready(function() {
 -H "X-API-KEY: [[apiKey]]" \
  -H "Authorization: Bearer [[accessToken]]" \
  -H "Accept: application/json" \
- "https://localhost:16007/api/v1/simulation?id=38400000-8cf0-11bd-b23e-10b96e4ef00d"
+ "https://localhost:16007/api/v1/simulation/{id}"
 </code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Simulations-deleteSimulation-0-java">
@@ -3357,7 +3852,7 @@ public class SimulationsApiExample {
 
 // Create an instance of the API class
 SimulationsApi *apiInstance = [[SimulationsApi alloc] init];
-UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; //  (optional) (default to null)
+UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; //  (default to null)
 
 [apiInstance deleteSimulationWith:id
               completionHandler: ^(getSimulations_400_response output, NSError* error) {
@@ -3387,9 +3882,7 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.SimulationsApi()
-var opts = {
-  'id': 38400000-8cf0-11bd-b23e-10b96e4ef00d // {UUID} 
-};
+var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // {UUID} 
 
 var callback = function(error, data, response) {
   if (error) {
@@ -3398,7 +3891,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.deleteSimulation(opts, callback);
+api.deleteSimulation(id, callback);
 </code></pre>
                             </div>
 
@@ -3427,7 +3920,7 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new SimulationsApi();
-            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID |  (optional)  (default to null)
+            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID |  (default to null)
 
             try {
                 getSimulations_400_response result = apiInstance.deleteSimulation(id);
@@ -3509,10 +4002,10 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.SimulationsApi()
-id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID |  (optional) (default to null)
+id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID |  (default to null)
 
 try:
-    api_response = api_instance.delete_simulation(id=id)
+    api_response = api_instance.delete_simulation(id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling SimulationsApi->deleteSimulation: %s\n" % e)</code></pre>
@@ -3540,17 +4033,13 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
-
-
-
-
-                            <div class="methodsubtabletitle">Query parameters</div>
+                            <div class="methodsubtabletitle">Path parameters</div>
                             <table id="methodsubtable">
-                              <tr>
-                                <th width="150px">Name</th>
-                                <th>Description</th>
-                              </tr>
-                                <tr><td style="width:150px;">id</td>
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
 <td>
 
 
@@ -3565,12 +4054,19 @@ pub fn main() {
                     </span>
 
             </div>
+                <div class="inner required">
+                    Required
+                </div>
         </div>
     </div>
 </td>
 </tr>
 
                             </table>
+
+
+
+
 
                           <h2>Responses</h2>
                             <h3 id="examples-Simulations-deleteSimulation-title-200"></h3>
@@ -3697,6 +4193,68 @@ pub fn main() {
                                   <input id='responses-Simulations-deleteSimulation-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
+                            <h3 id="examples-Simulations-deleteSimulation-title-403"></h3>
+                            <p id="examples-Simulations-deleteSimulation-description-403" class="marked"></p>
+                            <script>
+                              var responseSimulations403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseSimulations403_description_break = responseSimulations403_description.indexOf('\n');
+                              if (responseSimulations403_description_break == -1) {
+                                $("#examples-Simulations-deleteSimulation-title-403").text("Status: 403 - " + responseSimulations403_description);
+                              } else {
+                                $("#examples-Simulations-deleteSimulation-title-403").text("Status: 403 - " + responseSimulations403_description.substring(0, responseSimulations403_description_break));
+                                $("#examples-Simulations-deleteSimulation-description-403").html(responseSimulations403_description.substring(responseSimulations403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Simulations-deleteSimulation-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Simulations-deleteSimulation-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Simulations-deleteSimulation-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Simulations-deleteSimulation-403-schema">
+                                  <div id="responses-Simulations-deleteSimulation-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Simulations-deleteSimulation-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Simulations-deleteSimulation-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Simulations-deleteSimulation-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
                             <h3 id="examples-Simulations-deleteSimulation-title-404"></h3>
                             <p id="examples-Simulations-deleteSimulation-description-404" class="marked"></p>
                             <script>
@@ -3774,7 +4332,7 @@ pub fn main() {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/simulation</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/simulation/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -3799,7 +4357,7 @@ pub fn main() {
 -H "X-API-KEY: [[apiKey]]" \
  -H "Authorization: Bearer [[accessToken]]" \
  -H "Accept: application/json" \
- "https://localhost:16007/api/v1/simulation"
+ "https://localhost:16007/api/v1/simulation/{id}?offset=789&limit=789"
 </code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Simulations-getSimulations-0-java">
@@ -3827,9 +4385,13 @@ public class SimulationsApiExample {
 
         // Create an instance of the API class
         SimulationsApi apiInstance = new SimulationsApi();
+        UUID id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID | The UUID of the specific simulation ID
+        Long offset = 789; // Long | 
+        Long limit = 789; // Long | 
 
         try {
-            apiInstance.getSimulations();
+            getSimulations_200_response result = apiInstance.getSimulations(id, offset, limit);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling SimulationsApi#getSimulations");
             e.printStackTrace();
@@ -3845,9 +4407,13 @@ public class SimulationsApiExample {
 public class SimulationsApiExample {
     public static void main(String[] args) {
         SimulationsApi apiInstance = new SimulationsApi();
+        UUID id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID | The UUID of the specific simulation ID
+        Long offset = 789; // Long | 
+        Long limit = 789; // Long | 
 
         try {
-            apiInstance.getSimulations();
+            getSimulations_200_response result = apiInstance.getSimulations(id, offset, limit);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling SimulationsApi#getSimulations");
             e.printStackTrace();
@@ -3872,9 +4438,17 @@ public class SimulationsApiExample {
 
 // Create an instance of the API class
 SimulationsApi *apiInstance = [[SimulationsApi alloc] init];
+UUID *id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // The UUID of the specific simulation ID (default to null)
+Long *offset = 789; //  (optional) (default to null)
+Long *limit = 789; //  (optional) (default to null)
 
-[apiInstance getSimulationsWithCompletionHandler: 
-              ^(NSError* error) {
+[apiInstance getSimulationsWith:id
+    offset:offset
+    limit:limit
+              completionHandler: ^(getSimulations_200_response output, NSError* error) {
+    if (output) {
+        NSLog(@"%@", output);
+    }
     if (error) {
         NSLog(@"Error: %@", error);
     }
@@ -3898,14 +4472,20 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.SimulationsApi()
+var id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // {UUID} The UUID of the specific simulation ID
+var opts = {
+  'offset': 789, // {Long} 
+  'limit': 789 // {Long} 
+};
+
 var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.getSimulations(callback);
+api.getSimulations(id, opts, callback);
 </code></pre>
                             </div>
 
@@ -3934,9 +4514,13 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new SimulationsApi();
+            var id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*';  // UUID | The UUID of the specific simulation ID (default to null)
+            var offset = 789;  // Long |  (optional)  (default to null)
+            var limit = 789;  // Long |  (optional)  (default to null)
 
             try {
-                apiInstance.getSimulations();
+                getSimulations_200_response result = apiInstance.getSimulations(id, offset, limit);
+                Debug.WriteLine(result);
             } catch (Exception e) {
                 Debug.Print("Exception when calling SimulationsApi.getSimulations: " + e.Message );
             }
@@ -3960,9 +4544,13 @@ OpenAPITools\Client\Configuration::getDefaultConfiguration()->setAccessToken('',
 
 // Create an instance of the API class
 $api_instance = new OpenAPITools\Client\Api\SimulationsApi();
+$id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID | The UUID of the specific simulation ID
+$offset = 789; // Long | 
+$limit = 789; // Long | 
 
 try {
-    $api_instance->getSimulations();
+    $result = $api_instance->getSimulations($id, $offset, $limit);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling SimulationsApi->getSimulations: ', $e->getMessage(), PHP_EOL;
 }
@@ -3984,9 +4572,13 @@ $WWW::OPenAPIClient::Configuration::access_token = 'YOUR_ACCESS_TOKEN';
 
 # Create an instance of the API class
 my $api_instance = WWW::OPenAPIClient::SimulationsApi->new();
+my $id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; # UUID | The UUID of the specific simulation ID
+my $offset = 789; # Long | 
+my $limit = 789; # Long | 
 
 eval {
-    $api_instance->getSimulations();
+    my $result = $api_instance->getSimulations(id => $id, offset => $offset, limit => $limit);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling SimulationsApi->getSimulations: $@\n";
@@ -4010,9 +4602,13 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.SimulationsApi()
+id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*' # UUID | The UUID of the specific simulation ID (default to null)
+offset = 789 # Long |  (optional) (default to null)
+limit = 789 # Long |  (optional) (default to null)
 
 try:
-    api_instance.get_simulations()
+    api_response = api_instance.get_simulations(id, offset=offset, limit=limit)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling SimulationsApi->getSimulations: %s\n" % e)</code></pre>
                             </div>
@@ -4021,9 +4617,12 @@ except ApiException as e:
                               <pre class="prettyprint"><code class="language-rust">extern crate SimulationsApi;
 
 pub fn main() {
+    let id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // UUID
+    let offset = 789; // Long
+    let limit = 789; // Long
 
     let mut context = SimulationsApi::Context::default();
-    let result = client.getSimulations(&context).wait();
+    let result = client.getSimulations(id, offset, limit, &context).wait();
 
     println!("{:?}", result);
 }
@@ -4038,16 +4637,96 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
+<td>
+
+
+    <div id="d2e199_getSimulations_id">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    UUID
+                </span>
+                    <span class="format">
+                        (uuid)
+                    </span>
+
+                    <div class="inner description marked">
+The UUID of the specific simulation ID
+                    </div>
+            </div>
+                <div class="inner required">
+                    Required
+                </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
 
 
 
 
+                            <div class="methodsubtabletitle">Query parameters</div>
+                            <table id="methodsubtable">
+                              <tr>
+                                <th width="150px">Name</th>
+                                <th>Description</th>
+                              </tr>
+                                <tr><td style="width:150px;">offset</td>
+<td>
+
+
+    <div id="d2e199_getSimulations_offset">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    Long
+                </span>
+                    <span class="format">
+                        (int64)
+                    </span>
+
+            </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                                <tr><td style="width:150px;">limit</td>
+<td>
+
+
+    <div id="d2e199_getSimulations_limit">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    Long
+                </span>
+                    <span class="format">
+                        (int64)
+                    </span>
+
+            </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
 
                           <h2>Responses</h2>
                             <h3 id="examples-Simulations-getSimulations-title-200"></h3>
                             <p id="examples-Simulations-getSimulations-description-200" class="marked"></p>
                             <script>
-                              var responseSimulations200_description = ``;
+                              var responseSimulations200_description = `A single or list of simulation definitions`;
                               var responseSimulations200_description_break = responseSimulations200_description.indexOf('\n');
                               if (responseSimulations200_description_break == -1) {
                                 $("#examples-Simulations-getSimulations-title-200").text("Status: 200 - " + responseSimulations200_description);
@@ -4059,12 +4738,52 @@ pub fn main() {
 
 
                             <ul id="responses-detail-Simulations-getSimulations-200" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Simulations-getSimulations-200-schema">Schema</a>
+                                </li>
+
+
 
 
                             </ul>
 
 
                             <div class="tab-content" id="responses-Simulations-getSimulations-200-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Simulations-getSimulations-200-schema">
+                                  <div id="responses-Simulations-getSimulations-schema-200" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Simulations-getSimulations-200-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Simulations-getSimulations-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Simulations-getSimulations-200-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
                             <h3 id="examples-Simulations-getSimulations-title-400"></h3>
                             <p id="examples-Simulations-getSimulations-description-400" class="marked"></p>
@@ -4128,6 +4847,68 @@ pub fn main() {
                                   <input id='responses-Simulations-getSimulations-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
+                            <h3 id="examples-Simulations-getSimulations-title-403"></h3>
+                            <p id="examples-Simulations-getSimulations-description-403" class="marked"></p>
+                            <script>
+                              var responseSimulations403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseSimulations403_description_break = responseSimulations403_description.indexOf('\n');
+                              if (responseSimulations403_description_break == -1) {
+                                $("#examples-Simulations-getSimulations-title-403").text("Status: 403 - " + responseSimulations403_description);
+                              } else {
+                                $("#examples-Simulations-getSimulations-title-403").text("Status: 403 - " + responseSimulations403_description.substring(0, responseSimulations403_description_break));
+                                $("#examples-Simulations-getSimulations-description-403").html(responseSimulations403_description.substring(responseSimulations403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Simulations-getSimulations-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Simulations-getSimulations-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Simulations-getSimulations-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Simulations-getSimulations-403-schema">
+                                  <div id="responses-Simulations-getSimulations-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Simulations-getSimulations-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Simulations-getSimulations-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Simulations-getSimulations-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
                         </article>
                       </div>
                       <hr>
@@ -4143,7 +4924,7 @@ pub fn main() {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="put"><code><span class="pln">/simulation</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="put"><code><span class="pln">/simulation/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -4169,15 +4950,15 @@ pub fn main() {
  -H "Authorization: Bearer [[accessToken]]" \
  -H "Accept: application/json" \
  -H "Content-Type: application/json" \
- "https://localhost:16007/api/v1/simulation?id=38400000-8cf0-11bd-b23e-10b96e4ef00d" \
+ "https://localhost:16007/api/v1/simulation/{id}" \
  -d '{
-  &quot;maxClients&quot; : 22,
+  &quot;maxClients&quot; : 11,
   &quot;deviceType&quot; : &quot;deviceType&quot;,
   &quot;keepAlive&quot; : 1313,
-  &quot;devices&quot; : 4005,
+  &quot;devices&quot; : 4008,
   &quot;simulationLength&quot; : 120,
   &quot;certificate&quot; : &quot;certificate&quot;,
-  &quot;maxAssociations&quot; : 18,
+  &quot;maxAssociations&quot; : 36,
   &quot;threads&quot; : 372,
   &quot;reconnectInterval&quot; : 224,
   &quot;minAssociations&quot; : 2,
@@ -4219,7 +5000,7 @@ public class SimulationsApiExample {
 
         // Create an instance of the API class
         SimulationsApi apiInstance = new SimulationsApi();
-        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation ID
         SimulationDetails simulationDetails = ; // SimulationDetails | 
 
         try {
@@ -4239,7 +5020,7 @@ public class SimulationsApiExample {
 public class SimulationsApiExample {
     public static void main(String[] args) {
         SimulationsApi apiInstance = new SimulationsApi();
-        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+        UUID id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation ID
         SimulationDetails simulationDetails = ; // SimulationDetails | 
 
         try {
@@ -4268,7 +5049,7 @@ public class SimulationsApiExample {
 
 // Create an instance of the API class
 SimulationsApi *apiInstance = [[SimulationsApi alloc] init];
-UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; //  (optional) (default to null)
+UUID *id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // The UUID of the specific simulation ID (default to null)
 SimulationDetails *simulationDetails = ; //  (optional)
 
 [apiInstance modifySimulationWith:id
@@ -4297,8 +5078,8 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.SimulationsApi()
+var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // {UUID} The UUID of the specific simulation ID
 var opts = {
-  'id': 38400000-8cf0-11bd-b23e-10b96e4ef00d, // {UUID} 
   'simulationDetails':  // {SimulationDetails} 
 };
 
@@ -4309,7 +5090,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully.');
   }
 };
-api.modifySimulation(opts, callback);
+api.modifySimulation(id, opts, callback);
 </code></pre>
                             </div>
 
@@ -4338,7 +5119,7 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new SimulationsApi();
-            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID |  (optional)  (default to null)
+            var id = 38400000-8cf0-11bd-b23e-10b96e4ef00d;  // UUID | The UUID of the specific simulation ID (default to null)
             var simulationDetails = new SimulationDetails(); // SimulationDetails |  (optional) 
 
             try {
@@ -4366,7 +5147,7 @@ OpenAPITools\Client\Configuration::getDefaultConfiguration()->setAccessToken('',
 
 // Create an instance of the API class
 $api_instance = new OpenAPITools\Client\Api\SimulationsApi();
-$id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | 
+$id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // UUID | The UUID of the specific simulation ID
 $simulationDetails = ; // SimulationDetails | 
 
 try {
@@ -4392,7 +5173,7 @@ $WWW::OPenAPIClient::Configuration::access_token = 'YOUR_ACCESS_TOKEN';
 
 # Create an instance of the API class
 my $api_instance = WWW::OPenAPIClient::SimulationsApi->new();
-my $id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | 
+my $id = 38400000-8cf0-11bd-b23e-10b96e4ef00d; # UUID | The UUID of the specific simulation ID
 my $simulationDetails = WWW::OPenAPIClient::Object::SimulationDetails->new(); # SimulationDetails | 
 
 eval {
@@ -4420,11 +5201,11 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.SimulationsApi()
-id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID |  (optional) (default to null)
+id = 38400000-8cf0-11bd-b23e-10b96e4ef00d # UUID | The UUID of the specific simulation ID (default to null)
 simulationDetails =  # SimulationDetails |  (optional)
 
 try:
-    api_instance.modify_simulation(id=id, simulationDetails=simulationDetails)
+    api_instance.modify_simulation(id, simulationDetails=simulationDetails)
 except ApiException as e:
     print("Exception when calling SimulationsApi->modifySimulation: %s\n" % e)</code></pre>
                             </div>
@@ -4452,6 +5233,39 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
+<td>
+
+
+    <div id="d2e199_modifySimulation_id">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    UUID
+                </span>
+                    <span class="format">
+                        (uuid)
+                    </span>
+
+                    <div class="inner description marked">
+The UUID of the specific simulation ID
+                    </div>
+            </div>
+                <div class="inner required">
+                    Required
+                </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
 
 
                             <div class="methodsubtabletitle">Body parameters</div>
@@ -4502,33 +5316,6 @@ $(document).ready(function() {
                             </table>
 
 
-                            <div class="methodsubtabletitle">Query parameters</div>
-                            <table id="methodsubtable">
-                              <tr>
-                                <th width="150px">Name</th>
-                                <th>Description</th>
-                              </tr>
-                                <tr><td style="width:150px;">id</td>
-<td>
-
-
-    <div id="d2e199_modifySimulation_id">
-        <div class="json-schema-view">
-            <div class="primitive">
-                <span class="type">
-                    UUID
-                </span>
-                    <span class="format">
-                        (uuid)
-                    </span>
-
-            </div>
-        </div>
-    </div>
-</td>
-</tr>
-
-                            </table>
 
                           <h2>Responses</h2>
                             <h3 id="examples-Simulations-modifySimulation-title-200"></h3>
@@ -4615,6 +5402,68 @@ $(document).ready(function() {
                                   <input id='responses-Simulations-modifySimulation-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
+                            <h3 id="examples-Simulations-modifySimulation-title-403"></h3>
+                            <p id="examples-Simulations-modifySimulation-description-403" class="marked"></p>
+                            <script>
+                              var responseSimulations403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseSimulations403_description_break = responseSimulations403_description.indexOf('\n');
+                              if (responseSimulations403_description_break == -1) {
+                                $("#examples-Simulations-modifySimulation-title-403").text("Status: 403 - " + responseSimulations403_description);
+                              } else {
+                                $("#examples-Simulations-modifySimulation-title-403").text("Status: 403 - " + responseSimulations403_description.substring(0, responseSimulations403_description_break));
+                                $("#examples-Simulations-modifySimulation-description-403").html(responseSimulations403_description.substring(responseSimulations403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Simulations-modifySimulation-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Simulations-modifySimulation-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Simulations-modifySimulation-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Simulations-modifySimulation-403-schema">
+                                  <div id="responses-Simulations-modifySimulation-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Simulations-modifySimulation-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Simulations-modifySimulation-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Simulations-modifySimulation-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
                         </article>
                       </div>
                       <hr>
@@ -4633,7 +5482,7 @@ $(document).ready(function() {
                         <p class="marked"></p>
                         <p></p>
                         <br />
-                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/status</span></code></pre>
+                        <pre class="prettyprint language-html prettyprinted" data-type="get"><code><span class="pln">/status/{id}</span></code></pre>
                         <p>
                           <h3>Usage and SDK Samples</h3>
                         </p>
@@ -4657,7 +5506,8 @@ $(document).ready(function() {
                             <pre class="prettyprint"><code class="language-bsh">curl -X GET \
 -H "X-API-KEY: [[apiKey]]" \
  -H "Authorization: Bearer [[accessToken]]" \
- "https://localhost:16007/api/v1/status"
+ -H "Accept: application/json" \
+ "https://localhost:16007/api/v1/status/{id}"
 </code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Status-getStatusOfRunningSimulation-0-java">
@@ -4685,9 +5535,11 @@ public class StatusApiExample {
 
         // Create an instance of the API class
         StatusApi apiInstance = new StatusApi();
+        String id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // String | 
 
         try {
-            apiInstance.getStatusOfRunningSimulation();
+            array[SimulationStatus] result = apiInstance.getStatusOfRunningSimulation(id);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling StatusApi#getStatusOfRunningSimulation");
             e.printStackTrace();
@@ -4703,9 +5555,11 @@ public class StatusApiExample {
 public class StatusApiExample {
     public static void main(String[] args) {
         StatusApi apiInstance = new StatusApi();
+        String id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // String | 
 
         try {
-            apiInstance.getStatusOfRunningSimulation();
+            array[SimulationStatus] result = apiInstance.getStatusOfRunningSimulation(id);
+            System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling StatusApi#getStatusOfRunningSimulation");
             e.printStackTrace();
@@ -4730,9 +5584,13 @@ public class StatusApiExample {
 
 // Create an instance of the API class
 StatusApi *apiInstance = [[StatusApi alloc] init];
+String *id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; //  (default to null)
 
-[apiInstance getStatusOfRunningSimulationWithCompletionHandler: 
-              ^(NSError* error) {
+[apiInstance getStatusOfRunningSimulationWith:id
+              completionHandler: ^(array[SimulationStatus] output, NSError* error) {
+    if (output) {
+        NSLog(@"%@", output);
+    }
     if (error) {
         NSLog(@"Error: %@", error);
     }
@@ -4756,14 +5614,16 @@ bearerAuth.accessToken = "YOUR ACCESS TOKEN";
 
 // Create an instance of the API class
 var api = new OpenWifiLoadSimulator.StatusApi()
+var id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // {String} 
+
 var callback = function(error, data, response) {
   if (error) {
     console.error(error);
   } else {
-    console.log('API called successfully.');
+    console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.getStatusOfRunningSimulation(callback);
+api.getStatusOfRunningSimulation(id, callback);
 </code></pre>
                             </div>
 
@@ -4792,9 +5652,11 @@ namespace Example
 
             // Create an instance of the API class
             var apiInstance = new StatusApi();
+            var id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*';  // String |  (default to null)
 
             try {
-                apiInstance.getStatusOfRunningSimulation();
+                array[SimulationStatus] result = apiInstance.getStatusOfRunningSimulation(id);
+                Debug.WriteLine(result);
             } catch (Exception e) {
                 Debug.Print("Exception when calling StatusApi.getStatusOfRunningSimulation: " + e.Message );
             }
@@ -4818,9 +5680,11 @@ OpenAPITools\Client\Configuration::getDefaultConfiguration()->setAccessToken('',
 
 // Create an instance of the API class
 $api_instance = new OpenAPITools\Client\Api\StatusApi();
+$id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // String | 
 
 try {
-    $api_instance->getStatusOfRunningSimulation();
+    $result = $api_instance->getStatusOfRunningSimulation($id);
+    print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling StatusApi->getStatusOfRunningSimulation: ', $e->getMessage(), PHP_EOL;
 }
@@ -4842,9 +5706,11 @@ $WWW::OPenAPIClient::Configuration::access_token = 'YOUR_ACCESS_TOKEN';
 
 # Create an instance of the API class
 my $api_instance = WWW::OPenAPIClient::StatusApi->new();
+my $id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; # String | 
 
 eval {
-    $api_instance->getStatusOfRunningSimulation();
+    my $result = $api_instance->getStatusOfRunningSimulation(id => $id);
+    print Dumper($result);
 };
 if ($@) {
     warn "Exception when calling StatusApi->getStatusOfRunningSimulation: $@\n";
@@ -4868,9 +5734,11 @@ openapi_client.configuration.access_token = 'YOUR_ACCESS_TOKEN'
 
 # Create an instance of the API class
 api_instance = openapi_client.StatusApi()
+id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*' # String |  (default to null)
 
 try:
-    api_instance.get_status_of_running_simulation()
+    api_response = api_instance.get_status_of_running_simulation(id)
+    pprint(api_response)
 except ApiException as e:
     print("Exception when calling StatusApi->getStatusOfRunningSimulation: %s\n" % e)</code></pre>
                             </div>
@@ -4879,9 +5747,10 @@ except ApiException as e:
                               <pre class="prettyprint"><code class="language-rust">extern crate StatusApi;
 
 pub fn main() {
+    let id = Set this to the ID of the running simulation. To get the list of running simulations, set this to '*'; // String
 
     let mut context = StatusApi::Context::default();
-    let result = client.getStatusOfRunningSimulation(&context).wait();
+    let result = client.getStatusOfRunningSimulation(id, &context).wait();
 
     println!("{:?}", result);
 }
@@ -4896,6 +5765,33 @@ pub fn main() {
 
                           <h2>Parameters</h2>
 
+                            <div class="methodsubtabletitle">Path parameters</div>
+                            <table id="methodsubtable">
+                                <tr>
+                                  <th width="150px">Name</th>
+                                  <th>Description</th>
+                                </tr>
+                                  <tr><td style="width:150px;">id*</td>
+<td>
+
+
+    <div id="d2e199_getStatusOfRunningSimulation_id">
+        <div class="json-schema-view">
+            <div class="primitive">
+                <span class="type">
+                    String
+                </span>
+
+            </div>
+                <div class="inner required">
+                    Required
+                </div>
+        </div>
+    </div>
+</td>
+</tr>
+
+                            </table>
 
 
 
@@ -4905,7 +5801,7 @@ pub fn main() {
                             <h3 id="examples-Status-getStatusOfRunningSimulation-title-200"></h3>
                             <p id="examples-Status-getStatusOfRunningSimulation-description-200" class="marked"></p>
                             <script>
-                              var responseStatus200_description = ``;
+                              var responseStatus200_description = `Successfully retrieved status list`;
                               var responseStatus200_description_break = responseStatus200_description.indexOf('\n');
                               if (responseStatus200_description_break == -1) {
                                 $("#examples-Status-getStatusOfRunningSimulation-title-200").text("Status: 200 - " + responseStatus200_description);
@@ -4917,12 +5813,238 @@ pub fn main() {
 
 
                             <ul id="responses-detail-Status-getStatusOfRunningSimulation-200" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Status-getStatusOfRunningSimulation-200-schema">Schema</a>
+                                </li>
+
+
 
 
                             </ul>
 
 
                             <div class="tab-content" id="responses-Status-getStatusOfRunningSimulation-200-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Status-getStatusOfRunningSimulation-200-schema">
+                                  <div id="responses-Status-getStatusOfRunningSimulation-schema-200" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Status-getStatusOfRunningSimulation-200-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Status-getStatusOfRunningSimulation-schema-200');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Status-getStatusOfRunningSimulation-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+                            <h3 id="examples-Status-getStatusOfRunningSimulation-title-400"></h3>
+                            <p id="examples-Status-getStatusOfRunningSimulation-description-400" class="marked"></p>
+                            <script>
+                              var responseStatus400_description = `The requested operation was performed.`;
+                              var responseStatus400_description_break = responseStatus400_description.indexOf('\n');
+                              if (responseStatus400_description_break == -1) {
+                                $("#examples-Status-getStatusOfRunningSimulation-title-400").text("Status: 400 - " + responseStatus400_description);
+                              } else {
+                                $("#examples-Status-getStatusOfRunningSimulation-title-400").text("Status: 400 - " + responseStatus400_description.substring(0, responseStatus400_description_break));
+                                $("#examples-Status-getStatusOfRunningSimulation-description-400").html(responseStatus400_description.substring(responseStatus400_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Status-getStatusOfRunningSimulation-400" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Status-getStatusOfRunningSimulation-400-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Status-getStatusOfRunningSimulation-400-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Status-getStatusOfRunningSimulation-400-schema">
+                                  <div id="responses-Status-getStatusOfRunningSimulation-schema-400" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Status-getStatusOfRunningSimulation-400-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Status-getStatusOfRunningSimulation-schema-400');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Status-getStatusOfRunningSimulation-400-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+                            <h3 id="examples-Status-getStatusOfRunningSimulation-title-403"></h3>
+                            <p id="examples-Status-getStatusOfRunningSimulation-description-403" class="marked"></p>
+                            <script>
+                              var responseStatus403_description = `The requested does not have sufficient rights to perform the operation.`;
+                              var responseStatus403_description_break = responseStatus403_description.indexOf('\n');
+                              if (responseStatus403_description_break == -1) {
+                                $("#examples-Status-getStatusOfRunningSimulation-title-403").text("Status: 403 - " + responseStatus403_description);
+                              } else {
+                                $("#examples-Status-getStatusOfRunningSimulation-title-403").text("Status: 403 - " + responseStatus403_description.substring(0, responseStatus403_description_break));
+                                $("#examples-Status-getStatusOfRunningSimulation-description-403").html(responseStatus403_description.substring(responseStatus403_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Status-getStatusOfRunningSimulation-403" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Status-getStatusOfRunningSimulation-403-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Status-getStatusOfRunningSimulation-403-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Status-getStatusOfRunningSimulation-403-schema">
+                                  <div id="responses-Status-getStatusOfRunningSimulation-schema-403" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Status-getStatusOfRunningSimulation-403-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Status-getStatusOfRunningSimulation-schema-403');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Status-getStatusOfRunningSimulation-403-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+                            <h3 id="examples-Status-getStatusOfRunningSimulation-title-404"></h3>
+                            <p id="examples-Status-getStatusOfRunningSimulation-description-404" class="marked"></p>
+                            <script>
+                              var responseStatus404_description = `The specified resource was not found.`;
+                              var responseStatus404_description_break = responseStatus404_description.indexOf('\n');
+                              if (responseStatus404_description_break == -1) {
+                                $("#examples-Status-getStatusOfRunningSimulation-title-404").text("Status: 404 - " + responseStatus404_description);
+                              } else {
+                                $("#examples-Status-getStatusOfRunningSimulation-title-404").text("Status: 404 - " + responseStatus404_description.substring(0, responseStatus404_description_break));
+                                $("#examples-Status-getStatusOfRunningSimulation-description-404").html(responseStatus404_description.substring(responseStatus404_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-Status-getStatusOfRunningSimulation-404" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-Status-getStatusOfRunningSimulation-404-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-Status-getStatusOfRunningSimulation-404-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-Status-getStatusOfRunningSimulation-404-schema">
+                                  <div id="responses-Status-getStatusOfRunningSimulation-schema-404" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-Status-getStatusOfRunningSimulation-404-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-Status-getStatusOfRunningSimulation-schema-404');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-Status-getStatusOfRunningSimulation-404-schema-data' type='hidden' value=''></input>
+                                </div>
                             </div>
                         </article>
                       </div>
@@ -5324,6 +6446,68 @@ Get a value
                                     </script>
                                   </div>
                                   <input id='responses-SystemCommands-getSystemCommand-200-schema-data' type='hidden' value=''></input>
+                                </div>
+                            </div>
+                            <h3 id="examples-SystemCommands-getSystemCommand-title-400"></h3>
+                            <p id="examples-SystemCommands-getSystemCommand-description-400" class="marked"></p>
+                            <script>
+                              var responseSystemCommands400_description = `The requested operation was performed.`;
+                              var responseSystemCommands400_description_break = responseSystemCommands400_description.indexOf('\n');
+                              if (responseSystemCommands400_description_break == -1) {
+                                $("#examples-SystemCommands-getSystemCommand-title-400").text("Status: 400 - " + responseSystemCommands400_description);
+                              } else {
+                                $("#examples-SystemCommands-getSystemCommand-title-400").text("Status: 400 - " + responseSystemCommands400_description.substring(0, responseSystemCommands400_description_break));
+                                $("#examples-SystemCommands-getSystemCommand-description-400").html(responseSystemCommands400_description.substring(responseSystemCommands400_description_break));
+                              }
+                            </script>
+
+
+                            <ul id="responses-detail-SystemCommands-getSystemCommand-400" class="nav nav-tabs nav-tabs-examples" >
+                                <li class="active">
+                                  <a data-toggle="tab" href="#responses-SystemCommands-getSystemCommand-400-schema">Schema</a>
+                                </li>
+
+
+
+
+                            </ul>
+
+
+                            <div class="tab-content" id="responses-SystemCommands-getSystemCommand-400-wrapper" style='margin-bottom: 10px;'>
+                                <div class="tab-pane active" id="responses-SystemCommands-getSystemCommand-400-schema">
+                                  <div id="responses-SystemCommands-getSystemCommand-schema-400" class="exampleStyle">
+                                    <script>
+                                      $(document).ready(function() {
+                                        var schemaWrapper = ;
+                                        var schema = findNode('schema',schemaWrapper).schema;
+                                        if (!schema) {
+                                          schema = schemaWrapper.schema;
+                                        }
+                                        if (schema.$ref != null) {
+                                          schema = defsParser.$refs.get(schema.$ref);
+                                          Object.keys(schema.properties).forEach( (item) => {
+                                            if (schema.properties[item].$ref != null) {
+                                              schema.properties[item] = defsParser.$refs.get(schema.properties[item].$ref);
+                                            }
+                                          });
+                                        } else if (schema.items != null && schema.items.$ref != null) {
+                                            schema.items = defsParser.$refs.get(schema.items.$ref);
+                                        } else {
+                                          schemaWrapper.definitions = Object.assign({}, defs);
+                                          $RefParser.dereference(schemaWrapper).catch(function(err) {
+                                            console.log(err);
+                                          });
+                                        }
+
+                                        var view = new JSONSchemaView(schema, 3);
+                                        $('#responses-SystemCommands-getSystemCommand-400-schema-data').val(JSON.stringify(schema));
+                                        var result = $('#responses-SystemCommands-getSystemCommand-schema-400');
+                                        result.empty();
+                                        result.append(view.render());
+                                      });
+                                    </script>
+                                  </div>
+                                  <input id='responses-SystemCommands-getSystemCommand-400-schema-data' type='hidden' value=''></input>
                                 </div>
                             </div>
                             <h3 id="examples-SystemCommands-getSystemCommand-title-403"></h3>

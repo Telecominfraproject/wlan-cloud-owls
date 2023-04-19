@@ -536,6 +536,7 @@ namespace OpenWifi {
 		try {
             if (Params->has("serial") && Params->has("pattern")) {
                 std::string Serial = Params->get("serial");
+                std::cout << SerialNumber_ << " --- " << Client->SerialNumber_ << " --- " << Serial << std::endl;
                 auto Pattern = Params->get("pattern").toString();
                 uint64_t Duration = Params->has("when") ? (uint64_t)Params->get("durarion") : 10;
 

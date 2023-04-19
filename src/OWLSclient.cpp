@@ -428,7 +428,6 @@ namespace OpenWifi {
 	void OWLSclient::DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
             if (Params->has("serial") && Params->has("when")) {
-                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
                 std::string Serial = Params->get("serial");
 
                 Poco::JSON::Object Answer, Result, Status;
@@ -474,7 +473,6 @@ namespace OpenWifi {
 	void OWLSclient::DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
             if (Params->has("serial") && Params->has("uri")) {
-                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
                 std::string Serial = Params->get("serial");
                 std::string URI = Params->get("uri");
 
@@ -505,7 +503,6 @@ namespace OpenWifi {
 	void OWLSclient::DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
             if (Params->has("serial") && Params->has("when")) {
-                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
                 std::string Serial = Params->get("serial");
 
 				Version_ = 1;
@@ -538,7 +535,6 @@ namespace OpenWifi {
 	void OWLSclient::DoLEDs([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
             if (Params->has("serial") && Params->has("pattern")) {
-                uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
                 std::string Serial = Params->get("serial");
                 auto Pattern = Params->get("pattern").toString();
                 uint64_t Duration = Params->has("when") ? (uint64_t)Params->get("durarion") : 10;

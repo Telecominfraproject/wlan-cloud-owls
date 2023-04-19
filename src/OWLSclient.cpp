@@ -371,6 +371,7 @@ namespace OpenWifi {
 
 				std::string     Serial = Params->get(uCentralProtocol::SERIAL);
                 std::uint64_t   NewUUID = Params->get(uCentralProtocol::UUID);
+                std::cout << SerialNumber_ << " --- " << Client->SerialNumber_ << " --- " << Serial << std::endl;
                 std::cout << "Existing UUID: " << UUID_ << "  New: " << NewUUID << std::endl;
 				auto Configuration = Params->getObject("config");
                 UUID_ = Active_ = NewUUID;
@@ -536,7 +537,6 @@ namespace OpenWifi {
 		try {
             if (Params->has("serial") && Params->has("pattern")) {
                 std::string Serial = Params->get("serial");
-                std::cout << SerialNumber_ << " --- " << Client->SerialNumber_ << " --- " << Serial << std::endl;
                 auto Pattern = Params->get("pattern").toString();
                 uint64_t Duration = Params->has("when") ? (uint64_t)Params->get("durarion") : 10;
 

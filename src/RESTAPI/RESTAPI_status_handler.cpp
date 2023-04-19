@@ -17,10 +17,10 @@ namespace OpenWifi {
 
         std::vector<OWLSObjects::SimulationStatus>  Statuses;
         if(id=="*") {
-            SimStats()->GetAllSimulations(Statuses);
+            SimStats()->GetAllSimulations(Statuses, UserInfo_.userinfo);
         } else {
             OWLSObjects::SimulationStatus S;
-            SimStats()->GetCurrent(id, S);
+            SimStats()->GetCurrent(id, S, UserInfo_.userinfo);
             Statuses.emplace_back(S);
         }
 		Poco::JSON::Array   Arr;

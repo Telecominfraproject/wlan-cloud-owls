@@ -15,14 +15,16 @@
 
 #include "CensusReport.h"
 #include <libs/Scheduler.h>
+#include <RESTObjects/RESTAPI_SecurityObjects.h>
 
 namespace OpenWifi {
 
 	class SimulationRunner {
 	  public:
-        explicit SimulationRunner(const OWLSObjects::SimulationDetails &Details, Poco::Logger &L, const std::string &id)
+        explicit SimulationRunner(const OWLSObjects::SimulationDetails &Details, Poco::Logger &L, const std::string &id, const SecurityObjects::UserInfo &uinfo)
 			: Details_(Details), Logger_(L), Id_(id)
-            , Scheduler_(Poco::Environment::processorCount()*16){
+            , Scheduler_(Poco::Environment::processorCount()*16)
+            , UInfo_(uinfo){
         }
 
 		void Stop();
@@ -64,6 +66,7 @@ namespace OpenWifi {
 		std::string         State_{"stopped"};
         std::string         Id_;
         Bosma::Scheduler    Scheduler_;
+        SecurityObjects::UserInfo   UInfo_;
 
         static void ProgressUpdate(SimulationRunner *s);
 

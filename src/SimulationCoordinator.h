@@ -10,18 +10,21 @@
 #include "RESTObjects/RESTAPI_OWLSobjects.h"
 #include "SimulationRunner.h"
 #include "framework/SubSystemServer.h"
+#include <RESTObjects/RESTAPI_SecurityObjects.h>
 
 namespace OpenWifi {
 
     struct SimulationRecord {
-        SimulationRecord(const OWLSObjects::SimulationDetails & details,Poco::Logger &L, const std::string &id) :
+        SimulationRecord(const OWLSObjects::SimulationDetails & details,Poco::Logger &L, const std::string &id, const SecurityObjects::UserInfo &uinfo) :
                 Details(details),
-                Runner(details, L, id) {
+                Runner(details, L, id, uinfo),
+                UInfo(uinfo){
 
         }
         std::atomic_bool                SimRunning = false;
         OWLSObjects::SimulationDetails  Details;
         SimulationRunner                Runner;
+        SecurityObjects::UserInfo       UInfo;
     };
 
 	class SimulationCoordinator : public SubSystemServer, Poco::Runnable {
@@ -35,10 +38,9 @@ namespace OpenWifi {
 		void Stop() final;
 		void run() final;
 
-		bool StartSim(std::string &SimId, const std::string &Id,
-                      std::string &Error, const std::string &Owner);
-		bool StopSim(const std::string &Id, std::string &Error);
-		bool CancelSim(const std::string &Id, std::string &Error);
+		bool StartSim(std::string &SimId, const std::string &Id, std::string &Error, const SecurityObjects::UserInfo &UInfo);
+		bool StopSim(const std::string &Id, std::string &Error, const SecurityObjects::UserInfo &UInfo);
+		bool CancelSim(const std::string &Id, std::string &Error, const SecurityObjects::UserInfo &UInfo);
 
 		[[nodiscard]] inline bool GetSimulationInfo( OWLSObjects::SimulationDetails & Details , const std::string &uuid = "" ) {
             std::lock_guard G(Mutex_);

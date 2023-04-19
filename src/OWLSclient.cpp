@@ -365,6 +365,7 @@ namespace OpenWifi {
 
     void OWLSclient::DoConfigure([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
+            std::lock_guard  G(Client->Mutex_);
 			if (Params->has(uCentralProtocol::SERIAL) &&
                 Params->has(uCentralProtocol::CONFIG) &&
                 Params->has(uCentralProtocol::UUID)) {
@@ -428,6 +429,7 @@ namespace OpenWifi {
 
 	void OWLSclient::DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
+            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("when")) {
                 std::string Serial = Params->get("serial");
 
@@ -473,6 +475,7 @@ namespace OpenWifi {
 
 	void OWLSclient::DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
+            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("uri")) {
                 std::string Serial = Params->get("serial");
                 std::string URI = Params->get("uri");
@@ -503,6 +506,7 @@ namespace OpenWifi {
 
 	void OWLSclient::DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
+            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("when")) {
                 std::string Serial = Params->get("serial");
 
@@ -535,6 +539,7 @@ namespace OpenWifi {
 
 	void OWLSclient::DoLEDs([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
+            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("pattern")) {
                 std::string Serial = Params->get("serial");
                 auto Pattern = Params->get("pattern").toString();

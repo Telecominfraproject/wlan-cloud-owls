@@ -24,7 +24,7 @@ namespace OpenWifi::OWLSclientEvents {
                 Poco::JSON::Object  Message, TempParams, Params;
 
                 TempParams.set(uCentralProtocol::SERIAL, Client->SerialNumber_);
-                TempParams.set(uCentralProtocol::REQUEST_UUID, Client->UUID_);
+                TempParams.set(uCentralProtocol::UUID, Client->UUID_);
                 TempParams.set(uCentralProtocol::STATE, Client->CreateStatePtr());
 
                 std::ostringstream os;
@@ -40,7 +40,6 @@ namespace OpenWifi::OWLSclientEvents {
                 Params.set("compress_64", CompressedBase64Encoded);
                 Params.set("compress_sz", os.str().size());
 
-                Message.set(uCentralProtocol::UUID, Client->UUID_);
                 OWLSutils::MakeHeader(Message,uCentralProtocol::STATE,Params);
 
                 if (Client->SendObject(Message)) {

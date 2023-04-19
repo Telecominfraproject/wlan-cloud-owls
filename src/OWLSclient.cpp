@@ -371,8 +371,7 @@ namespace OpenWifi {
 
 				std::string     Serial = Params->get(uCentralProtocol::SERIAL);
                 std::uint64_t   NewUUID = Params->get(uCentralProtocol::UUID);
-                std::cout << SerialNumber_ << " --- " << Client->SerialNumber_ << " --- " << Serial << std::endl;
-                std::cout << "Existing UUID: " << UUID_ << "  New: " << NewUUID << std::endl;
+                std::cout << Client->SerialNumber_ << "  C: " << Client->UUID_ << "  New: " << NewUUID << std::endl;
 				auto Configuration = Params->getObject("config");
                 UUID_ = Active_ = NewUUID;
 				CurrentConfig_ = Configuration;

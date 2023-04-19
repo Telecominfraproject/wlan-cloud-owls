@@ -192,19 +192,19 @@ namespace OpenWifi {
 
         if (Method == "configure") {
             CensusReport_.ev_configure++;
-            Client->DoConfigure(Client, Id, Params);
+            OWLSclient::DoConfigure(Client, Id, Params);
         } else if (Method == "reboot") {
-            Client->DoReboot(Client, Id, Params);
+            OWLSclient::DoReboot(Client, Id, Params);
             CensusReport_.ev_reboot++;
         } else if (Method == "upgrade") {
-            Client->DoUpgrade(Client, Id, Params);
+            OWLSclient::DoUpgrade(Client, Id, Params);
             CensusReport_.ev_firmwareupgrade++;
         } else if (Method == "factory") {
-            Client->DoFactory(Client, Id, Params);
+            OWLSclient::DoFactory(Client, Id, Params);
             CensusReport_.ev_factory++;
         } else if (Method == "leds") {
             CensusReport_.ev_leds++;
-            Client->DoLEDs(Client, Id, Params);
+            OWLSclient::DoLEDs(Client, Id, Params);
         } else {
             Logger_.warning(fmt::format("COMMAND({}): unknown method '{}'", Client->SerialNumber_, Method));
             Client->UNsupportedCommand(Client, Id, Method);

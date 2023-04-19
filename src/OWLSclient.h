@@ -48,11 +48,11 @@ namespace OpenWifi {
 		[[nodiscard]] bool Connected() const { return Connected_; }
 		[[nodiscard]] inline uint64_t GetStartTime() const { return StartTime_; }
 
-		void DoConfigure(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-		void DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-		void DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-		void DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-		void DoLEDs(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+		static void DoConfigure(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+        static void DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+        static void DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+        static void DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
+        static void DoLEDs(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
         void UNsupportedCommand(std::shared_ptr<OWLSclient> Client, uint64_t Id, const std::string &Method);
 
         using interface_location_t = std::tuple<ap_interface_types, std::string, radio_bands>;

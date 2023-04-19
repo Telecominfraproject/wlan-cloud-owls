@@ -373,33 +373,33 @@ namespace OpenWifi {
                 std::uint64_t   NewUUID = Params->get(uCentralProtocol::UUID);
                 std::cout << Client->SerialNumber_ << "  C: " << Client->UUID_ << "  New: " << NewUUID << std::endl;
 				auto Configuration = Params->getObject("config");
-                UUID_ = Active_ = NewUUID;
-				CurrentConfig_ = Configuration;
+                Client->UUID_ = Client->Active_ = NewUUID;
+                Client->CurrentConfig_ = Configuration;
 
                 auto Metrics = Configuration->getObject("metrics");
                 auto Health = Metrics->getObject("health");
-				HealthInterval_ = Health->get("interval");
+                Client->HealthInterval_ = Health->get("interval");
                 auto Statistics = Metrics->getObject("statistics");
-				StatisticsInterval_ = Statistics->get("interval");
+                Client->StatisticsInterval_ = Statistics->get("interval");
 
 				//  prepare response...
 				Poco::JSON::Object Answer, Result, Status;
                 Status.set(uCentralProtocol::ERROR, 0);
                 Status.set(uCentralProtocol::TEXT, "Success");
                 Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::UUID, Client->UUID_);
                 Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
-                poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
+                poco_information(Client->Logger_,fmt::format("configure({}): done.", Client->SerialNumber_));
                 // std::this_thread::sleep_for(std::chrono::seconds(OWLSutils::local_random(10,30)));
-				SendObject(Answer);
+                Client->SendObject(Answer);
 			} else {
-                poco_warning(Logger_,fmt::format("configure({}): Illegal command.", SerialNumber_));
+                poco_warning(Client->Logger_,fmt::format("configure({}): Illegal command.", Client->SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
             DEBUG_LINE("exception 1");
-            poco_warning(Logger_,
-				fmt::format("configure({}): Exception. {}", SerialNumber_, E.displayText()));
+            poco_warning(Client->Logger_,
+				fmt::format("configure({}): Exception. {}", Client->SerialNumber_, E.displayText()));
 		} catch (const std::exception &E) {
             DEBUG_LINE("exception2");
         }
@@ -435,22 +435,22 @@ namespace OpenWifi {
                 Status.set(uCentralProtocol::ERROR, 0);
                 Status.set(uCentralProtocol::TEXT, "Success");
                 Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::UUID, Client->UUID_);
                 Result.set(uCentralProtocol::STATUS, Status);
 
                 OWLSutils::MakeRPCHeader(Answer,Id,Result);
-                poco_information(Logger_,fmt::format("reboot({}): done.", SerialNumber_));
-                SendObject(Answer);
-                Disconnect();
-                Reset();
+                poco_information(Client->Logger_,fmt::format("reboot({}): done.", Client->SerialNumber_));
+                Client->SendObject(Answer);
+                Client->Disconnect();
+                Client->Reset();
                 std::this_thread::sleep_for(std::chrono::seconds(20));
-                OWLSclientEvents::Disconnect(Client, Runner_, "Command: reboot", true);
+                OWLSclientEvents::Disconnect(Client, Client->Runner_, "Command: reboot", true);
 			} else {
-				Logger_.warning(fmt::format("reboot({}): Illegal command.", SerialNumber_));
+                Client->Logger_.warning(fmt::format("reboot({}): Illegal command.", Client->SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
-			Logger_.warning(
-				fmt::format("reboot({}): Exception. {}", SerialNumber_, E.displayText()));
+            Client->Logger_.warning(
+				fmt::format("reboot({}): Exception. {}", Client->SerialNumber_, E.displayText()));
 		}
 	}
 
@@ -481,23 +481,23 @@ namespace OpenWifi {
                 Status.set(uCentralProtocol::ERROR, 0);
                 Status.set(uCentralProtocol::TEXT, "Success");
                 Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::UUID, Client->UUID_);
                 Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
-                poco_information(Logger_,fmt::format("upgrade({}): from URI={}.", SerialNumber_, URI));
-                SendObject(Answer);
-                Disconnect();
-				Version_++;
-				SetFirmware(GetFirmware(URI));
+                poco_information(Client->Logger_,fmt::format("upgrade({}): from URI={}.", Client->SerialNumber_, URI));
+                Client->SendObject(Answer);
+                Client->Disconnect();
+                Client->Version_++;
+                Client->SetFirmware(GetFirmware(URI));
                 std::this_thread::sleep_for(std::chrono::seconds(30));
-                Reset();
-                OWLSclientEvents::Disconnect(Client, Runner_, "Command: upgrade", true);
+                Client->Reset();
+                OWLSclientEvents::Disconnect(Client, Client->Runner_, "Command: upgrade", true);
 			} else {
-				Logger_.warning(fmt::format("upgrade({}): Illegal command.", SerialNumber_));
+                Client->Logger_.warning(fmt::format("upgrade({}): Illegal command.", Client->SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
-			Logger_.warning(
-				fmt::format("upgrade({}): Exception. {}", SerialNumber_, E.displayText()));
+            Client->Logger_.warning(
+				fmt::format("upgrade({}): Exception. {}", Client->SerialNumber_, E.displayText()));
 		}
 	}
 
@@ -506,30 +506,30 @@ namespace OpenWifi {
             if (Params->has("serial") && Params->has("when")) {
                 std::string Serial = Params->get("serial");
 
-				Version_ = 1;
-				SetFirmware();
+                Client->Version_ = 1;
+                Client->SetFirmware();
 
                 Poco::JSON::Object Answer, Result, Status;
                 Status.set(uCentralProtocol::ERROR, 0);
                 Status.set(uCentralProtocol::TEXT, "Success");
                 Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::UUID, Client->UUID_);
                 Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
-                poco_information(Logger_, fmt::format("factory({}): done.", SerialNumber_));
-                SendObject(Answer);
-                Disconnect();
-				CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
-				UpdateConfiguration();
+                poco_information(Client->Logger_, fmt::format("factory({}): done.", Client->SerialNumber_));
+                Client->SendObject(Answer);
+                Client->Disconnect();
+                Client->CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
+                Client->UpdateConfiguration();
                 std::this_thread::sleep_for(std::chrono::seconds(5));
-                Reset();
-                OWLSclientEvents::Disconnect(Client, Runner_, "Command: upgrade", true);
+                Client->Reset();
+                OWLSclientEvents::Disconnect(Client, Client->Runner_, "Command: upgrade", true);
 			} else {
-				Logger_.warning(fmt::format("factory({}): Illegal command.", SerialNumber_));
+                Client->Logger_.warning(fmt::format("factory({}): Illegal command.", Client->SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
-			Logger_.warning(
-				fmt::format("factory({}): Exception. {}", SerialNumber_, E.displayText()));
+            Client->Logger_.warning(
+				fmt::format("factory({}): Exception. {}", Client->SerialNumber_, E.displayText()));
 		}
 	}
 
@@ -544,17 +544,17 @@ namespace OpenWifi {
                 Status.set(uCentralProtocol::ERROR, 0);
                 Status.set(uCentralProtocol::TEXT, "Success");
                 Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::UUID, Client->UUID_);
                 Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
-                poco_information(Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
-                                                SerialNumber_, Duration, Pattern));
-                SendObject(Answer);
+                poco_information(Client->Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
+                                                             Client->SerialNumber_, Duration, Pattern));
+                Client->SendObject(Answer);
 			} else {
-				Logger_.warning(fmt::format("LEDs({}): Illegal command.", SerialNumber_));
+                Client->Logger_.warning(fmt::format("LEDs({}): Illegal command.", Client->SerialNumber_));
 			}
 		} catch (const Poco::Exception &E) {
-			Logger_.warning(fmt::format("LEDs({}): Exception. {}", SerialNumber_, E.displayText()));
+            Client->Logger_.warning(fmt::format("LEDs({}): Exception. {}", Client->SerialNumber_, E.displayText()));
 		}
 	}
 

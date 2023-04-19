@@ -9,65 +9,16 @@
 #include "Poco/Net/HTTPCookie.h"
 #include "Poco/Net/NameValueCollection.h"
 #include "framework/MicroServiceFuncs.h"
+#include <framework/default_device_types.h>
 
 namespace OpenWifi {
 
-	static const std::vector<std::string> DefaultDeviceTypes{"actiontec_web7200",
-															 "cig_wf188n",
-															 "cig_wf194c",
-															 "cig_wf194c4",
-															 "cig_wf196",
-															 "cig_wf610d",
-															 "cig_wf808",
-															 "cybertan_eww622-a1",
-															 "edgecore_eap101",
-															 "edgecore_eap102",
-															 "edgecore_eap104",
-															 "edgecore_ecs4100-12ph",
-															 "edgecore_ecw5211",
-															 "edgecore_ecw5410",
-															 "edgecore_oap100",
-															 "edgecore_spw2ac1200",
-															 "edgecore_spw2ac1200-lan-poe",
-															 "edgecore_ssw2ac2600",
-															 "hfcl_ion4",
-															 "hfcl_ion4x",
-															 "hfcl_ion4x_2",
-															 "hfcl_ion4xe",
-															 "hfcl_ion4xi",
-															 "indio_um-305ac",
-															 "indio_um-305ax",
-															 "indio_um-310ax-v1",
-															 "indio_um-325ac",
-															 "indio_um-510ac-v3",
-															 "indio_um-510axm-v1",
-															 "indio_um-510axp-v1",
-															 "indio_um-550ac",
-															 "linksys_e8450-ubi",
-															 "linksys_ea6350-v4",
-															 "linksys_ea8300",
-															 "liteon_wpx8324",
-															 "meshpp_s618_cp01",
-															 "meshpp_s618_cp03",
-															 "tp-link_ec420-g1",
-															 "tplink_ex227",
-															 "tplink_ex228",
-															 "tplink_ex447",
-															 "udaya_a5-id2",
-															 "wallys_dr40x9",
-															 "wallys_dr6018",
-															 "wallys_dr6018_v4",
-															 "x64_vm",
-															 "yuncore_ax840",
-															 "yuncore_fap640",
-															 "yuncore_fap650"};
 
 	static bool GooDeviceType(const std::string &D) {
-		for (const auto &i : DefaultDeviceTypes) {
-			if (i == D)
-				return true;
-		}
-		return false;
+        for(const auto &[name,_]:DefaultDeviceTypeList) {
+            if(name==D) return true;
+        }
+        return false;
 	}
 
 	void RESTAPI_simulation_handler::DoPost() {

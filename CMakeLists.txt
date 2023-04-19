@@ -106,6 +106,7 @@ add_executable( owls
         src/framework/RESTAPI_PartHandler.h
         src/framework/MicroService.cpp
         src/framework/MicroServiceExtra.h
+        src/framework/default_device_types.h
         src/RESTObjects/RESTAPI_SecurityObjects.h src/RESTObjects/RESTAPI_SecurityObjects.cpp
         src/RESTObjects/RESTAPI_GWobjects.h src/RESTObjects/RESTAPI_GWobjects.cpp
         src/RESTObjects/RESTAPI_FMSObjects.h src/RESTObjects/RESTAPI_FMSObjects.cpp
@@ -113,7 +114,6 @@ add_executable( owls
         src/RESTObjects/RESTAPI_OWLSobjects.cpp src/RESTObjects/RESTAPI_OWLSobjects.h
         src/RESTObjects/RESTAPI_ProvObjects.cpp src/RESTObjects/RESTAPI_ProvObjects.h
         src/RESTObjects/RESTAPI_AnalyticsObjects.cpp src/RESTObjects/RESTAPI_AnalyticsObjects.h
-
         src/RESTAPI/RESTAPI_routers.cpp
         src/Daemon.cpp src/Daemon.h
         src/Dashboard.cpp src/Dashboard.h

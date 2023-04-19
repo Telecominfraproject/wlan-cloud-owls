@@ -13,6 +13,7 @@
 #ifdef TIP_GATEWAY_SERVICE
 #include "AP_WS_Server.h"
 #include "CapabilitiesCache.h"
+#include "RADIUSSessionTracker.h"
 #endif
 
 #include "RESTAPI_GWobjects.h"
@@ -29,6 +30,7 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "serialNumber", SerialNumber);
 #ifdef TIP_GATEWAY_SERVICE
 		field_to_json(Obj, "deviceType", CapabilitiesCache::instance()->GetPlatform(Compatible));
+		field_to_json(Obj, "hasRADIUSSessions", RADIUSSessionTracker()->HasSessions(SerialNumber));
 #endif
 		field_to_json(Obj, "macAddress", MACAddress);
 		field_to_json(Obj, "manufacturer", Manufacturer);
@@ -54,6 +56,9 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "pendingConfiguration", pendingConfiguration);
 		field_to_json(Obj, "pendingConfigurationCmd", pendingConfigurationCmd);
 		field_to_json(Obj, "restrictionDetails", restrictionDetails);
+		field_to_json(Obj, "pendingUUID", pendingUUID);
+		field_to_json(Obj, "simulated", simulated);
+		field_to_json(Obj, "lastRecordedContact", lastRecordedContact);
 	}
 
 	void Device::to_json_with_status(Poco::JSON::Object &Obj) const {
@@ -63,7 +68,7 @@ namespace OpenWifi::GWObjects {
 		ConnectionState ConState;
 
 		if (AP_WS_Server()->GetState(SerialNumber, ConState)) {
-			ConState.to_json(Obj);
+			ConState.to_json(SerialNumber,Obj);
 		} else {
 			field_to_json(Obj, "ipAddress", "");
 			field_to_json(Obj, "txBytes", (uint64_t)0);
@@ -75,6 +80,13 @@ namespace OpenWifi::GWObjects {
 			field_to_json(Obj, "associations_2G", (uint64_t)0);
 			field_to_json(Obj, "associations_5G", (uint64_t)0);
 			field_to_json(Obj, "associations_6G", (uint64_t)0);
+			field_to_json(Obj, "hasRADIUSSessions", false);
+			field_to_json(Obj, "hasGPS", ConState.hasGPS);
+			field_to_json(Obj, "sanity", ConState.sanity);
+			field_to_json(Obj, "memoryUsed", ConState.memoryUsed);
+			field_to_json(Obj, "sanity", ConState.sanity);
+			field_to_json(Obj, "load", ConState.load);
+			field_to_json(Obj, "temperature", ConState.temperature);
 		}
 #endif
 	}
@@ -84,20 +96,32 @@ namespace OpenWifi::GWObjects {
 			field_from_json(Obj, "serialNumber", SerialNumber);
 			field_from_json(Obj, "deviceType", DeviceType);
 			field_from_json(Obj, "macAddress", MACAddress);
+			field_from_json(Obj, "manufacturer", Manufacturer);
+			field_from_json(Obj, "UUID", UUID);
 			field_from_json(Obj, "configuration", Configuration);
 			field_from_json(Obj, "notes", Notes);
-			field_from_json(Obj, "manufacturer", Manufacturer);
+			field_from_json(Obj, "createdTimestamp", CreationTimestamp);
+			field_from_json(Obj, "lastConfigurationChange", LastConfigurationChange);
+			field_from_json(Obj, "lastConfigurationDownload", LastConfigurationDownload);
+			field_from_json(Obj, "lastFWUpdate", LastFWUpdate);
 			field_from_json(Obj, "owner", Owner);
 			field_from_json(Obj, "location", Location);
 			field_from_json(Obj, "venue", Venue);
+			field_from_json(Obj, "firmware", Firmware);
 			field_from_json(Obj, "compatible", Compatible);
+			field_from_json(Obj, "fwUpdatePolicy", FWUpdatePolicy);
+			field_from_json(Obj, "devicePassword", DevicePassword);
 			field_from_json(Obj, "subscriber", subscriber);
 			field_from_json(Obj, "entity", entity);
+			field_from_json(Obj, "modified", modified);
 			field_from_json(Obj, "locale", locale);
 			field_from_json(Obj, "restrictedDevice", restrictedDevice);
 			field_from_json(Obj, "pendingConfiguration", pendingConfiguration);
 			field_from_json(Obj, "pendingConfigurationCmd", pendingConfigurationCmd);
 			field_from_json(Obj, "restrictionDetails", restrictionDetails);
+			field_from_json(Obj, "pendingUUID", pendingUUID);
+			field_from_json(Obj, "simulated", simulated);
+			field_from_json(Obj, "lastRecordedContact", lastRecordedContact);
 			return true;
 		} catch (const Poco::Exception &E) {
 		}
@@ -165,6 +189,8 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "waitingForFile", WaitingForFile);
 		field_to_json(Obj, "attachFile", AttachDate);
 		field_to_json(Obj, "executionTime", executionTime);
+		field_to_json(Obj, "lastTry", lastTry);
+		field_to_json(Obj, "deferred", deferred);
 	}
 
 	bool DefaultConfiguration::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -198,7 +224,7 @@ namespace OpenWifi::GWObjects {
 		return false;
 	}
 
-	void ConnectionState::to_json(Poco::JSON::Object &Obj) const {
+	void ConnectionState::to_json([[maybe_unused]] const std::string &SerialNumber, Poco::JSON::Object &Obj)  {
 		field_to_json(Obj, "ipAddress", Address);
 		field_to_json(Obj, "txBytes", TX);
 		field_to_json(Obj, "rxBytes", RX);
@@ -220,6 +246,20 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "connectionCompletionTime", connectionCompletionTime);
 		field_to_json(Obj, "totalConnectionTime", Utils::Now() - started);
 		field_to_json(Obj, "certificateExpiryDate", certificateExpiryDate);
+#ifdef TIP_GATEWAY_SERVICE
+		hasRADIUSSessions = RADIUSSessionTracker()->HasSessions(SerialNumber);
+		AP_WS_Server()->ExtendedAttributes(SerialNumber, hasGPS, sanity,
+										   memoryUsed,
+										   load,
+										   temperature);
+#endif
+		field_to_json(Obj, "hasRADIUSSessions", hasRADIUSSessions );
+		field_to_json(Obj, "hasGPS", hasGPS);
+		field_to_json(Obj, "sanity", sanity);
+		field_to_json(Obj, "memoryUsed", memoryUsed);
+		field_to_json(Obj, "sanity", sanity);
+		field_to_json(Obj, "load", load);
+		field_to_json(Obj, "temperature", temperature);
 
 		switch (VerifiedCertificate) {
 		case NO_CERTIFICATE:
@@ -233,6 +273,9 @@ namespace OpenWifi::GWObjects {
 			break;
 		case VERIFIED:
 			field_to_json(Obj, "verifiedCertificate", "VERIFIED");
+			break;
+		case SIMULATED:
+			field_to_json(Obj, "verifiedCertificate", "SIMULATED");
 			break;
 		default:
 			field_to_json(Obj, "verifiedCertificate", "NO_CERTIFICATE");
@@ -490,6 +533,29 @@ namespace OpenWifi::GWObjects {
 		return false;
 	}
 
+	void RangeOptions::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj, "NO_IR", NO_IR);
+		field_to_json(Obj, "AUTO_BW", AUTO_BW);
+		field_to_json(Obj, "DFS", DFS);
+		field_to_json(Obj, "NO_OUTDOOR", NO_OUTDOOR);
+		field_to_json(Obj, "wmmrule_ETSI", wmmrule_ETSI);
+		field_to_json(Obj, "NO_OFDM", NO_OFDM);
+	}
+
+	void FrequencyRange::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj, "from", from);
+		field_to_json(Obj, "to", to);
+		field_to_json(Obj, "channelWidth", channelWidth);
+		field_to_json(Obj, "powerDb", powerDb);
+		field_to_json(Obj, "options", options);
+	}
+
+	void RegulatoryCountryInfo::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj, "country", country);
+		field_to_json(Obj, "domain", domain);
+		field_to_json(Obj, "ranges", ranges);
+	}
+
 	void DeviceRestrictionsKeyInfo::to_json(Poco::JSON::Object &Obj) const {
 		field_to_json(Obj, "vendor", vendor);
 		field_to_json(Obj, "algo", algo);
@@ -544,4 +610,42 @@ namespace OpenWifi::GWObjects {
 				(T.commands != commands) || (T.developer != developer) || (T.ssh != ssh) ||
 				(T.key_info != key_info) || (T.country != country));
 	}
+
+	void RADIUSSession::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj, "started", started);
+		field_to_json(Obj, "lastTransaction", lastTransaction);
+		field_to_json(Obj, "destination", destination);
+		field_to_json(Obj, "serialNumber", serialNumber);
+		field_to_json(Obj, "userName", userName);
+		field_to_json(Obj, "accountingSessionId", accountingSessionId);
+		field_to_json(Obj, "accountingMultiSessionId", accountingMultiSessionId);
+		field_to_json(Obj, "inputPackets", inputPackets);
+		field_to_json(Obj, "outputPackets", outputPackets);
+		field_to_json(Obj, "inputOctets", inputOctets);
+		field_to_json(Obj, "outputOctets", outputOctets);
+		field_to_json(Obj, "inputGigaWords", inputGigaWords);
+		field_to_json(Obj, "outputGigaWords", outputGigaWords);
+		field_to_json(Obj, "sessionTime", sessionTime);
+		field_to_json(Obj, "callingStationId", callingStationId);
+		field_to_json(Obj, "chargeableUserIdentity", chargeableUserIdentity);
+		field_to_json(Obj, "interface", interface);
+		field_to_json(Obj, "secret", secret);
+	}
+
+	void RADIUSSessionList::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj, "sessions", sessions);
+	}
+
+	bool RadiusCoADMParameters::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj, "accountingSessionId", accountingSessionId);
+			field_from_json(Obj, "accountingMultiSessionId", accountingMultiSessionId);
+			field_from_json(Obj, "callingStationId", callingStationId);
+			field_from_json(Obj, "chargeableUserIdentity", chargeableUserIdentity);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
 } // namespace OpenWifi::GWObjects

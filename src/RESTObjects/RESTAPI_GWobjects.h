@@ -11,9 +11,13 @@
 #include "Poco/JSON/Object.h"
 #include "RESTAPI_SecurityObjects.h"
 
+#ifdef TIP_GATEWAY_SERVICE
+#include <RADIUS_helpers.h>
+#endif
+
 namespace OpenWifi::GWObjects {
 
-	enum CertificateValidation { NO_CERTIFICATE, VALID_CERTIFICATE, MISMATCH_SERIAL, VERIFIED };
+	enum CertificateValidation { NO_CERTIFICATE, VALID_CERTIFICATE, MISMATCH_SERIAL, VERIFIED, SIMULATED };
 
 	struct ConnectionState {
 		uint64_t MessageCount = 0;
@@ -38,8 +42,14 @@ namespace OpenWifi::GWObjects {
 		uint64_t sessionId = 0;
 		double connectionCompletionTime = 0.0;
 		std::uint64_t certificateExpiryDate = 0;
+		bool hasRADIUSSessions = false;
+		bool hasGPS = false;
+		std::uint64_t sanity=0;
+		std::double_t memoryUsed=0.0;
+		std::double_t load=0.0;
+		std::double_t temperature=0.0;
 
-		void to_json(Poco::JSON::Object &Obj) const;
+		void to_json(const std::string &SerialNumber, Poco::JSON::Object &Obj) ;
 	};
 
 	struct DeviceRestrictionsKeyInfo {
@@ -96,6 +106,9 @@ namespace OpenWifi::GWObjects {
 		std::string pendingConfiguration;
 		std::string pendingConfigurationCmd;
 		DeviceRestrictions restrictionDetails;
+		std::uint64_t pendingUUID = 0;
+		bool simulated=false;
+		std::uint64_t lastRecordedContact=0;
 
 		void to_json(Poco::JSON::Object &Obj) const;
 		void to_json_with_status(Poco::JSON::Object &Obj) const;
@@ -188,7 +201,11 @@ namespace OpenWifi::GWObjects {
 		uint64_t AttachSize = 0;
 		std::string AttachType;
 		double executionTime = 0.0;
+		std::uint64_t lastTry = 0;
+		bool deferred = false;
+
 		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
 	};
 
 	struct BlackListedDevice {
@@ -331,6 +348,78 @@ namespace OpenWifi::GWObjects {
 		std::vector<RadiusProxyPool> pools;
 
 		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
+	struct RangeOptions {
+		bool NO_IR=false;
+		bool AUTO_BW=false;
+		bool DFS=false;
+		bool NO_OUTDOOR=false;
+		bool wmmrule_ETSI=false;
+		bool NO_OFDM=false;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+	};
+
+	struct FrequencyRange {
+		float from = 0.0;
+		float to = 0.0;
+		int channelWidth = 0;
+		int powerDb = 0;
+		RangeOptions    options;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+	};
+
+	struct RegulatoryCountryInfo {
+		std::string country;
+		std::string domain;
+		std::vector<FrequencyRange>   ranges;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+	};
+
+	using RegulatoryInfoCountryMap = std::map<std::string,RegulatoryCountryInfo>;
+
+	struct RADIUSSession {
+		std::uint64_t 			started=0,
+								lastTransaction=0;
+		std::string 			serialNumber,
+								destination,
+								userName,
+					 			accountingSessionId,
+								accountingMultiSessionId,
+					 			callingStationId,
+								chargeableUserIdentity,
+								secret,
+								interface;
+		std::uint64_t 			inputPackets = 0,
+								outputPackets = 0,
+								inputOctets = 0,
+								outputOctets = 0,
+								inputGigaWords = 0,
+								outputGigaWords = 0;
+		std::uint32_t 			sessionTime = 0;
+
+#ifdef TIP_GATEWAY_SERVICE
+		RADIUS::RadiusPacket	accountingPacket;
+#endif
+
+		void to_json(Poco::JSON::Object &Obj) const;
+	};
+
+	struct RADIUSSessionList {
+		std::vector<RADIUSSession>	sessions;
+		void to_json(Poco::JSON::Object &Obj) const;
+	};
+
+	struct RadiusCoADMParameters {
+		std::string 			accountingSessionId,
+								accountingMultiSessionId,
+								callingStationId,
+								chargeableUserIdentity;
+
 		bool from_json(const Poco::JSON::Object::Ptr &Obj);
 	};
 

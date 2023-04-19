@@ -23,10 +23,10 @@ namespace OpenWifi::OWLSclientEvents {
                 Poco::JSON::Object  Message, Params, Data, Memory;
                 Memory.set("memory", 23);
                 Data.set("data", Memory);
-                Params.set(uCentralProtocol::DATA, Data);
                 Params.set(uCentralProtocol::SERIAL, Client->SerialNumber_);
-                Params.set(uCentralProtocol::REQUEST, Client->UUID_);
+                Params.set(uCentralProtocol::UUID, Client->UUID_);
                 Params.set(uCentralProtocol::SANITY, 100);
+                Params.set(uCentralProtocol::DATA, Data);
                 OWLSutils::MakeHeader(Message, uCentralProtocol::HEALTHCHECK, Params);
 
                 if (Client->SendObject(Message)) {

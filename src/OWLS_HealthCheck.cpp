@@ -25,9 +25,8 @@ namespace OpenWifi::OWLSclientEvents {
                 Data.set("data", Memory);
                 Params.set(uCentralProtocol::DATA, Data);
                 Params.set(uCentralProtocol::SERIAL, Client->SerialNumber_);
-                Params.set(uCentralProtocol::REQUEST_UUID, Client->UUID_);
+                Params.set(uCentralProtocol::REQUEST, Client->UUID_);
                 Params.set(uCentralProtocol::SANITY, 100);
-                Message.set(uCentralProtocol::UUID, Client->UUID_);
                 OWLSutils::MakeHeader(Message, uCentralProtocol::HEALTHCHECK, Params);
 
                 if (Client->SendObject(Message)) {

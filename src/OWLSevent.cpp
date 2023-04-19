@@ -6,14 +6,14 @@
 #include "Poco/zlib.h"
 #include "nlohmann/json.hpp"
 
-#include "Simulation.h"
-#include "uCentralEvent.h"
+#include "SimulationCoordinator.h"
+#include "OWLSevent.h"
 
 #include "framework/MicroServiceFuncs.h"
 
 namespace OpenWifi {
 
-	bool ConnectEvent::Send() {
+	bool OWLSConnectEvent::Send() {
 		try {
 			nlohmann::json M;
 			M["jsonrpc"] = "2.0";
@@ -46,7 +46,7 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool StateEvent::Send() {
+	bool OWLSStateEvent::Send() {
 		try {
 			nlohmann::json M;
 
@@ -80,9 +80,10 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool HealthCheckEvent::Send() {
+	bool OWLSHealthCheckEvent::Send() {
 		try {
 			nlohmann::json M, P;
+
 
 			P["memory"] = 23;
 
@@ -104,7 +105,7 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool LogEvent::Send() {
+	bool OWLSLogEvent::Send() {
 		try {
 			nlohmann::json M;
 
@@ -126,9 +127,9 @@ namespace OpenWifi {
 		return false;
 	};
 
-	bool CrashLogEvent::Send() { return false; };
+	bool OWLSCrashLogEvent::Send() { return false; };
 
-	bool ConfigChangePendingEvent::Send() {
+	bool OWLSConfigChangePendingEvent::Send() {
 		try {
 			nlohmann::json M;
 
@@ -150,7 +151,7 @@ namespace OpenWifi {
 		return false;
 	}
 
-	bool KeepAliveEvent::Send() {
+	bool OWLSKeepAliveEvent::Send() {
 		try {
 			nlohmann::json M;
 
@@ -172,12 +173,12 @@ namespace OpenWifi {
 	};
 
 	// This is just a fake event, reboot is handled somewhere else.
-	bool RebootEvent::Send() { return true; }
+	bool OWLSRebootEvent::Send() { return true; }
 
 	// This is just a fake event, disconnect is handled somewhere else.
-	bool DisconnectEvent::Send() { return true; }
+	bool OWLSDisconnectEvent::Send() { return true; }
 
-	bool WSPingEvent::Send() {
+	bool OWLSWSPingEvent::Send() {
 		try {
 			if (Client_->SendWSPing()) {
 				Client_->AddEvent(ev_wsping, 60 * 5);
@@ -189,4 +190,13 @@ namespace OpenWifi {
 		Client_->Disconnect("Error in WSPing", true);
 		return false;
 	}
+
+    bool OWLSUpdate::Send() {
+        try {
+            Client_->Update();
+        } catch (const Poco::Exception &E) {
+            Client_->Logger().log(E);
+        }
+        return false;
+    }
 } // namespace OpenWifi

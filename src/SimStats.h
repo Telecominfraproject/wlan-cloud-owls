@@ -7,7 +7,8 @@
 #include "framework/SubSystemServer.h"
 #include "framework/utils.h"
 
-#include "RESTObjects/RESTAPI_OWLSobjects.h"
+#include <RESTObjects/RESTAPI_OWLSobjects.h>
+#include <RESTObjects/RESTAPI_SecurityObjects.h>
 
 namespace OpenWifi {
 
@@ -66,13 +67,15 @@ namespace OpenWifi {
             stats_hint->second.msgsRx++;
 		}
 
-		inline void GetCurrent(const std::string &id, OWLSObjects::SimulationStatus &S) {
+		inline void GetCurrent(const std::string &id, OWLSObjects::SimulationStatus &S,
+                               const SecurityObjects::UserInfo & UInfo) {
 			std::lock_guard G(Mutex_);
             auto stats_hint = Status_.find(id);
             if(stats_hint==end(Status_)) {
                 return;
             }
-            S = stats_hint->second;
+            if(UInfo.userRole==SecurityObjects::ROOT || UInfo.email==stats_hint->second.owner)
+                S = stats_hint->second;
 		}
 
 		inline int Start() final {
@@ -84,7 +87,7 @@ namespace OpenWifi {
         }
 
 		inline void StartSim(const std::string &id, const std::string &simid, uint64_t Devices,
-							 const std::string &owner) {
+                             const SecurityObjects::UserInfo & UInfo) {
 			std::lock_guard G(Mutex_);
             auto & CurrentStatus = Status_[id];
 
@@ -95,7 +98,7 @@ namespace OpenWifi {
             CurrentStatus.liveDevices = CurrentStatus.endTime = CurrentStatus.rx = CurrentStatus.tx = CurrentStatus.msgsTx =
             CurrentStatus.msgsRx = CurrentStatus.timeToFullDevices = CurrentStatus.errorDevices = 0;
             CurrentStatus.startTime = Utils::Now();
-            CurrentStatus.owner = owner;
+            CurrentStatus.owner = UInfo.email;
 		}
 
 		inline void EndSim(const std::string &id) {
@@ -167,13 +170,15 @@ namespace OpenWifi {
             return stats_hint->second.liveDevices;
         }
 
-        inline void GetAllSimulations(std::vector<OWLSObjects::SimulationStatus> & Statuses) {
+        inline void GetAllSimulations(std::vector<OWLSObjects::SimulationStatus> & Statuses, const SecurityObjects::UserInfo & UInfo) {
             Statuses.clear();
 
             std::lock_guard G(Mutex_);
 
             for(const auto &[id,status]:Status_) {
-                Statuses.emplace_back(status);
+                if(UInfo.userRole==SecurityObjects::ROOT || UInfo.email==status.owner) {
+                    Statuses.emplace_back(status);
+                }
             }
         }
 

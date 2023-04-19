@@ -67,7 +67,7 @@ namespace OpenWifi {
                     simulation->Runner.Stop();
                     SimStats()->EndSim(id);
                     OWLSObjects::SimulationStatus S;
-                    SimStats()->GetCurrent(id, S);
+                    SimStats()->GetCurrent(id, S, simulation->UInfo);
                     StorageService()->SimulationResultsDB().CreateRecord(S);
                     SimStats()->RemoveSim(id);
                     it = Simulations_.erase(it);
@@ -120,12 +120,12 @@ namespace OpenWifi {
     }
 
 	bool SimulationCoordinator::StartSim(std::string &SimId, const std::string &Id,
-										 std::string &Error, const std::string &Owner) {
+            RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo) {
         std::lock_guard G(Mutex_);
 
         OWLSObjects::SimulationDetails  NewSim;
 		if (!StorageService()->SimulationDB().GetRecord("id", Id, NewSim)) {
-			Error = "Simulation ID specified does not exist.";
+            Error = RESTAPI::Errors::SimulationDoesNotExist;
 			return false;
 		}
 
@@ -133,49 +133,54 @@ namespace OpenWifi {
         DefaultCapabilities_->set("compatible", NewSim.deviceType);
 
         SimId = MicroServiceCreateUUID();
-        auto NewSimulation = std::make_shared<SimulationRecord>(NewSim, Logger(), SimId);
+        auto NewSimulation = std::make_shared<SimulationRecord>(NewSim, Logger(), SimId, UInfo);
         Simulations_[SimId] = NewSimulation;
         Simulations_[SimId]->Runner.Start();
-		SimStats()->StartSim(SimId, Id, NewSim.devices, Owner);
+		SimStats()->StartSim(SimId, Id, NewSim.devices, UInfo);
 		return true;
 	}
 
-	bool SimulationCoordinator::StopSim(const std::string &Id, std::string &Error) {
+	bool SimulationCoordinator::StopSim(const std::string &Id, RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo) {
         std::lock_guard G(Mutex_);
 
         auto sim_hint = Simulations_.find(Id);
         if(sim_hint==end(Simulations_)) {
-            Error = "Simulation ID is not valid";
+            Error = RESTAPI::Errors::SimulationDoesNotExist;
             return false;
         }
 
-        sim_hint->second->Runner.Stop();
-		OWLSObjects::SimulationStatus S;
-        SimStats()->EndSim(sim_hint->second->Runner.Id());
-		SimStats()->GetCurrent(sim_hint->second->Runner.Id(), S);
-		StorageService()->SimulationResultsDB().CreateRecord(S);
-        SimStats()->RemoveSim(sim_hint->second->Runner.Id());
-        Simulations_.erase(sim_hint);
-
-		return true;
+        if(UInfo.userRole==SecurityObjects::ROOT || UInfo.email==sim_hint->second->UInfo.email) {
+            sim_hint->second->Runner.Stop();
+            OWLSObjects::SimulationStatus S;
+            SimStats()->EndSim(sim_hint->second->Runner.Id());
+            SimStats()->GetCurrent(sim_hint->second->Runner.Id(), S, sim_hint->second->UInfo);
+            StorageService()->SimulationResultsDB().CreateRecord(S);
+            SimStats()->RemoveSim(sim_hint->second->Runner.Id());
+            Simulations_.erase(sim_hint);
+            return true;
+        }
+        Error = RESTAPI::Errors::ACCESS_DENIED;
+        return false;
 	}
 
-	bool SimulationCoordinator::CancelSim(const std::string &Id,
-										  std::string &Error) {
+	bool SimulationCoordinator::CancelSim(const std::string &Id, RESTAPI::Errors::msg &Error, const SecurityObjects::UserInfo &UInfo) {
         std::lock_guard G(Mutex_);
 
         auto sim_hint = Simulations_.find(Id);
         if(sim_hint==end(Simulations_)) {
-            Error = "Simulation ID is not valid";
+            Error = RESTAPI::Errors::SimulationDoesNotExist;
             return false;
         }
 
-        sim_hint->second->Runner.Stop();
-		SimStats()->SetState(sim_hint->second->Runner.Id(),"none");
-        SimStats()->RemoveSim(sim_hint->second->Runner.Id());
-        Simulations_.erase(sim_hint);
-
-		return true;
+        if(UInfo.userRole==SecurityObjects::ROOT || UInfo.email==sim_hint->second->UInfo.email) {
+            sim_hint->second->Runner.Stop();
+            SimStats()->SetState(sim_hint->second->Runner.Id(), "none");
+            SimStats()->RemoveSim(sim_hint->second->Runner.Id());
+            Simulations_.erase(sim_hint);
+            return true;
+        }
+        Error = RESTAPI::Errors::ACCESS_DENIED;
+        return false;
 	}
 
     static const std::string DefaultConfigurationStr = R"~~~(

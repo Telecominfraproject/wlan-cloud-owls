@@ -24,26 +24,25 @@ namespace OpenWifi {
 			return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 		}
 
-		std::string Error;
+		auto Error=OpenWifi::RESTAPI::Errors::SUCCESS;
 		if (Op == "start") {
             if(SimulationCoordinator()->IsSimulationRunning(Id)) {
-                RESTAPI::Errors::msg    E{.err_num=4001, .err_txt="Simulation is already running."};
-                return BadRequest(E);
+                return BadRequest(RESTAPI::Errors::SimulationIsAlreadyRunning);
             }
-			SimulationCoordinator()->StartSim(SimId, Id, Error, UserInfo_.userinfo.email);
+			SimulationCoordinator()->StartSim(SimId, Id, Error, UserInfo_.userinfo);
 		} else if (Op == "stop") {
-			SimulationCoordinator()->StopSim(SimId, Error);
+			SimulationCoordinator()->StopSim(SimId, Error, UserInfo_.userinfo);
 		} else if (Op == "cancel") {
-			SimulationCoordinator()->CancelSim(SimId, Error);
+			SimulationCoordinator()->CancelSim(SimId, Error, UserInfo_.userinfo);
 		}
 
-		if (Error.empty()) {
+		if (Error.err_num==OpenWifi::RESTAPI::Errors::SUCCESS.err_num) {
 			OWLSObjects::SimulationStatus S;
-			SimStats()->GetCurrent(SimId,S);
+			SimStats()->GetCurrent(SimId,S, UserInfo_.userinfo);
 			Poco::JSON::Object Answer;
 			S.to_json(Answer);
 			return ReturnObject(Answer);
 		}
-		return BadRequest(RESTAPI::Errors::CouldNotPerformCommand,Error);
+		return BadRequest(Error);
 	}
 } // namespace OpenWifi

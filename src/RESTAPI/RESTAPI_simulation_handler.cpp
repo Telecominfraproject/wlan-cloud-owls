@@ -21,21 +21,69 @@ namespace OpenWifi {
         return false;
 	}
 
+    void RESTAPI_simulation_handler::DoGet() {
+        auto id = GetBinding("id","");
+
+        if(id.empty()) {
+            return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
+        }
+
+        if(id == "*") {
+            std::vector<OWLSObjects::SimulationDetails> Sims;
+            StorageService()->SimulationDB().GetRecords(QB_.Offset, QB_.Limit, Sims);
+            return ReturnObject("list", Sims);
+        }
+
+        OWLSObjects::SimulationDetails  Sim;
+        if(StorageService()->SimulationDB().GetRecord("id",id, Sim)) {
+            Poco::JSON::Object  Answer;
+            Sim.to_json(Answer);
+            return ReturnObject(Answer);
+        }
+        return NotFound();
+    }
+
+    static bool ValidateSimulation(const OWLSObjects::SimulationDetails & ExistingSimulation ) {
+        if( ExistingSimulation.name.empty()  ||
+            ExistingSimulation.gateway.empty()  ||
+            ExistingSimulation.deviceType.empty()   ||
+            !GooDeviceType(ExistingSimulation.deviceType)   ||
+            ExistingSimulation.maxClients < ExistingSimulation.minClients ||
+            ExistingSimulation.maxAssociations < ExistingSimulation.minAssociations ||
+            ExistingSimulation.devices <1 || ExistingSimulation.devices>50000    ||
+            ExistingSimulation.healthCheckInterval < 30 || ExistingSimulation.healthCheckInterval >600 ||
+            ExistingSimulation.stateInterval < 30 || ExistingSimulation.healthCheckInterval>600 ||
+            ExistingSimulation.minAssociations > 4 ||
+            ExistingSimulation.maxAssociations > 64 ||
+            ExistingSimulation.minClients > 4 ||
+            ExistingSimulation.maxAssociations > 16 ||
+            ExistingSimulation.keepAlive <120 || ExistingSimulation.keepAlive>3000 ||
+            ExistingSimulation.reconnectInterval <10 || ExistingSimulation.reconnectInterval>300 ||
+            ExistingSimulation.concurrentDevices < 1 || ExistingSimulation.concurrentDevices >1000 ||
+            ExistingSimulation.threads < 4 || ExistingSimulation.threads > 1024 ||
+            ExistingSimulation.macPrefix.size()!=6 ) {
+            return false;
+        }
+        return true;
+    }
+
 	void RESTAPI_simulation_handler::DoPost() {
 
-		OWLSObjects::SimulationDetails D;
+		OWLSObjects::SimulationDetails NewSimulation;
 		const auto &Raw = ParsedBody_;
 
-		if (!D.from_json(Raw) || D.name.empty() || D.gateway.empty() || D.macPrefix.size() != 6 ||
-			D.deviceType.empty() || !GooDeviceType(D.deviceType) || (D.maxClients < D.minClients) ||
-			(D.maxAssociations < D.minAssociations)) {
-			return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
+		if (!NewSimulation.from_json(Raw)) {
+            return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
+        }
+
+        if(!ValidateSimulation(NewSimulation)) {
+            return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
 		}
 
-		D.id = MicroServiceCreateUUID();
-		if (StorageService()->SimulationDB().CreateRecord(D)) {
+        NewSimulation.id = MicroServiceCreateUUID();
+		if (StorageService()->SimulationDB().CreateRecord(NewSimulation)) {
 			OWLSObjects::SimulationDetails N;
-			StorageService()->SimulationDB().GetRecord("id", D.id, N);
+			StorageService()->SimulationDB().GetRecord("id", NewSimulation.id, N);
 			Poco::JSON::Object Answer;
 			N.to_json(Answer);
 			return ReturnObject(Answer);
@@ -43,16 +91,9 @@ namespace OpenWifi {
 		BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 	}
 
-	void RESTAPI_simulation_handler::DoGet() {
-		std::vector<OWLSObjects::SimulationDetails> Sims;
-		StorageService()->SimulationDB().GetRecords(1, 1000, Sims);
-		ReturnObject("list", Sims);
-	}
-
 	void RESTAPI_simulation_handler::DoDelete() {
-		std::string id;
-
-		if (!HasParameter("id", id) || id.empty()) {
+        auto id = GetBinding("id","");
+		if (id.empty()) {
 			return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
 		}
 
@@ -62,18 +103,47 @@ namespace OpenWifi {
 	}
 
 	void RESTAPI_simulation_handler::DoPut() {
-		OWLSObjects::SimulationDetails D;
-		const auto &Raw = ParsedBody_;
 
-		if (!D.from_json(Raw) || D.id.empty() || D.name.empty() || D.gateway.empty() ||
-			D.macPrefix.size() != 6 || D.deviceType.empty() || !GooDeviceType(D.deviceType) ||
-			(D.maxClients < D.minClients) || (D.maxAssociations < D.minAssociations)) {
-			return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
-		}
+        OWLSObjects::SimulationDetails NewSimulation;
 
-		if (StorageService()->SimulationDB().UpdateRecord("id", D.id, D)) {
+        auto id = GetBinding("id","");
+        if (id.empty()) {
+            return BadRequest(RESTAPI::Errors::MissingOrInvalidParameters);
+        }
+
+		if (!NewSimulation.from_json(ParsedBody_)) {
+            return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
+        }
+
+        OWLSObjects::SimulationDetails  ExistingSimulation;
+        if(!StorageService()->SimulationDB().GetRecord("id", id, ExistingSimulation)) {
+            return NotFound();
+        }
+
+        AssignIfPresent(ParsedBody_, "name", ExistingSimulation.name);
+        AssignIfPresent(ParsedBody_, "gateway", ExistingSimulation.gateway);
+        AssignIfPresent(ParsedBody_, "macPrefix", ExistingSimulation.macPrefix);
+        AssignIfPresent(ParsedBody_, "deviceType", ExistingSimulation.deviceType);
+        AssignIfPresent(ParsedBody_, "devices", ExistingSimulation.devices);
+        AssignIfPresent(ParsedBody_, "healthCheckInterval", ExistingSimulation.healthCheckInterval);
+        AssignIfPresent(ParsedBody_, "stateInterval", ExistingSimulation.stateInterval);
+        AssignIfPresent(ParsedBody_, "minAssociations", ExistingSimulation.minAssociations);
+        AssignIfPresent(ParsedBody_, "maxAssociations", ExistingSimulation.maxAssociations);
+        AssignIfPresent(ParsedBody_, "minClients", ExistingSimulation.minClients);
+        AssignIfPresent(ParsedBody_, "maxClients", ExistingSimulation.maxClients);
+        AssignIfPresent(ParsedBody_, "simulationLength", ExistingSimulation.simulationLength);
+        AssignIfPresent(ParsedBody_, "threads", ExistingSimulation.threads);
+        AssignIfPresent(ParsedBody_, "keepAlive", ExistingSimulation.keepAlive);
+        AssignIfPresent(ParsedBody_, "reconnectInterval", ExistingSimulation.reconnectInterval);
+        AssignIfPresent(ParsedBody_, "concurrentDevices", ExistingSimulation.concurrentDevices);
+
+        if(!ValidateSimulation(NewSimulation)) {
+            return BadRequest(RESTAPI::Errors::InvalidJSONDocument);
+        }
+
+		if (StorageService()->SimulationDB().UpdateRecord("id", id, ExistingSimulation)) {
 			OWLSObjects::SimulationDetails N;
-			StorageService()->SimulationDB().GetRecord("id", D.id, N);
+			StorageService()->SimulationDB().GetRecord("id", ExistingSimulation.id, N);
 			Poco::JSON::Object Answer;
 			N.to_json(Answer);
 			return ReturnObject(Answer);

@@ -8,7 +8,7 @@
 
 #include "Daemon.h"
 #include "SimStats.h"
-#include "Simulation.h"
+#include "SimulationCoordinator.h"
 #include "StorageService.h"
 
 #include "Poco/Net/SSLManager.h"

@@ -397,6 +397,18 @@ namespace OpenWifi::RESTAPI::Errors {
 	static const struct msg FirmwareBDInProgress {
 		1170, "Firmware DB update already in progress."
 	};
+	static const struct msg SimulatedDeviceNotSupported {
+		1171, "Command not supported on simulated device."
+	};
+
+    static const struct msg SimulationDoesNotExist {
+        7000, "Simulation Instance ID does not exist."
+    };
+
+    static const struct msg SimulationIsAlreadyRunning {
+        7001, "There is an instance of this simulation already running.."
+    };
+
 
 } // namespace OpenWifi::RESTAPI::Errors
 

@@ -365,11 +365,15 @@ namespace OpenWifi {
 
     void OWLSclient::DoConfigure([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
 		try {
-			if (Params->has("serial") && Params->has("config")) {
-				uint64_t When = Params->has("when") ? (uint64_t) Params->get("when") : 0;
-				std::string Serial = Params->get("serial");
+			if (Params->has(uCentralProtocol::SERIAL) &&
+                Params->has(uCentralProtocol::CONFIG) &&
+                Params->has(uCentralProtocol::UUID)) {
+
+				std::string     Serial = Params->get(uCentralProtocol::SERIAL);
+                std::uint64_t   NewUUID = Params->get(uCentralProtocol::UUID);
+                std::cout << "Existing UUID: " << UUID_ << "  New: " << NewUUID << std::endl;
 				auto Configuration = Params->getObject("config");
-                UUID_ = Active_ = Configuration->get("uuid");
+                UUID_ = Active_ = NewUUID;
 				CurrentConfig_ = Configuration;
 
                 auto Metrics = Configuration->getObject("metrics");
@@ -380,12 +384,11 @@ namespace OpenWifi {
 
 				//  prepare response...
 				Poco::JSON::Object Answer, Result, Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("serial", Serial);
-                Result.set("uuid", UUID_);
-                Result.set("status", Status);
+                Status.set(uCentralProtocol::ERROR, 0);
+                Status.set(uCentralProtocol::TEXT, "Success");
+                Result.set(uCentralProtocol::SERIAL, Serial);
+                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
 				SendObject(Answer);
@@ -429,12 +432,12 @@ namespace OpenWifi {
                 std::string Serial = Params->get("serial");
 
                 Poco::JSON::Object Answer, Result, Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("serial", Serial);
-                Result.set("uuid", UUID_);
-                Result.set("status", Status);
+                Status.set(uCentralProtocol::ERROR, 0);
+                Status.set(uCentralProtocol::TEXT, "Success");
+                Result.set(uCentralProtocol::SERIAL, Serial);
+                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::STATUS, Status);
+
                 OWLSutils::MakeRPCHeader(Answer,Id,Result);
                 poco_information(Logger_,fmt::format("reboot({}): done.", SerialNumber_));
                 SendObject(Answer);
@@ -476,12 +479,11 @@ namespace OpenWifi {
                 std::string URI = Params->get("uri");
 
                 Poco::JSON::Object Answer, Result, Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("serial", Serial);
-                Result.set("uuid", UUID_);
-                Result.set("status", Status);
+                Status.set(uCentralProtocol::ERROR, 0);
+                Status.set(uCentralProtocol::TEXT, "Success");
+                Result.set(uCentralProtocol::SERIAL, Serial);
+                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("upgrade({}): from URI={}.", SerialNumber_, URI));
                 SendObject(Answer);
@@ -510,12 +512,11 @@ namespace OpenWifi {
 				SetFirmware();
 
                 Poco::JSON::Object Answer, Result, Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("serial", Serial);
-                Result.set("uuid", UUID_);
-                Result.set("status", Status);
+                Status.set(uCentralProtocol::ERROR, 0);
+                Status.set(uCentralProtocol::TEXT, "Success");
+                Result.set(uCentralProtocol::SERIAL, Serial);
+                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_, fmt::format("factory({}): done.", SerialNumber_));
                 SendObject(Answer);
@@ -543,12 +544,11 @@ namespace OpenWifi {
                 uint64_t Duration = Params->has("when") ? (uint64_t)Params->get("durarion") : 10;
 
                 Poco::JSON::Object Answer, Result, Status;
-                Status.set("error", 0);
-                Status.set("when", When);
-                Status.set("text", "No errors were found");
-                Result.set("serial", Serial);
-                Result.set("uuid", UUID_);
-                Result.set("status", Status);
+                Status.set(uCentralProtocol::ERROR, 0);
+                Status.set(uCentralProtocol::TEXT, "Success");
+                Result.set(uCentralProtocol::SERIAL, Serial);
+                Result.set(uCentralProtocol::UUID, UUID_);
+                Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
                                                 SerialNumber_, Duration, Pattern));

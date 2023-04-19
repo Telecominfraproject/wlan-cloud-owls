@@ -391,6 +391,7 @@ namespace OpenWifi {
                 Result.set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Logger_,fmt::format("configure({}): done.", SerialNumber_));
+                std::this_thread::sleep_for(std::chrono::seconds(OWLSutils::local_random(10,30)));
 				SendObject(Answer);
 			} else {
                 poco_warning(Logger_,fmt::format("configure({}): Illegal command.", SerialNumber_));

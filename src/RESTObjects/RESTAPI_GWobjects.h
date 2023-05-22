@@ -42,12 +42,13 @@ namespace OpenWifi::GWObjects {
 		uint64_t sessionId = 0;
 		double connectionCompletionTime = 0.0;
 		std::uint64_t certificateExpiryDate = 0;
-		bool hasRADIUSSessions = false;
+		std::uint64_t hasRADIUSSessions = 0;
 		bool hasGPS = false;
 		std::uint64_t sanity=0;
 		std::double_t memoryUsed=0.0;
 		std::double_t load=0.0;
 		std::double_t temperature=0.0;
+		std::string 	connectReason;
 
 		void to_json(const std::string &SerialNumber, Poco::JSON::Object &Obj) ;
 	};
@@ -393,7 +394,8 @@ namespace OpenWifi::GWObjects {
 					 			callingStationId,
 								chargeableUserIdentity,
 								secret,
-								interface;
+								interface,
+								nasId;
 		std::uint64_t 			inputPackets = 0,
 								outputPackets = 0,
 								inputOctets = 0,

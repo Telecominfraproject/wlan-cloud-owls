@@ -246,6 +246,8 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "connectionCompletionTime", connectionCompletionTime);
 		field_to_json(Obj, "totalConnectionTime", Utils::Now() - started);
 		field_to_json(Obj, "certificateExpiryDate", certificateExpiryDate);
+		field_to_json(Obj, "connectReason", connectReason);
+
 #ifdef TIP_GATEWAY_SERVICE
 		hasRADIUSSessions = RADIUSSessionTracker()->HasSessions(SerialNumber);
 		AP_WS_Server()->ExtendedAttributes(SerialNumber, hasGPS, sanity,
@@ -630,6 +632,7 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "chargeableUserIdentity", chargeableUserIdentity);
 		field_to_json(Obj, "interface", interface);
 		field_to_json(Obj, "secret", secret);
+		field_to_json(Obj, "nasId", nasId);
 	}
 
 	void RADIUSSessionList::to_json(Poco::JSON::Object &Obj) const {

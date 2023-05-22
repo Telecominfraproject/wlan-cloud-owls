@@ -372,44 +372,44 @@ namespace OpenWifi {
 
 				std::string     Serial = Params->get(uCentralProtocol::SERIAL);
                 std::uint64_t   NewUUID = Params->get(uCentralProtocol::UUID);
-                std::cout << Client->SerialNumber_ << "  C: " << Client->UUID_ << "  New: " << NewUUID << std::endl;
+//                std::cout << Client->SerialNumber_ << "  C: " << Client->UUID_ << "  New: " << NewUUID << std::endl;
 				auto Configuration = Params->getObject("config");
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
                 Client->UUID_ = Client->Active_ = NewUUID;
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
                 Client->CurrentConfig_ = Configuration;
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
 
                 if(Configuration->isObject("metrics")) {
                     auto Metrics = Configuration->getObject("metrics");
-                    std::cout << __LINE__ << std::endl;
+//                    std::cout << __LINE__ << std::endl;
                     if(Metrics->isObject("health")) {
                         auto Health = Metrics->getObject("health");
-                        std::cout << __LINE__ << std::endl;
+//                        std::cout << __LINE__ << std::endl;
                         Client->HealthInterval_ = Health->get("interval");
-                        std::cout << __LINE__ << std::endl;
+//                        std::cout << __LINE__ << std::endl;
                     }
                     if(Metrics->isObject("statistics")) {
                         auto Statistics = Metrics->getObject("statistics");
-                        std::cout << __LINE__ << std::endl;
+//                        std::cout << __LINE__ << std::endl;
                         Client->StatisticsInterval_ = Statistics->get("interval");
-                        std::cout << __LINE__ << std::endl;
+//                        std::cout << __LINE__ << std::endl;
                     }
                 }
 
 				//  prepare response...
 				Poco::JSON::Object Answer, Result, Status;
                 Status.set(uCentralProtocol::ERROR, 0);
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
                 Status.set(uCentralProtocol::TEXT, "Success");
                 Result.set(uCentralProtocol::SERIAL, Serial);
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
                 Result.set(uCentralProtocol::UUID, Client->UUID_);
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
                 Result.set(uCentralProtocol::STATUS, Status);
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
-                std::cout << __LINE__ << std::endl;
+//                std::cout << __LINE__ << std::endl;
                 poco_information(Client->Logger_,fmt::format("configure({}): done.", Client->SerialNumber_));
                 // std::this_thread::sleep_for(std::chrono::seconds(OWLSutils::local_random(10,30)));
                 Client->SendObject(Answer);

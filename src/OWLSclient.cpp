@@ -380,16 +380,22 @@ namespace OpenWifi {
                 Client->CurrentConfig_ = Configuration;
                 std::cout << __LINE__ << std::endl;
 
-                auto Metrics = Configuration->getObject("metrics");
-                std::cout << __LINE__ << std::endl;
-                auto Health = Metrics->getObject("health");
-                std::cout << __LINE__ << std::endl;
-                Client->HealthInterval_ = Health->get("interval");
-                std::cout << __LINE__ << std::endl;
-                auto Statistics = Metrics->getObject("statistics");
-                std::cout << __LINE__ << std::endl;
-                Client->StatisticsInterval_ = Statistics->get("interval");
-                std::cout << __LINE__ << std::endl;
+                if(Configuration->isObject("metrics")) {
+                    auto Metrics = Configuration->getObject("metrics");
+                    std::cout << __LINE__ << std::endl;
+                    if(Metrics->isObject("health")) {
+                        auto Health = Metrics->getObject("health");
+                        std::cout << __LINE__ << std::endl;
+                        Client->HealthInterval_ = Health->get("interval");
+                        std::cout << __LINE__ << std::endl;
+                    }
+                    if(Metrics->isObject("statistics")) {
+                        auto Statistics = Metrics->getObject("statistics");
+                        std::cout << __LINE__ << std::endl;
+                        Client->StatisticsInterval_ = Statistics->get("interval");
+                        std::cout << __LINE__ << std::endl;
+                    }
+                }
 
 				//  prepare response...
 				Poco::JSON::Object Answer, Result, Status;

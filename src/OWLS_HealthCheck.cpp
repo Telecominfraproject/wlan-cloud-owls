@@ -29,7 +29,7 @@ namespace OpenWifi::OWLSclientEvents {
                 Params.set(uCentralProtocol::DATA, Data);
                 OWLSutils::MakeHeader(Message, uCentralProtocol::HEALTHCHECK, Params);
 
-                std::cout << Client->SerialNumber_ << "  H: " << Client->UUID_ << std::endl;
+//                std::cout << Client->SerialNumber_ << "  H: " << Client->UUID_ << std::endl;
 
                 if (Client->SendObject(Message)) {
                     Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),

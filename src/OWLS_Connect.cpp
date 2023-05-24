@@ -45,6 +45,7 @@ namespace OpenWifi::OWLSclientEvents {
                                               OWLSclientEvents::WSPing, Client, Runner);
                     Runner->Scheduler().in(std::chrono::seconds(30),
                                               OWLSclientEvents::Update, Client, Runner);
+                    Client->Logger_.information(fmt::format("connect({}): completed.", Client->SerialNumber_));
                     return;
                 }
             } catch (const Poco::Exception &E) {

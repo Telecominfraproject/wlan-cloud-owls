@@ -84,6 +84,7 @@ namespace OpenWifi::OWLSclientEvents {
                             *Runner, &SimulationRunner::OnSocketShutdown));
             Runner->Scheduler().in(std::chrono::seconds(1), Connect, Client, Runner);
             SimStats()->Connect(Runner->Id());
+            Client->Logger_.information(fmt::format("connecting({}): connected.", Client->SerialNumber_));
         } catch (const Poco::Exception &E) {
             Client->Logger_.warning(
                     fmt::format("connecting({}): exception. {}", Client->SerialNumber_, E.displayText()));

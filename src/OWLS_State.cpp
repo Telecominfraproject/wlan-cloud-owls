@@ -30,8 +30,6 @@ namespace OpenWifi::OWLSclientEvents {
                 std::ostringstream os;
                 TempParams.stringify(os);
 
-                // std::cout << "State: " << os.str() << std::endl;
-
                 unsigned long BufSize = os.str().size() + 4000;
                 std::vector<Bytef> Buffer(BufSize);
                 compress(&Buffer[0], &BufSize, (Bytef *)os.str().c_str(), os.str().size());
@@ -42,7 +40,7 @@ namespace OpenWifi::OWLSclientEvents {
 
                 OWLSutils::MakeHeader(Message,uCentralProtocol::STATE,Params);
 
-                std::cout << Client->SerialNumber_ << "  S: " << Client->UUID_ << std::endl;
+//                std::cout << Client->SerialNumber_ << "  S: " << Client->UUID_ << std::endl;
 
                 if (Client->SendObject(Message)) {
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),

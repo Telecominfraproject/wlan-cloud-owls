@@ -413,8 +413,7 @@ namespace OpenWifi {
         }
 	}
 
-    void OWLSclient::Disconnect([[
-    maybe_unused]] std::lock_guard<std::mutex> &Guard) {
+    void OWLSclient::Disconnect([[maybe_unused]] std::lock_guard<std::mutex> &Guard) {
         if(Valid_) {
             Runner_->Report().ev_disconnect++;
             if (Connected_) {

@@ -48,7 +48,7 @@ namespace OpenWifi::OWLSclientEvents {
                     return;
                 }
             } catch (const Poco::Exception &E) {
-                DEBUG_LINE("exception1");
+                std::cout << "E:" << E.name() << " | " << E.what() << " | " << E.message() << std::endl;
                 Client->Logger().log(E);
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");

@@ -427,8 +427,10 @@ namespace OpenWifi {
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                                 *Runner_, &SimulationRunner::OnSocketShutdown));
                 (*WS_).close();
+                Connected_ = false;
             }
-            Connected_ = false;
+        } else {
+            std::cout << "Disconnecting an invalid client" << std::endl;
         }
     }
 

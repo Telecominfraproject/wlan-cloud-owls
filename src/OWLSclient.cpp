@@ -26,11 +26,13 @@ using namespace std::chrono_literals;
 namespace OpenWifi {
 
 	OWLSclient::OWLSclient(std::string SerialNumber,
-                           Poco::Logger &Logger, SimulationRunner *runner)
+                           Poco::Logger &Logger, SimulationRunner *runner,
+                           Poco::Net::SocketReactor &R)
 		: Logger_(Logger), SerialNumber_(std::move(SerialNumber)),
           Memory_(1),
           Load_(1),
-          Runner_(runner) {
+          Runner_(runner),
+          Reactor_(R) {
 
 		AllInterfaceNames_[ap_interface_types::upstream] = "up0v0";
 		AllInterfaceNames_[ap_interface_types::downstream] = "down0v0";
@@ -411,19 +413,20 @@ namespace OpenWifi {
         }
 	}
 
-    void OWLSclient::Disconnect(std::lock_guard<std::mutex> &Guard) {
+    void OWLSclient::Disconnect([[
+    maybe_unused]] std::lock_guard<std::mutex> &Guard) {
         if(Valid_) {
             Runner_->Report().ev_disconnect++;
             if (Connected_) {
                 Runner_->RemoveClientFd(fd_);
                 fd_ = -1;
-                Runner_->Reactor().removeEventHandler(
+                Reactor_.removeEventHandler(
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                                 *Runner_, &SimulationRunner::OnSocketReadable));
-                Runner_->Reactor().removeEventHandler(
+                Reactor_.removeEventHandler(
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
                                 *Runner_, &SimulationRunner::OnSocketError));
-                Runner_->Reactor().removeEventHandler(
+                Reactor_.removeEventHandler(
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                                 *Runner_, &SimulationRunner::OnSocketShutdown));
                 WS_->shutdown();

@@ -31,7 +31,7 @@ namespace OpenWifi {
 	class OWLSclient {
 	  public:
 		OWLSclient(std::string SerialNumber,
-                   Poco::Logger &Logger, SimulationRunner *runner);
+                   Poco::Logger &Logger, SimulationRunner *runner, Poco::Net::SocketReactor &R);
         ~OWLSclient() {
             poco_debug(Logger_,fmt::format("{} simulator client done.", SerialNumber_));
         }
@@ -124,13 +124,14 @@ namespace OpenWifi {
 		std::string             mac_lan;
 		std::uint64_t           HealthInterval_ = 60;
 		std::uint64_t           StatisticsInterval_ = 60;
-		uint64_t                bssid_index = 1;
-        std::int64_t            fd_=-1;
+		uint64_t                    bssid_index = 1;
+        std::int64_t                fd_=-1;
 
-        MockMemory              Memory_;
-        MockCPULoad             Load_;
+        MockMemory                  Memory_;
+        MockCPULoad                 Load_;
 
-        SimulationRunner    *Runner_ = nullptr;
+        SimulationRunner            *Runner_ = nullptr;
+        Poco::Net::SocketReactor    &Reactor_;
 
 		MockLanClients                              AllLanClients_;
 		associations_map_t                          AllAssociations_;

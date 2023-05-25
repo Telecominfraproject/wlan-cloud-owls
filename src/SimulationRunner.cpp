@@ -28,11 +28,20 @@ namespace OpenWifi {
         Running_ = true;
 		std::lock_guard Lock(Mutex_);
 
-        SocketReactorThread_.start(Reactor_);
+        NumberOfReactors_ = Poco::Environment::processorCount() * 2;
+        for(std::uint64_t  i=0;i<NumberOfReactors_;i++) {
+            auto NewReactor = std::make_unique<Poco::Net::SocketReactor>();
+            auto NewReactorThread = std::make_unique<Poco::Thread>();
+            NewReactorThread->start(*NewReactor);
+            SocketReactorPool_.push_back(std::move(NewReactor));
+            SocketReactorThreadPool_.push_back(std::move(NewReactorThread));
+        }
+
+        std::uint64_t ReactorIndex=0;
 		for (uint64_t i = 0; i < Details_.devices; i++) {
 			char Buffer[32];
 			snprintf(Buffer, sizeof(Buffer), "%s%05x0", Details_.macPrefix.c_str(), (unsigned int)i);
-			auto Client = std::make_shared<OWLSclient>(Buffer, Logger_, this);
+			auto Client = std::make_shared<OWLSclient>(Buffer, Logger_, this, *SocketReactorPool_[ReactorIndex++ % NumberOfReactors_]);
             Client->SerialNumber_ = Buffer;
             Client->Valid_ = true;
             Scheduler_.in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
@@ -58,8 +67,10 @@ namespace OpenWifi {
                 OWLSclientEvents::Disconnect(client.second, this, "Simulation shutting down", false);
                 client.second->Valid_ = false;
             }
-			Reactor_.stop();
-			SocketReactorThread_.join();
+            std::for_each(SocketReactorPool_.begin(),SocketReactorPool_.end(),[](auto &reactor) { reactor->stop(); });
+            std::for_each(SocketReactorThreadPool_.begin(),SocketReactorThreadPool_.end(),[](auto &t){ t->join(); });
+            SocketReactorThreadPool_.clear();
+            SocketReactorPool_.clear();
             Clients_.clear();
 		}
 	}
@@ -79,16 +90,17 @@ namespace OpenWifi {
         client = client_hint->second;
         std::lock_guard Guard(client->Mutex_);
         client->Disconnect(Guard);
-        Reactor_.removeEventHandler(
+        client->Reactor_.removeEventHandler(
                 *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                         *this, &SimulationRunner::OnSocketReadable));
-        Reactor_.removeEventHandler(
+        client->Reactor_.removeEventHandler(
                 *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
                         *this, &SimulationRunner::OnSocketError));
-        Reactor_.removeEventHandler(
+        client->Reactor_.removeEventHandler(
                 *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                         *this, &SimulationRunner::OnSocketShutdown));
         client->fd_ = -1;
+        Clients_fd_.erase(socket);
         if(Running_)
             OWLSclientEvents::Reconnect(client,this);
     }

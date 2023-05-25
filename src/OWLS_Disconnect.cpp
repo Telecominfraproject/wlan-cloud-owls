@@ -18,7 +18,6 @@ namespace OpenWifi::OWLSclientEvents {
         std::lock_guard G(Client->Mutex_);
 
         if(Client->Valid_) {
-            Runner->Report().ev_disconnect++;
             Client->Disconnect(G);
             poco_debug(Client->Logger(),fmt::format("{}: disconnecting. Reason: {}", Client->SerialNumber_, Reason));
             if(Reconnect) {

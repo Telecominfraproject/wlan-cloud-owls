@@ -49,7 +49,7 @@ namespace OpenWifi {
         }
 
         void ProcessCommand(std::shared_ptr<OWLSclient> Client, Poco::JSON::Object::Ptr Vars);
-        Poco::Net::SocketReactor & Reactor() { return Reactor_; }
+        // Poco::Net::SocketReactor & Reactor() { return Reactor_; }
 
         inline auto & Scheduler() { return Scheduler_; }
 
@@ -57,16 +57,17 @@ namespace OpenWifi {
         my_mutex            Mutex_;
         OWLSObjects::SimulationDetails  Details_;
 		Poco::Logger        &Logger_;
-		Poco::Net::SocketReactor Reactor_;
+		std::vector<std::unique_ptr<Poco::Net::SocketReactor>>   SocketReactorPool_;
+        std::vector<std::unique_ptr<Poco::Thread>>               SocketReactorThreadPool_;
 		std::map<std::string, std::shared_ptr<OWLSclient>>      Clients_;
         std::map<std::int64_t, std::shared_ptr<OWLSclient>>     Clients_fd_;
-		Poco::Thread        SocketReactorThread_;
 		std::atomic_bool    Running_ = false;
 		CensusReport        CensusReport_;
 		std::string         State_{"stopped"};
         std::string         Id_;
         Bosma::Scheduler    Scheduler_;
         SecurityObjects::UserInfo   UInfo_;
+        std::uint64_t       NumberOfReactors_=0;
 
         static void ProgressUpdate(SimulationRunner *s);
 

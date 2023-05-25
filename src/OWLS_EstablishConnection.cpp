@@ -73,13 +73,13 @@ namespace OpenWifi::OWLSclientEvents {
             (*Client->WS_).setMaxPayloadSize(128000);
             Runner->AddClientFd(Client->WS_->impl()->sockfd(), Client);
             Client->Connected_ = true;
-            Runner->Reactor().addEventHandler(
+            Client->Reactor_.addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                             *Runner, &SimulationRunner::OnSocketReadable));
-            Runner->Reactor().addEventHandler(
+            Client->Reactor_.addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
                             *Runner, &SimulationRunner::OnSocketError));
-            Runner->Reactor().addEventHandler(
+            Client->Reactor_.addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                             *Runner, &SimulationRunner::OnSocketShutdown));
             Runner->Scheduler().in(std::chrono::seconds(1), Connect, Client, Runner);

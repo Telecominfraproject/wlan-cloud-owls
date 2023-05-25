@@ -643,7 +643,7 @@ namespace OpenWifi {
                         fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
             }
         } catch (const Poco::Exception &E) {
-            DEBUG_LINE("exception1");
+            std::cout << __LINE__ << ": " << E.displayText() << " | " << E.message() << std::endl;
             Logger_.log(E);
         } catch (const std::exception &E) {
             DEBUG_LINE("exception2");

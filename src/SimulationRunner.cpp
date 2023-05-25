@@ -63,10 +63,18 @@ namespace OpenWifi {
 	void SimulationRunner::Stop() {
 		if (Running_) {
             Running_ = false;
+            std::cout << "Deleting clients: " << Clients_.size() << std::endl;
+            int valids=0,invalids=0;
             for(auto &client:Clients_) {
-                OWLSclientEvents::Disconnect(client.second, this, "Simulation shutting down", false);
-                client.second->Valid_ = false;
+                if(client.second->Valid_) {
+                    OWLSclientEvents::Disconnect(client.second, this, "Simulation shutting down", false);
+                    client.second->Valid_ = false;
+                    valids++;
+                } else {
+                    invalids++;
+                }
             }
+            std::cout << "Deleted clients: " << valids << " / " << Clients_.size() << " --- " << invalids << std::endl;
             std::for_each(SocketReactorPool_.begin(),SocketReactorPool_.end(),[](auto &reactor) { reactor->stop(); });
             std::for_each(SocketReactorThreadPool_.begin(),SocketReactorThreadPool_.end(),[](auto &t){ t->join(); });
             SocketReactorThreadPool_.clear();
@@ -77,6 +85,8 @@ namespace OpenWifi {
 
     void SimulationRunner::OnSocketError(const Poco::AutoPtr<Poco::Net::ErrorNotification> &pNf) {
         std::lock_guard G(Mutex_);
+
+        std::cout << "SimulationRunner::OnSocketError" << std::endl;
 
         auto socket = pNf->socket().impl()->sockfd();
         std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;

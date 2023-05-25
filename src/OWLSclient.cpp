@@ -428,9 +428,12 @@ namespace OpenWifi {
                                 *Runner_, &SimulationRunner::OnSocketShutdown));
                 (*WS_).close();
                 Connected_ = false;
+                std::cout << "Disconnecting a client: " << SerialNumber_ << std::endl;
+            }else {
+                std::cout << "Disconnecting an unconnected client: " << SerialNumber_ << std::endl;
             }
         } else {
-            std::cout << "Disconnecting an invalid client" << std::endl;
+            std::cout << "Disconnecting an invalid client: " << SerialNumber_ << std::endl;
         }
     }
 

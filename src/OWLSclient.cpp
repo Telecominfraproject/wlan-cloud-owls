@@ -411,7 +411,7 @@ namespace OpenWifi {
         }
 	}
 
-    void OWLSclient::Disconnect() {
+    void OWLSclient::Disconnect(std::lock_guard<std::mutex> &Guard) {
         if(Valid_) {
             Runner_->Report().ev_disconnect++;
             if (Connected_) {
@@ -454,7 +454,7 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer,Id,Result);
                 poco_information(Client->Logger_,fmt::format("reboot({}): done.", Client->SerialNumber_));
                 Client->SendObject(Answer);
-                Client->Disconnect();
+                Client->Disconnect(G);
                 Client->Reset();
                 std::this_thread::sleep_for(std::chrono::seconds(20));
                 OWLSclientEvents::Disconnect(Client, Client->Runner_, "Command: reboot", true);
@@ -500,7 +500,7 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("upgrade({}): from URI={}.", Client->SerialNumber_, URI));
                 Client->SendObject(Answer);
-                Client->Disconnect();
+                Client->Disconnect(G);
                 Client->Version_++;
                 Client->SetFirmware(GetFirmware(URI));
                 std::this_thread::sleep_for(std::chrono::seconds(30));
@@ -533,7 +533,7 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_, fmt::format("factory({}): done.", Client->SerialNumber_));
                 Client->SendObject(Answer);
-                Client->Disconnect();
+                Client->Disconnect(G);
                 Client->CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
                 Client->UpdateConfiguration();
                 std::this_thread::sleep_for(std::chrono::seconds(5));

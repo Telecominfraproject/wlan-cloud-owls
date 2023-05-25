@@ -77,7 +77,8 @@ namespace OpenWifi {
             return;
         }
         client = client_hint->second;
-        client->Disconnect();
+        std::lock_guard Guard(client->Mutex_);
+        client->Disconnect(Guard);
         Reactor_.removeEventHandler(
                 *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                         *this, &SimulationRunner::OnSocketReadable));
@@ -105,7 +106,8 @@ namespace OpenWifi {
             return;
         }
         client = client_hint->second;
-        client->Disconnect();
+        std::lock_guard Guard(client->Mutex_);
+        client->Disconnect(Guard);
         if(Running_)
             OWLSclientEvents::Reconnect(client,this);
     }

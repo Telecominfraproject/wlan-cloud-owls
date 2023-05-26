@@ -9,20 +9,21 @@
 #include <random>
 #include <tuple>
 
-#include "Poco/AutoPtr.h"
-#include "Poco/JSON/Object.h"
-#include "Poco/Logger.h"
-#include "Poco/Net/SocketNotification.h"
-#include "Poco/Net/SocketReactor.h"
-#include "Poco/Net/WebSocket.h"
-#include "Poco/Thread.h"
+#include <fmt/format.h>
+
+#include <Poco/AutoPtr.h>
+#include <Poco/JSON/Object.h>
+#include <Poco/Logger.h>
+#include <Poco/Net/SocketNotification.h>
+#include <Poco/Net/SocketReactor.h>
+#include <Poco/Net/WebSocket.h>
+#include <Poco/Thread.h>
 
 #include "framework/utils.h"
-#include "OWLSdefinitions.h"
 
+#include "OWLSdefinitions.h"
 #include "MockElements.h"
 #include "OWLSclientEvents.h"
-#include <fmt/format.h>
 
 namespace OpenWifi {
 
@@ -96,7 +97,8 @@ namespace OpenWifi {
 
         friend void OWLSClientEvents::EstablishConnection(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::Reconnect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
-        friend void OWLSClientEvents::Connect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        // friend void OWLSClientEvents::Connect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::Connect(std::lock_guard<std::mutex> & ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::Log(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine);
         friend void OWLSClientEvents::State(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::HealthCheck(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);

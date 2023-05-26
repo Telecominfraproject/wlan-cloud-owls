@@ -2,11 +2,10 @@
 // Created by stephane bourque on 2021-07-21.
 //
 
-#ifndef UCENTRALGW_DASHBOARD_H
-#define UCENTRALGW_DASHBOARD_H
+#pragma once
 
-#include "RESTObjects/RESTAPI_OWLSobjects.h"
-#include "framework/OpenWifiTypes.h"
+#include <framework/OpenWifiTypes.h>
+#include <RESTObjects/RESTAPI_OWLSobjects.h>
 
 namespace OpenWifi {
 	class OWLSDashboard {
@@ -21,4 +20,3 @@ namespace OpenWifi {
 	};
 } // namespace OpenWifi
 
-#endif // UCENTRALGW_DASHBOARD_H

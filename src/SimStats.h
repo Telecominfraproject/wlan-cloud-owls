@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include "framework/SubSystemServer.h"
-#include "framework/utils.h"
-
+#include <framework/SubSystemServer.h>
+#include <framework/utils.h>
 #include <RESTObjects/RESTAPI_OWLSobjects.h>
 #include <RESTObjects/RESTAPI_SecurityObjects.h>
 

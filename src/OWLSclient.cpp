@@ -7,19 +7,19 @@
 #include <thread>
 #include <tuple>
 
-#include "OWLS_utils.h"
+#include <fmt/format.h>
+#include <Poco/NObserver.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/URI.h>
 
-#include "Poco/NObserver.h"
-#include "Poco/Net/HTTPRequest.h"
-#include "Poco/URI.h"
 
-#include "OWLSclient.h"
-#include "OWLSdefinitions.h"
 #include "framework/MicroServiceFuncs.h"
 
+#include "OWLS_utils.h"
+#include "OWLSclient.h"
+#include "OWLSdefinitions.h"
 #include "SimStats.h"
 #include "SimulationCoordinator.h"
-#include "fmt/format.h"
 
 using namespace std::chrono_literals;
 

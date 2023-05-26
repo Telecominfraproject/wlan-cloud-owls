@@ -2,15 +2,16 @@
 // Created by stephane bourque on 2021-11-03.
 //
 
+#include <fmt/format.h>
+#include <Poco/JSON/Parser.h>
+
+#include <framework/MicroServiceFuncs.h>
+#include <framework/utils.h>
+
 #include "SimulationCoordinator.h"
 #include "SimStats.h"
 #include "StorageService.h"
 
-#include "fmt/format.h"
-#include "framework/MicroServiceFuncs.h"
-#include "framework/utils.h"
-
-#include <Poco/JSON/Parser.h>
 
 namespace OpenWifi {
 

@@ -1,10 +1,11 @@
 //
 // Created by stephane bourque on 2023-04-12.
 //
+#include <Poco/NObserver.h>
+
 #include "OWLSclient.h"
 #include "SimulationRunner.h"
 #include "SimStats.h"
-#include <Poco/NObserver.h>
 #include "OWLSclientEvents.h"
 
 namespace OpenWifi::OWLSClientEvents {

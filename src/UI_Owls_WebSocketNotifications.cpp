@@ -2,8 +2,9 @@
 // Created by stephane bourque on 2022-10-30.
 //
 
-#include "UI_Owls_WebSocketNotifications.h"
-#include "framework/UI_WebSocketClientServer.h"
+#include <framework/UI_WebSocketClientServer.h>
+
+#include <UI_Owls_WebSocketNotifications.h>
 
 namespace OpenWifi::OWLSNotifications {
 

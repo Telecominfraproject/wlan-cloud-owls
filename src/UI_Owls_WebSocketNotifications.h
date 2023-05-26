@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "RESTObjects/RESTAPI_OWLSobjects.h"
-#include "framework/UI_WebSocketClientNotifications.h"
+#include <framework/UI_WebSocketClientNotifications.h>
+#include <RESTObjects/RESTAPI_OWLSobjects.h>
 
 namespace OpenWifi::OWLSNotifications {
 

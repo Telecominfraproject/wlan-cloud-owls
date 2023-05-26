@@ -5,16 +5,17 @@
 #include <thread>
 #include <chrono>
 
-
-#include "SimStats.h"
-#include "SimulationRunner.h"
-#include "fmt/format.h"
-#include "UI_Owls_WebSocketNotifications.h"
+#include <fmt/format.h>
 
 #include <Poco/Logger.h>
 #include <Poco/Net/NetException.h>
 #include <Poco/Net/SSLException.h>
 #include <Poco/NObserver.h>
+
+#include "SimStats.h"
+#include "SimulationRunner.h"
+#include "UI_Owls_WebSocketNotifications.h"
+
 
 namespace OpenWifi {
 	void SimulationRunner::Start() {

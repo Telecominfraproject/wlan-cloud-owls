@@ -10,12 +10,12 @@
 
 #include <Poco/Thread.h>
 #include <Poco/Environment.h>
-#include "OWLSclient.h"
 #include <RESTObjects/RESTAPI_OWLSobjects.h>
-
-#include "CensusReport.h"
 #include <libs/Scheduler.h>
 #include <RESTObjects/RESTAPI_SecurityObjects.h>
+
+#include "OWLSclient.h"
+#include "CensusReport.h"
 
 namespace OpenWifi {
 
@@ -49,7 +49,6 @@ namespace OpenWifi {
         }
 
         void ProcessCommand(std::lock_guard<std::mutex> &G, const std::shared_ptr<OWLSclient> &Client, Poco::JSON::Object::Ptr Vars);
-        // Poco::Net::SocketReactor & Reactor() { return Reactor_; }
 
         inline auto & Scheduler() { return Scheduler_; }
         inline bool Running() { return Running_; }

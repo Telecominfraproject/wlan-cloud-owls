@@ -8,9 +8,10 @@
 
 #pragma once
 
+#include <framework/MicroService.h>
+#include <framework/MicroServiceNames.h>
+
 #include "Dashboard.h"
-#include "framework/MicroService.h"
-#include "framework/MicroServiceNames.h"
 
 namespace OpenWifi {
 

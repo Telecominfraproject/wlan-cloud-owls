@@ -2,8 +2,8 @@
 // Created by stephane bourque on 2021-07-21.
 //
 
-#include "Dashboard.h"
-#include "framework/utils.h"
+#include <framework/utils.h>
+#include <Dashboard.h>
 
 namespace OpenWifi {
 	void OWLSDashboard::Create() {

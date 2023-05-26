@@ -2,13 +2,11 @@
 // Created by stephane bourque on 2023-04-12.
 //
 
-#include "OWLSclient.h"
-#include "SimulationRunner.h"
-#include "SimulationCoordinator.h"
-#include <fmt/format.h>
-#include "SimStats.h"
 #include <Poco/NObserver.h>
 
+#include "OWLSclient.h"
+#include "SimulationRunner.h"
+#include "SimStats.h"
 #include "OWLSclientEvents.h"
 #include "OWLS_utils.h"
 

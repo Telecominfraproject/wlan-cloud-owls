@@ -62,6 +62,7 @@ namespace OpenWifi {
             Running_ = false;
             std::cout << "Deleting clients: " << Clients_.size() << std::endl;
             int valids=0,invalids=0;
+            /*
             for(auto &client:Clients_) {
                 if(client.second->Valid_) {
                     std::lock_guard<std::mutex> Guard(client.second->Mutex_);
@@ -71,7 +72,7 @@ namespace OpenWifi {
                 } else {
                     invalids++;
                 }
-            }
+            }*/
             std::cout << "Deleted clients: " << valids << " / " << Clients_.size() << " --- " << invalids << std::endl;
             std::for_each(SocketReactorPool_.begin(),SocketReactorPool_.end(),[](auto &reactor) { reactor->stop(); });
             std::for_each(SocketReactorThreadPool_.begin(),SocketReactorThreadPool_.end(),[](auto &t){ t->join(); });

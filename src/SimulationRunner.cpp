@@ -95,6 +95,7 @@ namespace OpenWifi {
             std::lock_guard GG(SocketFdMutex_);
             client_hint = Clients_fd_.find(socket);
             if (client_hint == end(Clients_fd_)) {
+                pNf->socket().impl()->close();
                 poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
                 return;
             }
@@ -128,6 +129,7 @@ namespace OpenWifi {
             std::lock_guard G(SocketFdMutex_);
             auto client_hint = Clients_fd_.find(socket);
             if (client_hint == end(Clients_fd_)) {
+                pNf->socket().impl()->close();
                 poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
                 return;
             }

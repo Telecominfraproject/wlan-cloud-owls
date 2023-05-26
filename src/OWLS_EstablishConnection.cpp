@@ -51,8 +51,8 @@ namespace OpenWifi::OWLSClientEvents {
 
         SSL_CTX *SSLCtx = Context->sslContext();
         if (!SSL_CTX_check_private_key(SSLCtx)) {
-            std::cout << "Wrong Certificate: " << SimulationCoordinator()->GetCertFileName()
-                      << " for " << SimulationCoordinator()->GetKeyFileName() << std::endl;
+            poco_error(Client->Logger_,fmt::format("Wrong Certificate: {} for {}",SimulationCoordinator()->GetCertFileName() ,
+                                                   SimulationCoordinator()->GetKeyFileName()));
         }
 
         if (SimulationCoordinator()->GetLevel() == Poco::Net::Context::VERIFY_STRICT) {

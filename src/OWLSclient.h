@@ -92,6 +92,14 @@ namespace OpenWifi {
         inline const auto & Load() { return Load_; }
 
         void Update();
+        [[nodiscard ]] inline auto Backoff() {
+            if(Backoff_>300) {
+                Backoff_ = 15;
+            } else {
+                Backoff_ *=2;
+            }
+            return Backoff_;
+        }
 
         friend class SimulationRunner;
 
@@ -132,6 +140,8 @@ namespace OpenWifi {
 
         MockMemory                  Memory_;
         MockCPULoad                 Load_;
+
+        std::uint16_t               Backoff_=0;
 
         SimulationRunner            *Runner_ = nullptr;
         Poco::Net::SocketReactor    &Reactor_;

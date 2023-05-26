@@ -24,6 +24,7 @@ namespace OpenWifi::OWLSClientEvents {
                                           OWLSClientEvents::WSPing, Client, Runner);
                 return;
             } catch (const Poco::Exception &E) {
+                std::cout << "WSPing failed; " << Client->SerialNumber_ << std::endl;
                 DEBUG_LINE("exception1");
                 Client->Logger().log(E);
             } catch (const std::exception &E) {

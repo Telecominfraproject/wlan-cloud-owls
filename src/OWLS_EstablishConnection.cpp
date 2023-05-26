@@ -87,21 +87,19 @@ namespace OpenWifi::OWLSClientEvents {
             Client->Reactor_.addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                             *Runner, &SimulationRunner::OnSocketShutdown));
-            // Runner->Scheduler().in(std::chrono::seconds(1), Connect, Client, Runner);
             Connect(ClientGuard, Client, Runner);
-//            SimStats()->Connect(Runner->Id());
             Client->Logger_.information(fmt::format("connecting({}): connected.", Client->SerialNumber_));
         } catch (const Poco::Exception &E) {
             Client->Logger_.warning(
                     fmt::format("connecting({}): exception. {}", Client->SerialNumber_, E.displayText()));
-            Runner->Scheduler().in(std::chrono::seconds(60), Reconnect, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         } catch (const std::exception &E) {
             Client->Logger_.warning(
                     fmt::format("connecting({}): std::exception. {}", Client->SerialNumber_, E.what()));
-            Runner->Scheduler().in(std::chrono::seconds(60), Reconnect, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         } catch (...) {
             Client->Logger_.warning(fmt::format("connecting({}): unknown exception. {}", Client->SerialNumber_));
-            Runner->Scheduler().in(std::chrono::seconds(60), Reconnect, Client, Runner);
+            Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         }
     }
 
@@ -143,13 +141,14 @@ namespace OpenWifi::OWLSClientEvents {
                     Runner->Scheduler().in(std::chrono::seconds(30),
                                            OWLSClientEvents::Update, Client, Runner);
                     Client->Logger_.information(fmt::format("connect({}): completed.", Client->SerialNumber_));
+                    Client->Backoff_=0;
                     SimStats()->Connect(Runner->Id());
                     return;
                 }
             } catch (const Poco::Exception &E) {
                 Client->Logger().log(E);
             }
-            OWLSClientEvents::Disconnect(ClientGuard,Client, Runner, "Error occurred during connection", true);
+            OWLSClientEvents::Disconnect(ClientGuard, Client, Runner, "Error occurred during connection", true);
         }
     }
 

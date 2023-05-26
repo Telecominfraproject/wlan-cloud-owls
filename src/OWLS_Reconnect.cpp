@@ -22,7 +22,7 @@ namespace OpenWifi::OWLSClientEvents {
             if(Client->Valid_) {
                 Runner->Report().ev_reconnect++;
                 Client->Connected_ = false;
-                Runner->Scheduler().in(std::chrono::seconds(OWLSutils::local_random(3,15)), OWLSClientEvents::EstablishConnection, Client, Runner);
+                Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), OWLSClientEvents::EstablishConnection, Client, Runner);
             }
         } catch (const Poco::Exception &E) {
             DEBUG_LINE("exception1");

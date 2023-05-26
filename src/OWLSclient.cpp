@@ -414,12 +414,14 @@ namespace OpenWifi {
 	}
 
     void OWLSclient::Disconnect([[maybe_unused]] std::lock_guard<std::mutex> &Guard) {
+        if(fd_!=-1) {
+            Runner_->RemoveClientFd(fd_);
+            fd_ = -1;
+        }
         if(Valid_) {
             Runner_->Report().ev_disconnect++;
             SimStats()->Disconnect(Runner_->Id());
             if (Connected_) {
-                Runner_->RemoveClientFd(fd_);
-                fd_ = -1;
                 Reactor_.removeEventHandler(
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
                                 *Runner_, &SimulationRunner::OnSocketReadable));

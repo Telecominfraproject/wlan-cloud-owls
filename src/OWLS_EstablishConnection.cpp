@@ -15,6 +15,10 @@
 namespace OpenWifi::OWLSClientEvents {
 
     void EstablishConnection( const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        if(!Runner->Running()) {
+            return;
+        }
+
         Poco::URI uri(Runner->Details().gateway);
 
         Poco::Net::Context::Params P;

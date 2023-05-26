@@ -595,6 +595,9 @@ namespace OpenWifi {
     }
 
 	bool OWLSclient::Send(const std::string &Cmd) {
+        if(!Runner_->Running()) {
+            return false;
+        }
 
 		try {
 			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
@@ -617,6 +620,9 @@ namespace OpenWifi {
 	}
 
 	bool OWLSclient::SendWSPing() {
+        if(!Runner_->Running()) {
+            return false;
+        }
 		try {
 			WS_->sendFrame(
 				"", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
@@ -631,6 +637,9 @@ namespace OpenWifi {
 	}
 
     bool OWLSclient::SendObject(const Poco::JSON::Object &O) {
+        if(!Runner_->Running()) {
+            return false;
+        }
         try {
             std::ostringstream os;
             O.stringify(os);

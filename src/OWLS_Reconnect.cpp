@@ -15,8 +15,11 @@
 namespace OpenWifi::OWLSClientEvents {
 
     void Reconnect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
-        std::lock_guard     ClientGuard(Client->Mutex_);
+        if(!Runner->Running()) {
+            return;
+        }
 
+        std::lock_guard     ClientGuard(Client->Mutex_);
         try {
             if(Client->Valid_) {
                 Runner->Report().ev_reconnect++;

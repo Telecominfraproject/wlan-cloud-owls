@@ -10,6 +10,10 @@
 namespace OpenWifi::OWLSClientEvents {
 
     void Update(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        if(!Runner->Running()) {
+            return;
+        }
+
         std::lock_guard ClientGuard(Client->Mutex_);
 
         try {

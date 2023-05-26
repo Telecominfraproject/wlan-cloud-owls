@@ -52,6 +52,7 @@ namespace OpenWifi {
         // Poco::Net::SocketReactor & Reactor() { return Reactor_; }
 
         inline auto & Scheduler() { return Scheduler_; }
+        inline bool Running() { return Running_; }
 
 	  private:
         std::mutex          SocketFdMutex_;

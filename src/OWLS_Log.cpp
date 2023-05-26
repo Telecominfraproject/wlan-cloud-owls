@@ -13,6 +13,9 @@
 namespace OpenWifi::OWLSClientEvents {
 
     void Log(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine) {
+        if(!Runner->Running()) {
+            return;
+        }
 
         std::lock_guard     ClientGuard(Client->Mutex_);
         if(Client->Valid_ && Client->Connected_ ) {

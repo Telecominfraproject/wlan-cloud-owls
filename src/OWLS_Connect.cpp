@@ -13,6 +13,11 @@
 namespace OpenWifi::OWLSClientEvents {
 
     void Connect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+
+        if(!Runner->Running()) {
+            return;
+        }
+
         std::lock_guard     ClientGuard(Client->Mutex_);
         if(Client->Valid_) {
             try {

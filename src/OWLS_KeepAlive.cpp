@@ -13,6 +13,9 @@
 namespace OpenWifi::OWLSClientEvents {
 
     void KeepAlive(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        if(!Runner->Running()) {
+            return;
+        }
         std::lock_guard     ClientGuard(Client->Mutex_);
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_keepalive++;

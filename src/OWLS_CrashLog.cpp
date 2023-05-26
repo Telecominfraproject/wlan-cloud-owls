@@ -14,6 +14,9 @@ namespace OpenWifi::OWLSClientEvents {
 
     void CrashLog([[
     maybe_unused]] std::lock_guard<std::mutex> &ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        if(!Runner->Running()) {
+            return;
+        }
         if(Client->Valid_) {
             Runner->Report().ev_crashlog++;
         }

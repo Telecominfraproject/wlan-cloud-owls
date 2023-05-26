@@ -20,11 +20,11 @@ namespace OpenWifi::OWLSClientEvents {
             try {
                 Client->WS_->sendFrame(
                         "", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
-                Runner->Scheduler().in(std::chrono::seconds(60 * 4),
+                Runner->Scheduler().in(std::chrono::seconds(60 * 3),
                                           OWLSClientEvents::WSPing, Client, Runner);
                 return;
             } catch (const Poco::Exception &E) {
-                std::cout << "WSPing failed; " << Client->SerialNumber_ << std::endl;
+                std::cout << "WSPing failed; " << Client->SerialNumber_ << " - : " << E.message() << std::endl;
                 DEBUG_LINE("exception1");
                 Client->Logger().log(E);
             } catch (const std::exception &E) {

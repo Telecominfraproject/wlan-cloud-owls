@@ -20,6 +20,7 @@ namespace OpenWifi::OWLSClientEvents {
             Client->Disconnect(ClientGuard);
             poco_debug(Client->Logger(),fmt::format("{}: disconnecting. Reason: {}", Client->SerialNumber_, Reason));
             if(Reconnect) {
+                std::cout << "Reconnecting: " << Client->SerialNumber_ << std::endl;
                 Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()),
                                           OWLSClientEvents::EstablishConnection, Client, Runner);
             } else {

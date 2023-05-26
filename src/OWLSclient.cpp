@@ -416,6 +416,7 @@ namespace OpenWifi {
     void OWLSclient::Disconnect([[maybe_unused]] std::lock_guard<std::mutex> &Guard) {
         if(Valid_) {
             Runner_->Report().ev_disconnect++;
+            SimStats()->Disconnect(Runner_->Id());
             if (Connected_) {
                 Runner_->RemoveClientFd(fd_);
                 fd_ = -1;

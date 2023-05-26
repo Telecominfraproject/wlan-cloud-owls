@@ -10,11 +10,11 @@
 
 #include "OWLSclientEvents.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void Log(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine) {
-        std::lock_guard G(Client->Mutex_);
+    void Log(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine) {
 
+        std::lock_guard     ClientGuard(Client->Mutex_);
         if(Client->Valid_ && Client->Connected_ ) {
             Runner->Report().ev_log++;
             try {
@@ -34,7 +34,7 @@ namespace OpenWifi::OWLSclientEvents {
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");
             }
-            OWLSclientEvents::Disconnect(Client, Runner, "Error while sending a Log event", true);
+            OWLSClientEvents::Disconnect(ClientGuard,Client, Runner, "Error while sending a Log event", true);
         }
     }
 

@@ -10,11 +10,10 @@
 
 #include "OWLSclientEvents.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void KeepAlive(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
-        std::lock_guard G(Client->Mutex_);
-
+    void KeepAlive(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        std::lock_guard     ClientGuard(Client->Mutex_);
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_keepalive++;
             try {
@@ -26,7 +25,7 @@ namespace OpenWifi::OWLSclientEvents {
 
                 if (Client->SendObject(Message)) {
                     Runner->Scheduler().in(std::chrono::seconds(Runner->Details().keepAlive),
-                                              OWLSclientEvents::KeepAlive, Client, Runner);
+                                              OWLSClientEvents::KeepAlive, Client, Runner);
                     return;
                 }
             } catch (const Poco::Exception &E) {
@@ -35,7 +34,7 @@ namespace OpenWifi::OWLSclientEvents {
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");
             }
-            OWLSclientEvents::Disconnect(Client, Runner, "Error while sending keepalive", true);
+            OWLSClientEvents::Disconnect(ClientGuard,Client, Runner, "Error while sending keepalive", true);
         }
     }
 

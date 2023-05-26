@@ -365,9 +365,9 @@ namespace OpenWifi {
         return State;
     }
 
-    void OWLSclient::DoConfigure([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
+    void OWLSclient::DoConfigure(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params) {
+        std::lock_guard ClientGuard(Client->Mutex_);
 		try {
-            std::lock_guard  G(Client->Mutex_);
 			if (Params->has(uCentralProtocol::SERIAL) &&
                 Params->has(uCentralProtocol::CONFIG) &&
                 Params->has(uCentralProtocol::UUID)) {
@@ -440,9 +440,9 @@ namespace OpenWifi {
         }
     }
 
-	void OWLSclient::DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
+	void OWLSclient::DoReboot(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params) {
+        std::lock_guard ClientGuard(Client->Mutex_);
 		try {
-            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("when")) {
                 std::string Serial = Params->get("serial");
 
@@ -456,10 +456,10 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer,Id,Result);
                 poco_information(Client->Logger_,fmt::format("reboot({}): done.", Client->SerialNumber_));
                 Client->SendObject(Answer);
-                Client->Disconnect(G);
+                Client->Disconnect(ClientGuard);
                 Client->Reset();
                 std::this_thread::sleep_for(std::chrono::seconds(20));
-                OWLSclientEvents::Disconnect(Client, Client->Runner_, "Command: reboot", true);
+                OWLSClientEvents::Disconnect(ClientGuard,Client, Client->Runner_, "Command: reboot", true);
 			} else {
                 Client->Logger_.warning(fmt::format("reboot({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -486,9 +486,9 @@ namespace OpenWifi {
 		return p;
 	}
 
-	void OWLSclient::DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
+	void OWLSclient::DoUpgrade(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params) {
+        std::lock_guard ClientGuard(Client->Mutex_);
 		try {
-            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("uri")) {
                 std::string Serial = Params->get("serial");
                 std::string URI = Params->get("uri");
@@ -502,12 +502,12 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("upgrade({}): from URI={}.", Client->SerialNumber_, URI));
                 Client->SendObject(Answer);
-                Client->Disconnect(G);
+                Client->Disconnect(ClientGuard);
                 Client->Version_++;
                 Client->SetFirmware(GetFirmware(URI));
                 std::this_thread::sleep_for(std::chrono::seconds(30));
                 Client->Reset();
-                OWLSclientEvents::Disconnect(Client, Client->Runner_, "Command: upgrade", true);
+                OWLSClientEvents::Disconnect(ClientGuard,Client, Client->Runner_, "Command: upgrade", true);
 			} else {
                 Client->Logger_.warning(fmt::format("upgrade({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -517,9 +517,9 @@ namespace OpenWifi {
 		}
 	}
 
-	void OWLSclient::DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
+	void OWLSclient::DoFactory(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params) {
+        std::lock_guard ClientGuard(Client->Mutex_);
 		try {
-            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("when")) {
                 std::string Serial = Params->get("serial");
 
@@ -535,12 +535,12 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_, fmt::format("factory({}): done.", Client->SerialNumber_));
                 Client->SendObject(Answer);
-                Client->Disconnect(G);
+                Client->Disconnect(ClientGuard);
                 Client->CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
                 Client->UpdateConfiguration();
                 std::this_thread::sleep_for(std::chrono::seconds(5));
                 Client->Reset();
-                OWLSclientEvents::Disconnect(Client, Client->Runner_, "Command: upgrade", true);
+                OWLSClientEvents::Disconnect(ClientGuard, Client, Client->Runner_, "Command: upgrade", true);
 			} else {
                 Client->Logger_.warning(fmt::format("factory({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -550,9 +550,9 @@ namespace OpenWifi {
 		}
 	}
 
-	void OWLSclient::DoLEDs([[maybe_unused]] std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params) {
+	void OWLSclient::DoLEDs(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params) {
+        std::lock_guard ClientGuard(Client->Mutex_);
 		try {
-            std::lock_guard  G(Client->Mutex_);
             if (Params->has("serial") && Params->has("pattern")) {
                 std::string Serial = Params->get("serial");
                 auto Pattern = Params->get("pattern").toString();
@@ -576,7 +576,8 @@ namespace OpenWifi {
 		}
 	}
 
-    void OWLSclient::UNsupportedCommand(std::shared_ptr<OWLSclient> Client, uint64_t Id,
+    void OWLSclient::UnSupportedCommand([[
+    maybe_unused]] std::lock_guard<std::mutex> &ClientGuard,const std::shared_ptr<OWLSclient> &Client, uint64_t Id,
                                         const std::string & Method) {
         try {
             Poco::JSON::Object Answer, Result, Status;

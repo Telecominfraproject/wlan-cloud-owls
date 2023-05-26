@@ -48,12 +48,13 @@ namespace OpenWifi {
 		[[nodiscard]] bool Connected() const { return Connected_; }
 		[[nodiscard]] inline uint64_t GetStartTime() const { return StartTime_; }
 
-		static void DoConfigure(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-        static void DoReboot(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-        static void DoUpgrade(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-        static void DoFactory(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-        static void DoLEDs(std::shared_ptr<OWLSclient> Client, uint64_t Id, const Poco::JSON::Object::Ptr Params);
-        void UNsupportedCommand(std::shared_ptr<OWLSclient> Client, uint64_t Id, const std::string &Method);
+		static void DoConfigure(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params);
+        static void DoReboot(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params);
+        static void DoUpgrade(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params);
+        static void DoFactory(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params);
+        static void DoLEDs(const std::shared_ptr<OWLSclient> &Client, uint64_t Id, Poco::JSON::Object::Ptr Params);
+
+        void UnSupportedCommand(std::lock_guard<std::mutex> &G,const std::shared_ptr<OWLSclient> &Client, uint64_t Id, const std::string &Method);
 
         using interface_location_t = std::tuple<ap_interface_types, std::string, radio_bands>;
         using associations_map_t = std::map<interface_location_t, MockAssociations>;
@@ -93,18 +94,18 @@ namespace OpenWifi {
 
         friend class SimulationRunner;
 
-        friend void OWLSclientEvents::EstablishConnection(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::Reconnect(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::Connect(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::Log(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine);
-        friend void OWLSclientEvents::State(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::HealthCheck(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::Update(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::WSPing(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::KeepAlive(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::Disconnect(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect);
-        friend void OWLSclientEvents::CrashLog(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
-        friend void OWLSclientEvents::PendingConfig(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::EstablishConnection(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::Reconnect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::Connect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::Log(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine);
+        friend void OWLSClientEvents::State(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::HealthCheck(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::Update(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::WSPing(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::KeepAlive(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::Disconnect(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect);
+        friend void OWLSClientEvents::CrashLog(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend void OWLSClientEvents::PendingConfig(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
 
     private:
 		// std::recursive_mutex Mutex_;

@@ -12,9 +12,9 @@
 
 #include "OWLSclientEvents.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void EstablishConnection(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
+    void EstablishConnection( const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
         Poco::URI uri(Runner->Details().gateway);
 
         Poco::Net::Context::Params P;
@@ -59,6 +59,8 @@ namespace OpenWifi::OWLSclientEvents {
                                        Poco::Net::HTTPMessage::HTTP_1_1);
         Request.set("origin", "http://www.websocket.org");
         Poco::Net::HTTPResponse Response;
+
+        std::lock_guard ClientGuard(Client->Mutex_);
 
         Client->Logger_.information(fmt::format("connecting({}): host={} port={}", Client->SerialNumber_,
                                         uri.getHost(), uri.getPort()));

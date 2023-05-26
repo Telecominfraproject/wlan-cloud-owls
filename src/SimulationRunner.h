@@ -38,22 +38,23 @@ namespace OpenWifi {
 
         const std::string & Id() const { return Id_; }
 
-        inline void AddClientFd(std::int64_t fd, std::shared_ptr<OWLSclient> c) {
-            std::lock_guard     G(Mutex_);
+        inline void AddClientFd(std::int64_t fd, const std::shared_ptr<OWLSclient> &c) {
+            std::lock_guard     G(SocketFdMutex_);
             Clients_fd_[fd] = c;
         }
 
         inline void RemoveClientFd(std::int64_t fd) {
-            std::lock_guard     G(Mutex_);
+            std::lock_guard     G(SocketFdMutex_);
             Clients_fd_.erase(fd);
         }
 
-        void ProcessCommand(std::shared_ptr<OWLSclient> Client, Poco::JSON::Object::Ptr Vars);
+        void ProcessCommand(std::lock_guard<std::mutex> &G, const std::shared_ptr<OWLSclient> &Client, Poco::JSON::Object::Ptr Vars);
         // Poco::Net::SocketReactor & Reactor() { return Reactor_; }
 
         inline auto & Scheduler() { return Scheduler_; }
 
 	  private:
+        std::mutex          SocketFdMutex_;
         my_mutex            Mutex_;
         OWLSObjects::SimulationDetails  Details_;
 		Poco::Logger        &Logger_;

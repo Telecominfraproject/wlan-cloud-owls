@@ -10,11 +10,10 @@
 #include <Poco/NObserver.h>
 #include "OWLSclientEvents.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void Connect(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
-        std::lock_guard G(Client->Mutex_);
-
+    void Connect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        std::lock_guard     ClientGuard(Client->Mutex_);
         if(Client->Valid_) {
             try {
                 Runner->Report().ev_connect++;
@@ -36,22 +35,22 @@ namespace OpenWifi::OWLSclientEvents {
                 if (Client->SendObject(ConnectMessage)) {
                     Client->Reset();
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
-                                              OWLSclientEvents::State, Client, Runner);
+                                              OWLSClientEvents::State, Client, Runner);
                     Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),
-                                              OWLSclientEvents::HealthCheck, Client, Runner);
+                                              OWLSClientEvents::HealthCheck, Client, Runner);
                     Runner->Scheduler().in(std::chrono::seconds(MicroServiceRandom(120, 200)),
-                                              OWLSclientEvents::Log, Client, Runner, 1, "Device started");
+                                              OWLSClientEvents::Log, Client, Runner, 1, "Device started");
                     Runner->Scheduler().in(std::chrono::seconds(60 * 4),
-                                              OWLSclientEvents::WSPing, Client, Runner);
+                                              OWLSClientEvents::WSPing, Client, Runner);
                     Runner->Scheduler().in(std::chrono::seconds(30),
-                                              OWLSclientEvents::Update, Client, Runner);
+                                              OWLSClientEvents::Update, Client, Runner);
                     Client->Logger_.information(fmt::format("connect({}): completed.", Client->SerialNumber_));
                     return;
                 }
             } catch (const Poco::Exception &E) {
                 Client->Logger().log(E);
             }
-            OWLSclientEvents::Disconnect(Client, Runner, "Error occurred during connection", true);
+            OWLSClientEvents::Disconnect(ClientGuard,Client, Runner, "Error occurred during connection", true);
         }
     }
 

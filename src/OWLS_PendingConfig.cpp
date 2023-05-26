@@ -9,12 +9,10 @@
 #include <Poco/NObserver.h>
 
 #include "OWLSclientEvents.h"
-#include "OWLSevent.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void PendingConfig(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
-        std::lock_guard G(Client->Mutex_);
+    void PendingConfig(std::lock_guard<std::mutex> &ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
 
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_configpendingchange++;
@@ -34,7 +32,7 @@ namespace OpenWifi::OWLSclientEvents {
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");
             }
-            OWLSclientEvents::Disconnect(Client, Runner, "Error while sending ConfigPendingEvent", true);
+            OWLSClientEvents::Disconnect(ClientGuard, Client, Runner, "Error while sending ConfigPendingEvent", true);
         }
     }
 

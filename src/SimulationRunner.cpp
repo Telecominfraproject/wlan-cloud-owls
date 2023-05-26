@@ -5,16 +5,13 @@
 #include <thread>
 #include <chrono>
 
-#include "Poco/Logger.h"
 
 #include "SimStats.h"
 #include "SimulationRunner.h"
-#include "OWLSevent.h"
-
 #include "fmt/format.h"
-
 #include "UI_Owls_WebSocketNotifications.h"
 
+#include <Poco/Logger.h>
 #include <Poco/Net/NetException.h>
 #include <Poco/Net/SSLException.h>
 #include <Poco/NObserver.h>
@@ -44,7 +41,7 @@ namespace OpenWifi {
 			auto Client = std::make_shared<OWLSclient>(Buffer, Logger_, this, *SocketReactorPool_[ReactorIndex++ % NumberOfReactors_]);
             Client->SerialNumber_ = Buffer;
             Client->Valid_ = true;
-            Scheduler_.in(std::chrono::seconds(distrib(gen)), OWLSclientEvents::EstablishConnection, Client, this);
+            Scheduler_.in(std::chrono::seconds(distrib(gen)), OWLSClientEvents::EstablishConnection, Client, this);
 			Clients_[Buffer] = Client;
 		}
         Scheduler_.in(std::chrono::seconds(10), ProgressUpdate, this);
@@ -67,7 +64,8 @@ namespace OpenWifi {
             int valids=0,invalids=0;
             for(auto &client:Clients_) {
                 if(client.second->Valid_) {
-                    OWLSclientEvents::Disconnect(client.second, this, "Simulation shutting down", false);
+                    std::lock_guard<std::mutex> Guard(client.second->Mutex_);
+                    OWLSClientEvents::Disconnect(Guard, client.second, this, "Simulation shutting down", false);
                     client.second->Valid_ = false;
                     valids++;
                 } else {
@@ -92,58 +90,64 @@ namespace OpenWifi {
         std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;
         std::shared_ptr<OWLSclient> client;
 
-        client_hint = Clients_fd_.find(socket);
-        if (client_hint == end(Clients_fd_)) {
-            poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
-            return;
+        {
+            std::lock_guard GG(SocketFdMutex_);
+            client_hint = Clients_fd_.find(socket);
+            if (client_hint == end(Clients_fd_)) {
+                poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
+                return;
+            }
+            client = client_hint->second;
         }
-        client = client_hint->second;
-        std::lock_guard Guard(client->Mutex_);
-        client->Disconnect(Guard);
-        client->Reactor_.removeEventHandler(
-                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
-                        *this, &SimulationRunner::OnSocketReadable));
-        client->Reactor_.removeEventHandler(
-                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
-                        *this, &SimulationRunner::OnSocketError));
-        client->Reactor_.removeEventHandler(
-                *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
-                        *this, &SimulationRunner::OnSocketShutdown));
-        client->fd_ = -1;
-        Clients_fd_.erase(socket);
-        if(Running_)
-            OWLSclientEvents::Reconnect(client,this);
+
+        {
+            std::lock_guard Guard(client->Mutex_);
+            client->Disconnect(Guard);
+            client->Reactor_.removeEventHandler(
+                    *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
+                            *this, &SimulationRunner::OnSocketReadable));
+            client->Reactor_.removeEventHandler(
+                    *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
+                            *this, &SimulationRunner::OnSocketError));
+            client->Reactor_.removeEventHandler(
+                    *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
+                            *this, &SimulationRunner::OnSocketShutdown));
+            client->fd_ = -1;
+            RemoveClientFd(socket);
+        }
+        if (Running_) {
+            OWLSClientEvents::Reconnect(client, this);
+        }
     }
 
     void SimulationRunner::OnSocketShutdown(const Poco::AutoPtr<Poco::Net::ShutdownNotification> &pNf) {
-        std::lock_guard G(Mutex_);
-
         auto socket = pNf->socket().impl()->sockfd();
-        std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;
         std::shared_ptr<OWLSclient> client;
-
-        client_hint = Clients_fd_.find(socket);
-        if (client_hint == end(Clients_fd_)) {
-            poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
-            return;
+        {
+            std::lock_guard G(SocketFdMutex_);
+            auto client_hint = Clients_fd_.find(socket);
+            if (client_hint == end(Clients_fd_)) {
+                poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
+                return;
+            }
+            client = client_hint->second;
         }
-        client = client_hint->second;
-        std::lock_guard Guard(client->Mutex_);
-        client->Disconnect(Guard);
+        {
+            std::lock_guard Guard(client->Mutex_);
+            client->Disconnect(Guard);
+        }
         if(Running_)
-            OWLSclientEvents::Reconnect(client,this);
+            OWLSClientEvents::Reconnect(client,this);
     }
 
     void SimulationRunner::OnSocketReadable(const Poco::AutoPtr<Poco::Net::ReadableNotification> &pNf) {
-        std::map<std::int64_t, std::shared_ptr<OWLSclient>>::iterator client_hint;
         std::shared_ptr<OWLSclient> client;
 
         int socket;
         {
-            std::lock_guard G(Mutex_);
-
+            std::lock_guard G(SocketFdMutex_);
             socket = pNf->socket().impl()->sockfd();
-            client_hint = Clients_fd_.find(socket);
+            auto client_hint = Clients_fd_.find(socket);
             if (client_hint == end(Clients_fd_)) {
                 poco_warning(Logger_, fmt::format("{}: Invalid socket", socket));
                 return;
@@ -161,8 +165,8 @@ namespace OpenWifi {
             auto Op = Flags & Poco::Net::WebSocket::FRAME_OP_BITMASK;
 
             if (MessageSize == 0 && Flags == 0 && Op == 0) {
-                Clients_fd_.erase(socket);
-                OWLSclientEvents::Disconnect(client, this, "Error while waiting for data in WebSocket", true);
+                RemoveClientFd(socket);
+                OWLSClientEvents::Disconnect(Guard, client, this, "Error while waiting for data in WebSocket", true);
                 return;
             }
             IncomingFrame.append(0);
@@ -185,7 +189,7 @@ namespace OpenWifi {
 
                         if (Frame->has("jsonrpc") && Frame->has("id") &&
                             Frame->has("method") && Frame->has("params")) {
-                            ProcessCommand(client, Frame);
+                            ProcessCommand(Guard,client, Frame);
                         } else {
                             Logger_.warning(
                                     fmt::format("MESSAGE({}): invalid incoming message.", client->SerialNumber_));
@@ -204,11 +208,11 @@ namespace OpenWifi {
                                         E.displayText()));
         }
 
-        Clients_fd_.erase(socket);
-        OWLSclientEvents::Disconnect(client, this, "Error while waiting for data in WebSocket", true);
+        RemoveClientFd(socket);
+        OWLSClientEvents::Disconnect(Guard,client, this, "Error while waiting for data in WebSocket", true);
     }
 
-    void SimulationRunner::ProcessCommand(std::shared_ptr<OWLSclient> Client, Poco::JSON::Object::Ptr Frame) {
+    void SimulationRunner::ProcessCommand(std::lock_guard<std::mutex> &ClientGuard, const std::shared_ptr<OWLSclient> & Client, Poco::JSON::Object::Ptr Frame) {
 
         std::string Method = Frame->get("method");
         std::uint64_t Id = Frame->get("id");
@@ -236,7 +240,7 @@ namespace OpenWifi {
             t.detach();
         } else {
             Logger_.warning(fmt::format("COMMAND({}): unknown method '{}'", Client->SerialNumber_, Method));
-            Client->UNsupportedCommand(Client, Id, Method);
+            Client->UnSupportedCommand(ClientGuard,Client, Id, Method);
         }
 
     }

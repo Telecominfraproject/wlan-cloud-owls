@@ -10,10 +10,10 @@
 
 #include "OWLSclientEvents.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void HealthCheck(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
-        std::lock_guard G(Client->Mutex_);
+    void HealthCheck(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        std::lock_guard ClientGuard(Client->Mutex_);
 
 //        DEBUG_LINE("start");
         if(Client->Valid_ && Client->Connected_) {
@@ -33,7 +33,7 @@ namespace OpenWifi::OWLSclientEvents {
 
                 if (Client->SendObject(Message)) {
                     Runner->Scheduler().in(std::chrono::seconds(Client->HealthInterval_),
-                                              OWLSclientEvents::HealthCheck, Client, Runner);
+                                              OWLSClientEvents::HealthCheck, Client, Runner);
                     return;
                 }
             } catch (const Poco::Exception &E) {
@@ -42,7 +42,7 @@ namespace OpenWifi::OWLSclientEvents {
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");
             }
-            OWLSclientEvents::Disconnect(Client, Runner, "Error while sending HealthCheck", true);
+            OWLSClientEvents::Disconnect(ClientGuard, Client, Runner, "Error while sending HealthCheck", true);
         }
     }
 

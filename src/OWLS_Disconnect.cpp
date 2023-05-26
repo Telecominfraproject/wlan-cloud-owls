@@ -9,20 +9,18 @@
 #include <Poco/NObserver.h>
 
 #include "OWLSclientEvents.h"
-#include "OWLSevent.h"
 #include "OWLS_utils.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void Disconnect(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect) {
-        std::lock_guard G(Client->Mutex_);
+    void Disconnect(std::lock_guard<std::mutex> &ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect) {
 
         if(Client->Valid_) {
-            Client->Disconnect(G);
+            Client->Disconnect(ClientGuard);
             poco_debug(Client->Logger(),fmt::format("{}: disconnecting. Reason: {}", Client->SerialNumber_, Reason));
             if(Reconnect) {
                 Runner->Scheduler().in(std::chrono::seconds(OWLSutils::local_random(3, 15)),
-                                          OWLSclientEvents::EstablishConnection, Client, Runner);
+                                          OWLSClientEvents::EstablishConnection, Client, Runner);
             } else {
 //                DEBUG_LINE("not reconnecting");
             }

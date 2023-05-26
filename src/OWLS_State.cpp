@@ -11,11 +11,11 @@
 #include "OWLSdefinitions.h"
 #include "OWLSclientEvents.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void State(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
+    void State(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
 
-        std::lock_guard G(Client->Mutex_);
+        std::lock_guard ClientGuard(Client->Mutex_);
 
         if(Client->Valid_ && Client->Connected_) {
 
@@ -44,7 +44,7 @@ namespace OpenWifi::OWLSclientEvents {
 
                 if (Client->SendObject(Message)) {
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
-                                           OWLSclientEvents::State, Client, Runner);
+                                           OWLSClientEvents::State, Client, Runner);
                     return;
                 }
             } catch (const Poco::Exception &E) {
@@ -54,7 +54,7 @@ namespace OpenWifi::OWLSclientEvents {
                 DEBUG_LINE("exception2");
             }
             DEBUG_LINE("failed");
-            OWLSclientEvents::Disconnect(Client, Runner, "Error sending stats event", true);
+            OWLSClientEvents::Disconnect(ClientGuard,Client, Runner, "Error sending stats event", true);
         }
     }
 

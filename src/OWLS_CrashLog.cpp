@@ -9,13 +9,11 @@
 #include <Poco/NObserver.h>
 
 #include "OWLSclientEvents.h"
-#include "OWLSevent.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void CrashLog(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
-        std::lock_guard G(Client->Mutex_);
-
+    void CrashLog([[
+    maybe_unused]] std::lock_guard<std::mutex> &ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
         if(Client->Valid_) {
             Runner->Report().ev_crashlog++;
         }

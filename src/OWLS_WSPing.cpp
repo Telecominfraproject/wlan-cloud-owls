@@ -10,18 +10,17 @@
 
 #include "OWLSclientEvents.h"
 
-namespace OpenWifi::OWLSclientEvents {
+namespace OpenWifi::OWLSClientEvents {
 
-    void WSPing(std::shared_ptr<OWLSclient> Client, SimulationRunner *Runner) {
-        std::lock_guard G(Client->Mutex_);
-
+    void WSPing(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+        std::lock_guard<std::mutex> ClientGuard(Client->Mutex_);
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_wsping++;
             try {
                 Client->WS_->sendFrame(
                         "", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
                 Runner->Scheduler().in(std::chrono::seconds(60 * 4),
-                                          OWLSclientEvents::WSPing, Client, Runner);
+                                          OWLSClientEvents::WSPing, Client, Runner);
                 return;
             } catch (const Poco::Exception &E) {
                 DEBUG_LINE("exception1");
@@ -29,7 +28,7 @@ namespace OpenWifi::OWLSclientEvents {
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");
             }
-            OWLSclientEvents::Disconnect(Client, Runner, "Error in WSPing", true);
+            OWLSClientEvents::Disconnect(ClientGuard, Client, Runner, "Error in WSPing", true);
         }
     }
 

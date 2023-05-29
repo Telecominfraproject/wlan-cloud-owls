@@ -21,7 +21,7 @@ namespace OpenWifi::OWLSClientEvents {
     void WSPing(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
     void Update(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
     void KeepAlive(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
-    void Disconnect(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect);
+    void Disconnect(const char *context, std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect);
     void CrashLog(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
     void PendingConfig(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
 };

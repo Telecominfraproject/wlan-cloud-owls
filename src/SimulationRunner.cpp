@@ -170,7 +170,7 @@ namespace OpenWifi {
 
             if (MessageSize == 0 && Flags == 0 && Op == 0) {
                 RemoveClientFd(socket);
-                OWLSClientEvents::Disconnect(Guard, client, this, "Error while waiting for data in WebSocket", true);
+                OWLSClientEvents::Disconnect(__func__, Guard, client, this, "Error while waiting for data in WebSocket", true);
                 return;
             }
             IncomingFrame.append(0);
@@ -213,7 +213,7 @@ namespace OpenWifi {
         }
 
         RemoveClientFd(socket);
-        OWLSClientEvents::Disconnect(Guard,client, this, "Error while waiting for data in WebSocket", true);
+        OWLSClientEvents::Disconnect(__func__, Guard,client, this, "Error while waiting for data in WebSocket", true);
     }
 
     void SimulationRunner::ProcessCommand(std::lock_guard<std::mutex> &ClientGuard, const std::shared_ptr<OWLSclient> & Client, Poco::JSON::Object::Ptr Frame) {

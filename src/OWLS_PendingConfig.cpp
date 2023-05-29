@@ -34,7 +34,7 @@ namespace OpenWifi::OWLSClientEvents {
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");
             }
-            OWLSClientEvents::Disconnect(ClientGuard, Client, Runner, "Error while sending ConfigPendingEvent", true);
+            OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Runner, "Error while sending ConfigPendingEvent", true);
         }
     }
 

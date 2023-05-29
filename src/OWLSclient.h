@@ -39,7 +39,7 @@ namespace OpenWifi {
 
 //		bool Send(const std::string &Cmd);
 //		bool SendWSPing();
-        bool SendObject(const char *context, const Poco::JSON::Object::Ptr &O);
+        [[nodiscard]] bool SendObject(const char *context, const Poco::JSON::Object::Ptr &O);
 		void SetFirmware(const std::string &S = "sim-firmware-1") { Firmware_ = S; }
 
 		[[nodiscard]] const std::string &Serial() const { return SerialNumber_; }
@@ -113,7 +113,7 @@ namespace OpenWifi {
         friend void OWLSClientEvents::Update(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::WSPing(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::KeepAlive(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
-        friend void OWLSClientEvents::Disconnect(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect);
+        friend void OWLSClientEvents::Disconnect(const char *context, std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, const std::string &Reason, bool Reconnect);
         friend void OWLSClientEvents::CrashLog(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::PendingConfig(std::lock_guard<std::mutex> &g, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
 

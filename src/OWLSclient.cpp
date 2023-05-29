@@ -402,7 +402,9 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("configure({}): done.", Client->SerialNumber_));
                 // std::this_thread::sleep_for(std::chrono::seconds(OWLSutils::local_random(10,30)));
-                Client->SendObject(__func__,Answer);
+                if(!Client->SendObject(__func__,Answer)) {
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: configure - failed.", true);
+                }
 			} else {
                 poco_warning(Client->Logger_,fmt::format("configure({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -460,11 +462,14 @@ namespace OpenWifi {
 
                 OWLSutils::MakeRPCHeader(Answer,Id,Result);
                 poco_information(Client->Logger_,fmt::format("reboot({}): done.", Client->SerialNumber_));
-                Client->SendObject(__func__ ,Answer);
-                Client->Disconnect(ClientGuard);
-                Client->Reset();
-                std::this_thread::sleep_for(std::chrono::seconds(20));
-                OWLSClientEvents::Disconnect(ClientGuard,Client, Client->Runner_, "Command: reboot", true);
+                if(!Client->SendObject(__func__ ,Answer)) {
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: reboot failed", true);
+                } else {
+                    Client->Disconnect(ClientGuard);
+                    Client->Reset();
+                    std::this_thread::sleep_for(std::chrono::seconds(20));
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: reboot", true);
+                }
 			} else {
                 Client->Logger_.warning(fmt::format("reboot({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -506,13 +511,16 @@ namespace OpenWifi {
                 Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("upgrade({}): from URI={}.", Client->SerialNumber_, URI));
-                Client->SendObject(__func__ , Answer);
-                Client->Disconnect(ClientGuard);
-                Client->Version_++;
-                Client->SetFirmware(GetFirmware(URI));
-                std::this_thread::sleep_for(std::chrono::seconds(30));
-                Client->Reset();
-                OWLSClientEvents::Disconnect(ClientGuard,Client, Client->Runner_, "Command: upgrade", true);
+                if(!Client->SendObject(__func__ , Answer)) {
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: upgrade failed", true);
+                } else {
+                    Client->Disconnect(ClientGuard);
+                    Client->Version_++;
+                    Client->SetFirmware(GetFirmware(URI));
+                    std::this_thread::sleep_for(std::chrono::seconds(30));
+                    Client->Reset();
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: upgrade", true);
+                }
 			} else {
                 Client->Logger_.warning(fmt::format("upgrade({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -539,13 +547,16 @@ namespace OpenWifi {
                 Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_, fmt::format("factory({}): done.", Client->SerialNumber_));
-                Client->SendObject(__func__ , Answer);
-                Client->Disconnect(ClientGuard);
-                Client->CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
-                Client->UpdateConfiguration();
-                std::this_thread::sleep_for(std::chrono::seconds(5));
-                Client->Reset();
-                OWLSClientEvents::Disconnect(ClientGuard, Client, Client->Runner_, "Command: upgrade", true);
+                if(!Client->SendObject(__func__ , Answer)) {
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: factory failed", true);
+                } else {
+                    Client->Disconnect(ClientGuard);
+                    Client->CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
+                    Client->UpdateConfiguration();
+                    std::this_thread::sleep_for(std::chrono::seconds(5));
+                    Client->Reset();
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: upgrade", true);
+                }
 			} else {
                 Client->Logger_.warning(fmt::format("factory({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -572,7 +583,9 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
                                                              Client->SerialNumber_, Duration, Pattern));
-                Client->SendObject(__func__ , Answer);
+                if(!Client->SendObject(__func__ , Answer)) {
+                    OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: LEDs failed", true);
+                }
 			} else {
                 Client->Logger_.warning(fmt::format("LEDs({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -593,7 +606,9 @@ namespace OpenWifi {
             OWLSutils::MakeRPCHeader(Answer, Id, Result);
             poco_information(Logger_,fmt::format("UNSUPPORTED({}): command {} not allowed for simulated devices.",
                                                  SerialNumber_, Method));
-            SendObject(__func__, Answer);
+            if(!SendObject(__func__, Answer)) {
+                OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: unsupported failed", true);
+            }
         } catch(const Poco::Exception &E) {
 
         }

@@ -143,7 +143,7 @@ namespace OpenWifi::OWLSClientEvents {
         } catch (const Poco::Exception &E) {
             Client->Logger().log(E);
         }
-        OWLSClientEvents::Disconnect(ClientGuard, Client, Runner, "Error occurred during connection", true);
+        OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Runner, "Error occurred during connection", true);
     }
 
 

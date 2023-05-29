@@ -247,64 +247,66 @@ namespace OpenWifi {
 		}
 	}
 
-    Poco::JSON::Object OWLSclient::CreateLinkStatePtr() {
-        Poco::JSON::Object res;
+    Poco::JSON::Object::Ptr OWLSclient::CreateLinkStatePtr() {
+        Poco::JSON::Object::Ptr res{new Poco::JSON::Object};
         for (const auto &[interface_type, _] : AllCounters_) {
             Poco::JSON::Object InterfaceInfo, InterfacePort;
             InterfaceInfo.set("carrier",1);
             InterfaceInfo.set("duplex","full");
             InterfaceInfo.set("speed",1000);
             InterfacePort.set(AllPortNames_[interface_type],InterfaceInfo);
-            res.set(AllInterfaceRoles_[interface_type], InterfacePort);
+            res->set(AllInterfaceRoles_[interface_type], InterfacePort);
         }
         return res;
     }
 
-    Poco::JSON::Object OWLSclient::CreateStatePtr() {
-        Poco::JSON::Object  State,Unit;
+    Poco::JSON::Object::Ptr OWLSclient::CreateStatePtr() {
+        Poco::JSON::Object::Ptr  State{new Poco::JSON::Object},Unit{new Poco::JSON::Object};
 
         auto now = Utils::Now();
-        Memory_.to_json(Unit);
-        Load_.to_json(Unit);
-        Unit.set("localtime", now);
-        Unit.set("uptime",  now - StartTime_);
-        Unit.set("temperature", std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)});
+        Memory_.to_json(*Unit);
+        Load_.to_json(*Unit);
+        Unit->set("localtime", now);
+        Unit->set("uptime",  now - StartTime_);
+        Unit->set("temperature", std::vector<std::int64_t> { OWLSutils::local_random(48,58), OWLSutils::local_random(48,58)});
 
-        Poco::JSON::Array RadioArray;
+        Poco::JSON::Array::Ptr RadioArray{new Poco::JSON::Array};
         for (auto &[_, radio] : AllRadios_) {
             Poco::JSON::Object doc;
             radio.to_json(doc);
-            RadioArray.add(doc);
+            RadioArray->add(doc);
         }
 
-        Poco::JSON::Array all_interfaces;
+        Poco::JSON::Array::Ptr all_interfaces{new Poco::JSON::Array};
         for (const auto &ap_interface_type :
                 {ap_interface_types::upstream, ap_interface_types::downstream}) {
             if (AllCounters_.find(ap_interface_type) != AllCounters_.end()) {
-                Poco::JSON::Object  current_interface;
-                Poco::JSON::Array   ue_clients, up_ssids;
+                Poco::JSON::Object::Ptr  current_interface{new Poco::JSON::Object};
+                Poco::JSON::Array::Ptr   ue_clients{new Poco::JSON::Array}, up_ssids{new Poco::JSON::Array};
                 uint64_t ssid_num = 0, interfaces = 0;
 
                 for (auto &[interface, associations] : AllAssociations_) {
                     auto &[interface_type, ssid, band] = interface;
                     if (interface_type == ap_interface_type) {
-                        Poco::JSON::Array association_list;
+                        Poco::JSON::Array::Ptr association_list{new Poco::JSON::Array};
                         std::string bssid;
                         for (auto &association : associations) {
                             bssid = association.bssid;
                             Poco::JSON::Object doc;
                             association.to_json(doc);
-                            association_list.add(doc);
+                            association_list->add(doc);
                             Poco::JSON::Object ue;
                             ue.set("mac", association.station);
                             ue.set("ipv4_addresses", std::vector<std::string>{association.ipaddr_v4});
                             ue.set("ipv6_addresses", std::vector<std::string>{association.ipaddr_v6});
-                            if(interface_type==upstream)
+                            if(interface_type==upstream) {
                                 ue.set("ports", std::vector<std::string>{"wwan0"});
-                            else
-                            ue.set("ports", std::vector<std::string>{"wlan0"});
+                            }
+                            else {
+                                ue.set("ports", std::vector<std::string>{"wlan0"});
+                            }
                             ue.set("last_seen", 0);
-                            ue_clients.add(ue);
+                            ue_clients->add(ue);
                         }
                         Poco::JSON::Object ssid_info;
                         ssid_info.set("associations", association_list);
@@ -325,13 +327,13 @@ namespace OpenWifi {
                         R.set("$ref",
                                 "#/radios/" + std::to_string(AllRadios_[band].index));
                         ssid_info.set("radio", R);
-                        up_ssids.add(ssid_info);
+                        up_ssids->add(ssid_info);
                     }
                 }
-                current_interface.set("ssids", up_ssids);
+                current_interface->set("ssids", up_ssids);
                 Poco::JSON::Object  C;
                 AllCounters_[ap_interface_type].to_json(C);
-                current_interface.set("counters", C);
+                current_interface->set("counters", C);
 
                 //  if we have 2 interfaces, then the clients go to the downstream interface
                 //  if we only have 1 interface then this is bridged and therefore clients go on the
@@ -340,27 +342,27 @@ namespace OpenWifi {
                      ap_interface_type == ap_interface_types::upstream) ||
                     (AllCounters_.size() == 2 &&
                      ap_interface_type == ap_interface_types::downstream)) {
-                    Poco::JSON::Array ip_clients;
+                    Poco::JSON::Array::Ptr ip_clients{new Poco::JSON::Array};
                     for (const auto &lan_client : AllLanClients_) {
                         Poco::JSON::Object  d;
                         lan_client.to_json(d);
-                        ip_clients.add(d);
+                        ip_clients->add(d);
                     }
-                    for (const auto &ue_client : ue_clients) {
-                        ip_clients.add(ue_client);
+                    for (const auto &ue_client : *ue_clients) {
+                        ip_clients->add(ue_client);
                     }
-                    current_interface.set("clients", ip_clients);
+                    current_interface->set("clients", ip_clients);
                 }
-                current_interface.set("name", AllInterfaceNames_[ap_interface_type]);
-                all_interfaces.add(current_interface);
+                current_interface->set("name", AllInterfaceNames_[ap_interface_type]);
+                all_interfaces->add(current_interface);
             }
         }
 
-        State.set("version" , 1 );
-        State.set("radios", RadioArray);
-        State.set("link-state", CreateLinkStatePtr());
-        State.set("unit", Unit);
-        State.set("interfaces", all_interfaces);
+        State->set("version" , 1 );
+        State->set("radios", RadioArray);
+        State->set("link-state", CreateLinkStatePtr());
+        State->set("unit", Unit);
+        State->set("interfaces", all_interfaces);
 
         return State;
     }
@@ -391,12 +393,12 @@ namespace OpenWifi {
                 }
 
 				//  prepare response...
-				Poco::JSON::Object Answer, Result, Status;
-                Status.set(uCentralProtocol::ERROR, 0);
-                Status.set(uCentralProtocol::TEXT, "Success");
-                Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, Client->UUID_);
-                Result.set(uCentralProtocol::STATUS, Status);
+				Poco::JSON::Object::Ptr Answer{new Poco::JSON::Object}, Result{new Poco::JSON::Object}, Status{new Poco::JSON::Object};
+                Status->set(uCentralProtocol::ERROR, 0);
+                Status->set(uCentralProtocol::TEXT, "Success");
+                Result->set(uCentralProtocol::SERIAL, Serial);
+                Result->set(uCentralProtocol::UUID, Client->UUID_);
+                Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("configure({}): done.", Client->SerialNumber_));
                 // std::this_thread::sleep_for(std::chrono::seconds(OWLSutils::local_random(10,30)));
@@ -449,12 +451,12 @@ namespace OpenWifi {
             if (Params->has("serial") && Params->has("when")) {
                 std::string Serial = Params->get("serial");
 
-                Poco::JSON::Object Answer, Result, Status;
-                Status.set(uCentralProtocol::ERROR, 0);
-                Status.set(uCentralProtocol::TEXT, "Success");
-                Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, Client->UUID_);
-                Result.set(uCentralProtocol::STATUS, Status);
+                Poco::JSON::Object::Ptr Answer{new Poco::JSON::Object}, Result{new Poco::JSON::Object}, Status{new Poco::JSON::Object};
+                Status->set(uCentralProtocol::ERROR, 0);
+                Status->set(uCentralProtocol::TEXT, "Success");
+                Result->set(uCentralProtocol::SERIAL, Serial);
+                Result->set(uCentralProtocol::UUID, Client->UUID_);
+                Result->set(uCentralProtocol::STATUS, Status);
 
                 OWLSutils::MakeRPCHeader(Answer,Id,Result);
                 poco_information(Client->Logger_,fmt::format("reboot({}): done.", Client->SerialNumber_));
@@ -496,12 +498,12 @@ namespace OpenWifi {
                 std::string Serial = Params->get("serial");
                 std::string URI = Params->get("uri");
 
-                Poco::JSON::Object Answer, Result, Status;
-                Status.set(uCentralProtocol::ERROR, 0);
-                Status.set(uCentralProtocol::TEXT, "Success");
-                Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, Client->UUID_);
-                Result.set(uCentralProtocol::STATUS, Status);
+                Poco::JSON::Object::Ptr Answer{new Poco::JSON::Object}, Result{new Poco::JSON::Object}, Status{new Poco::JSON::Object};
+                Status->set(uCentralProtocol::ERROR, 0);
+                Status->set(uCentralProtocol::TEXT, "Success");
+                Result->set(uCentralProtocol::SERIAL, Serial);
+                Result->set(uCentralProtocol::UUID, Client->UUID_);
+                Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("upgrade({}): from URI={}.", Client->SerialNumber_, URI));
                 Client->SendObject(Answer);
@@ -529,12 +531,12 @@ namespace OpenWifi {
                 Client->Version_ = 1;
                 Client->SetFirmware();
 
-                Poco::JSON::Object Answer, Result, Status;
-                Status.set(uCentralProtocol::ERROR, 0);
-                Status.set(uCentralProtocol::TEXT, "Success");
-                Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, Client->UUID_);
-                Result.set(uCentralProtocol::STATUS, Status);
+                Poco::JSON::Object::Ptr Answer{new Poco::JSON::Object}, Result{new Poco::JSON::Object}, Status{new Poco::JSON::Object};
+                Status->set(uCentralProtocol::ERROR, 0);
+                Status->set(uCentralProtocol::TEXT, "Success");
+                Result->set(uCentralProtocol::SERIAL, Serial);
+                Result->set(uCentralProtocol::UUID, Client->UUID_);
+                Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_, fmt::format("factory({}): done.", Client->SerialNumber_));
                 Client->SendObject(Answer);
@@ -561,12 +563,12 @@ namespace OpenWifi {
                 auto Pattern = Params->get("pattern").toString();
                 uint64_t Duration = Params->has("when") ? (uint64_t)Params->get("durarion") : 10;
 
-                Poco::JSON::Object Answer, Result, Status;
-                Status.set(uCentralProtocol::ERROR, 0);
-                Status.set(uCentralProtocol::TEXT, "Success");
-                Result.set(uCentralProtocol::SERIAL, Serial);
-                Result.set(uCentralProtocol::UUID, Client->UUID_);
-                Result.set(uCentralProtocol::STATUS, Status);
+                Poco::JSON::Object::Ptr Answer{new Poco::JSON::Object}, Result{new Poco::JSON::Object}, Status{new Poco::JSON::Object};
+                Status->set(uCentralProtocol::ERROR, 0);
+                Status->set(uCentralProtocol::TEXT, "Success");
+                Result->set(uCentralProtocol::SERIAL, Serial);
+                Result->set(uCentralProtocol::UUID, Client->UUID_);
+                Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
                                                              Client->SerialNumber_, Duration, Pattern));
@@ -583,11 +585,11 @@ namespace OpenWifi {
     maybe_unused]] std::lock_guard<std::mutex> &ClientGuard,const std::shared_ptr<OWLSclient> &Client, uint64_t Id,
                                         const std::string & Method) {
         try {
-            Poco::JSON::Object Answer, Result, Status;
-            Status.set("error", 1);
-            Status.set("text", "Command not supported");
-            Result.set("serial", Client->SerialNumber_);
-            Result.set("status", Status);
+            Poco::JSON::Object::Ptr Answer{new Poco::JSON::Object}, Result{new Poco::JSON::Object}, Status{new Poco::JSON::Object};
+            Status->set("error", 1);
+            Status->set("text", "Command not supported");
+            Result->set("serial", Client->SerialNumber_);
+            Result->set("status", Status);
             OWLSutils::MakeRPCHeader(Answer, Id, Result);
             poco_information(Logger_,fmt::format("UNSUPPORTED({}): command {} not allowed for simulated devices.",
                                                  SerialNumber_, Method));
@@ -597,6 +599,7 @@ namespace OpenWifi {
         }
     }
 
+/*
 	bool OWLSclient::Send(const std::string &Cmd) {
         if(!Runner_->Running()) {
             return false;
@@ -638,14 +641,15 @@ namespace OpenWifi {
         }
 		return false;
 	}
+*/
 
-    bool OWLSclient::SendObject(const Poco::JSON::Object &O) {
+    bool OWLSclient::SendObject(const Poco::JSON::Object::Ptr &O) {
         if(!Runner_->Running()) {
             return false;
         }
         try {
             std::ostringstream os;
-            O.stringify(os);
+            O->stringify(os);
             uint32_t BytesSent = WS_->sendFrame(os.str().c_str(), os.str().size());
             if (BytesSent == os.str().size()) {
                 SimStats()->AddOutMsg(Runner_->Id(),BytesSent);

@@ -19,10 +19,10 @@ namespace OpenWifi::OWLSClientEvents {
         if(Client->Valid_ && Client->Connected_) {
             Runner->Report().ev_configpendingchange++;
             try {
-                Poco::JSON::Object  Message, Params;
-                Params.set("serial", Client->SerialNumber_);
-                Params.set("uuid", Client->UUID_);
-                Params.set("active", Client->Active_);
+                Poco::JSON::Object::Ptr  Message{new Poco::JSON::Object}, Params{new Poco::JSON::Object};
+                Params->set("serial", Client->SerialNumber_);
+                Params->set("uuid", Client->UUID_);
+                Params->set("active", Client->Active_);
                 OWLSutils::MakeHeader(Message,"cfgpending",Params);
 
                 if (Client->SendObject(Message)) {

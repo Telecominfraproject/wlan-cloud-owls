@@ -19,9 +19,10 @@ namespace OpenWifi::OWLSClientEvents {
             Runner->Report().ev_keepalive++;
             try {
 
-                Poco::JSON::Object  Message, Params;
-                Params.set("serial", Client->SerialNumber_);
-                Params.set("uuid", Client->UUID_);
+                Poco::JSON::Object::Ptr Message{new Poco::JSON::Object},
+                                        Params{new Poco::JSON::Object};
+                Params->set("serial", Client->SerialNumber_);
+                Params->set("uuid", Client->UUID_);
                 OWLSutils::MakeHeader(Message,"ping",Params);
 
                 if (Client->SendObject(Message)) {

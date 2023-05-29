@@ -19,11 +19,11 @@ namespace OpenWifi::OWLSClientEvents {
         if(Client->Valid_ && Client->Connected_ ) {
             Runner->Report().ev_log++;
             try {
-                Poco::JSON::Object  Message, Params;
-                Params.set("serial", Client->SerialNumber_);
-                Params.set("uuid", Client->UUID_);
-                Params.set("severity", Severity);
-                Params.set("log", LogLine);
+                Poco::JSON::Object::Ptr  Message{new Poco::JSON::Object}, Params{new Poco::JSON::Object};
+                Params->set("serial", Client->SerialNumber_);
+                Params->set("uuid", Client->UUID_);
+                Params->set("severity", Severity);
+                Params->set("log", LogLine);
                 OWLSutils::MakeHeader(Message,"log",Params);
 
                 if (Client->SendObject(Message)) {

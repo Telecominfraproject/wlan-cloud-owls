@@ -24,22 +24,22 @@ namespace OpenWifi::OWLSClientEvents {
 
             Runner->Report().ev_state++;
             try {
-                Poco::JSON::Object  Message, TempParams, Params;
+                Poco::JSON::Object::Ptr  Message{new Poco::JSON::Object}, TempParams{new Poco::JSON::Object}, Params{new Poco::JSON::Object};
 
-                TempParams.set(uCentralProtocol::SERIAL, Client->SerialNumber_);
-                TempParams.set(uCentralProtocol::UUID, Client->UUID_);
-                TempParams.set(uCentralProtocol::STATE, Client->CreateStatePtr());
+                TempParams->set(uCentralProtocol::SERIAL, Client->SerialNumber_);
+                TempParams->set(uCentralProtocol::UUID, Client->UUID_);
+                TempParams->set(uCentralProtocol::STATE, Client->CreateStatePtr());
 
                 std::ostringstream os;
-                TempParams.stringify(os);
+                TempParams->stringify(os);
 
                 unsigned long BufSize = os.str().size() + 4000;
                 std::vector<Bytef> Buffer(BufSize);
                 compress(&Buffer[0], &BufSize, (Bytef *)os.str().c_str(), os.str().size());
                 auto CompressedBase64Encoded = OpenWifi::Utils::base64encode(&Buffer[0], BufSize);
 
-                Params.set("compress_64", CompressedBase64Encoded);
-                Params.set("compress_sz", os.str().size());
+                Params->set("compress_64", CompressedBase64Encoded);
+                Params->set("compress_sz", os.str().size());
 
                 OWLSutils::MakeHeader(Message,uCentralProtocol::STATE,Params);
 

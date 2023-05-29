@@ -16,6 +16,10 @@ namespace OpenWifi::OWLSClientEvents {
     void Disconnect(std::lock_guard<std::mutex> &ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner,
                     const std::string &Reason, bool Reconnect) {
 
+        if(!Runner->Running()) {
+            return;
+        }
+
         if(Client->Valid_) {
             Client->Disconnect(ClientGuard);
             poco_debug(Client->Logger(),fmt::format("{}: disconnecting. Reason: {}", Client->SerialNumber_, Reason));

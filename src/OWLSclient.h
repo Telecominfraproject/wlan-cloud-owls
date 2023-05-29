@@ -39,7 +39,7 @@ namespace OpenWifi {
 
 		bool Send(const std::string &Cmd);
 		bool SendWSPing();
-        bool SendObject(const Poco::JSON::Object &O);
+        bool SendObject(const Poco::JSON::Object::Ptr &O);
 		void SetFirmware(const std::string &S = "sim-firmware-1") { Firmware_ = S; }
 
 		[[nodiscard]] const std::string &Serial() const { return SerialNumber_; }
@@ -66,8 +66,8 @@ namespace OpenWifi {
 												   uint64_t max);
 		void  CreateLanClients(uint64_t min, uint64_t max);
 
-        Poco::JSON::Object CreateStatePtr();
-        Poco::JSON::Object CreateLinkStatePtr();
+        Poco::JSON::Object::Ptr CreateStatePtr();
+        Poco::JSON::Object::Ptr CreateLinkStatePtr();
 
 		Poco::Logger &Logger() { return Logger_; };
 

@@ -20,13 +20,13 @@ namespace OpenWifi::OWLSClientEvents {
             Runner->Report().ev_healthcheck++;
             try {
 
-                Poco::JSON::Object  Message, Params, Data, Memory;
-                Memory.set("memory", 23);
-                Data.set("data", Memory);
-                Params.set(uCentralProtocol::SERIAL, Client->SerialNumber_);
-                Params.set(uCentralProtocol::UUID, Client->UUID_);
-                Params.set(uCentralProtocol::SANITY, 100);
-                Params.set(uCentralProtocol::DATA, Data);
+                Poco::JSON::Object::Ptr  Message{new Poco::JSON::Object}, Params{new Poco::JSON::Object}, Data{new Poco::JSON::Object}, Memory{new Poco::JSON::Object};
+                Memory->set("memory", 23);
+                Data->set("data", Memory);
+                Params->set(uCentralProtocol::SERIAL, Client->SerialNumber_);
+                Params->set(uCentralProtocol::UUID, Client->UUID_);
+                Params->set(uCentralProtocol::SANITY, 100);
+                Params->set(uCentralProtocol::DATA, Data);
                 OWLSutils::MakeHeader(Message, uCentralProtocol::HEALTHCHECK, Params);
 
                 if (Client->SendObject(Message)) {

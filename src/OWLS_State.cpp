@@ -43,7 +43,7 @@ namespace OpenWifi::OWLSClientEvents {
 
                 OWLSutils::MakeHeader(Message,uCentralProtocol::STATE,Params);
 
-                if (Client->SendObject(Message)) {
+                if (Client->SendObject(__func__, Message)) {
                     Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
                                            OWLSClientEvents::State, Client, Runner);
                     return;

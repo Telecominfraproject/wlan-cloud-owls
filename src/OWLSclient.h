@@ -37,9 +37,9 @@ namespace OpenWifi {
             poco_debug(Logger_,fmt::format("{} simulator client done.", SerialNumber_));
         }
 
-		bool Send(const std::string &Cmd);
-		bool SendWSPing();
-        bool SendObject(const Poco::JSON::Object::Ptr &O);
+//		bool Send(const std::string &Cmd);
+//		bool SendWSPing();
+        bool SendObject(const char *context, const Poco::JSON::Object::Ptr &O);
 		void SetFirmware(const std::string &S = "sim-firmware-1") { Firmware_ = S; }
 
 		[[nodiscard]] const std::string &Serial() const { return SerialNumber_; }

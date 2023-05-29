@@ -123,7 +123,7 @@ namespace OpenWifi::OWLSClientEvents {
 
             OWLSutils::MakeHeader(ConnectMessage,"connect",Params);
 
-            if (Client->SendObject(ConnectMessage)) {
+            if (Client->SendObject(__func__, ConnectMessage)) {
                 Client->Reset();
                 Runner->Scheduler().in(std::chrono::seconds(Client->StatisticsInterval_),
                                        OWLSClientEvents::State, Client, Runner);

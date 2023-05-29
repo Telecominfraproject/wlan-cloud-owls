@@ -402,7 +402,7 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("configure({}): done.", Client->SerialNumber_));
                 // std::this_thread::sleep_for(std::chrono::seconds(OWLSutils::local_random(10,30)));
-                Client->SendObject(Answer);
+                Client->SendObject(__func__,Answer);
 			} else {
                 poco_warning(Client->Logger_,fmt::format("configure({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -460,7 +460,7 @@ namespace OpenWifi {
 
                 OWLSutils::MakeRPCHeader(Answer,Id,Result);
                 poco_information(Client->Logger_,fmt::format("reboot({}): done.", Client->SerialNumber_));
-                Client->SendObject(Answer);
+                Client->SendObject(__func__ ,Answer);
                 Client->Disconnect(ClientGuard);
                 Client->Reset();
                 std::this_thread::sleep_for(std::chrono::seconds(20));
@@ -506,7 +506,7 @@ namespace OpenWifi {
                 Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("upgrade({}): from URI={}.", Client->SerialNumber_, URI));
-                Client->SendObject(Answer);
+                Client->SendObject(__func__ , Answer);
                 Client->Disconnect(ClientGuard);
                 Client->Version_++;
                 Client->SetFirmware(GetFirmware(URI));
@@ -539,7 +539,7 @@ namespace OpenWifi {
                 Result->set(uCentralProtocol::STATUS, Status);
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_, fmt::format("factory({}): done.", Client->SerialNumber_));
-                Client->SendObject(Answer);
+                Client->SendObject(__func__ , Answer);
                 Client->Disconnect(ClientGuard);
                 Client->CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
                 Client->UpdateConfiguration();
@@ -572,7 +572,7 @@ namespace OpenWifi {
                 OWLSutils::MakeRPCHeader(Answer, Id, Result);
                 poco_information(Client->Logger_,fmt::format("LEDs({}): pattern set to: {} for {} ms.",
                                                              Client->SerialNumber_, Duration, Pattern));
-                Client->SendObject(Answer);
+                Client->SendObject(__func__ , Answer);
 			} else {
                 Client->Logger_.warning(fmt::format("LEDs({}): Illegal command.", Client->SerialNumber_));
 			}
@@ -593,7 +593,7 @@ namespace OpenWifi {
             OWLSutils::MakeRPCHeader(Answer, Id, Result);
             poco_information(Logger_,fmt::format("UNSUPPORTED({}): command {} not allowed for simulated devices.",
                                                  SerialNumber_, Method));
-            SendObject(Answer);
+            SendObject(__func__, Answer);
         } catch(const Poco::Exception &E) {
 
         }
@@ -643,24 +643,23 @@ namespace OpenWifi {
 	}
 */
 
-    bool OWLSclient::SendObject(const Poco::JSON::Object::Ptr &O) {
+    bool OWLSclient::SendObject(const char *context, const Poco::JSON::Object::Ptr &O) {
         if(!Runner_->Running()) {
             return false;
         }
+        std::ostringstream os;
         try {
-            std::ostringstream os;
             O->stringify(os);
             uint32_t BytesSent = WS_->sendFrame(os.str().c_str(), os.str().size());
             if (BytesSent == os.str().size()) {
                 SimStats()->AddOutMsg(Runner_->Id(),BytesSent);
                 return true;
             } else {
-                DEBUG_LINE("failed");
-                Logger_.warning(
-                        fmt::format("SEND({}): incomplete send. Sent: {}", SerialNumber_, BytesSent));
+                std::cout << fmt::format("SendObject({},{}): size={} sent={}", context, SerialNumber_, os.str().size(), BytesSent) << std::endl;
+                Logger_.warning(fmt::format("SendObject({},{}): size={} sent={}", context, SerialNumber_, os.str().size(), BytesSent));
             }
         } catch (const Poco::Exception &E) {
-            std::cout << __LINE__ << ": " << E.displayText() << " | " << E.message() << std::endl;
+            std::cout << fmt::format("SendObject({},{}): size={} exception={}", context, SerialNumber_, os.str().size(), E.displayText()) << std::endl;
             Logger_.log(E);
         } catch (const std::exception &E) {
             DEBUG_LINE("exception2");

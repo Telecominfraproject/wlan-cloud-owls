@@ -25,7 +25,7 @@ namespace OpenWifi::OWLSClientEvents {
                 Params->set("uuid", Client->UUID_);
                 OWLSutils::MakeHeader(Message,"ping",Params);
 
-                if (Client->SendObject(Message)) {
+                if (Client->SendObject(__func__, Message)) {
                     Runner->Scheduler().in(std::chrono::seconds(Runner->Details().keepAlive),
                                               OWLSClientEvents::KeepAlive, Client, Runner);
                     return;

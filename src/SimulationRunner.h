@@ -10,6 +10,8 @@
 
 #include <Poco/Thread.h>
 #include <Poco/Environment.h>
+#include <Poco/Timer.h>
+
 #include <RESTObjects/RESTAPI_OWLSobjects.h>
 #include <libs/Scheduler.h>
 #include <RESTObjects/RESTAPI_SecurityObjects.h>
@@ -53,6 +55,8 @@ namespace OpenWifi {
         inline auto & Scheduler() { return Scheduler_; }
         inline bool Running() { return Running_; }
 
+        void onUpdateTimer(Poco::Timer &timer);
+
 	  private:
         std::mutex          SocketFdMutex_;
         my_mutex            Mutex_;
@@ -69,6 +73,11 @@ namespace OpenWifi {
         Bosma::Scheduler    Scheduler_;
         SecurityObjects::UserInfo   UInfo_;
         std::uint64_t       NumberOfReactors_=0;
+        std::uint64_t       StatsUpdates_=0;
+
+        Poco::Timer         UpdateTimer_;
+        std::unique_ptr<Poco::TimerCallback<SimulationRunner>> UpdateTimerCallback_;
+
 
         static void ProgressUpdate(SimulationRunner *s);
 

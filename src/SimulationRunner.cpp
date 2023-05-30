@@ -45,9 +45,34 @@ namespace OpenWifi {
             Scheduler_.in(std::chrono::seconds(distrib(gen)), OWLSClientEvents::EstablishConnection, Client, this);
 			Clients_[Buffer] = Client;
 		}
-        Scheduler_.every(std::chrono::seconds(10), ProgressUpdate, this);
 
+        UpdateTimerCallback_ = std::make_unique<Poco::TimerCallback<SimulationRunner>>(
+                *this, &SimulationRunner::onUpdateTimer);
+        UpdateTimer_.setStartInterval(10000);
+        UpdateTimer_.setPeriodicInterval(10 * 1000);
+        UpdateTimer_.start(*UpdateTimerCallback_, MicroServiceTimerPool());
 	}
+
+    void SimulationRunner::onUpdateTimer([[maybe_unused]] Poco::Timer &timer) {
+        if(Running_) {
+
+            OWLSNotifications::SimulationUpdate_t Notification;
+            SimStats()->GetCurrent(Id_, Notification.content, UInfo_);
+            OWLSNotifications::SimulationUpdate(Notification);
+            ++StatsUpdates_;
+
+            if((StatsUpdates_ % 3) == 0) {
+                std::lock_guard Lock(Mutex_);
+
+                for(auto &client:Clients_) {
+                    std::lock_guard   Guard(client.second->Mutex_);
+                    if(client.second->Connected_) {
+                        client.second->Update();
+                    }
+                }
+            }
+        }
+    }
 
     void SimulationRunner::ProgressUpdate(SimulationRunner *sim) {
         if(sim->Running_) {
@@ -61,20 +86,7 @@ namespace OpenWifi {
 	void SimulationRunner::Stop() {
 		if (Running_) {
             Running_ = false;
-            std::cout << "Deleting clients: " << Clients_.size() << std::endl;
-            int valids=0,invalids=0;
-            /*
-            for(auto &client:Clients_) {
-                if(client.second->Valid_) {
-                    std::lock_guard<std::mutex> Guard(client.second->Mutex_);
-                    OWLSClientEvents::Disconnect(Guard, client.second, this, "Simulation shutting down", false);
-                    client.second->Valid_ = false;
-                    valids++;
-                } else {
-                    invalids++;
-                }
-            }*/
-            std::cout << "Deleted clients: " << valids << " / " << Clients_.size() << " --- " << invalids << std::endl;
+            UpdateTimer_.stop();
             std::for_each(SocketReactorPool_.begin(),SocketReactorPool_.end(),[](auto &reactor) { reactor->stop(); });
             std::for_each(SocketReactorThreadPool_.begin(),SocketReactorThreadPool_.end(),[](auto &t){ t->join(); });
             SocketReactorThreadPool_.clear();

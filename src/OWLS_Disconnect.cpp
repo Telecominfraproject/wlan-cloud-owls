@@ -20,18 +20,25 @@ namespace OpenWifi::OWLSClientEvents {
             return;
         }
 
-        if(Client->Valid_) {
-            Client->Disconnect(context, ClientGuard);
-            poco_debug(Client->Logger(),fmt::format("{}: disconnecting. Reason: {}", Client->SerialNumber_, Reason));
-            if(Reconnect) {
-                std::cout << "Reconnecting(" << context << "): " << Client->SerialNumber_ << std::endl;
-                Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()),
-                                          OWLSClientEvents::EstablishConnection, Client, Runner);
-            } else {
+        try {
+            if (Client->Valid_) {
+                Client->Disconnect(context, ClientGuard);
+                poco_debug(Client->Logger(),
+                           fmt::format("{}: disconnecting. Reason: {}", Client->SerialNumber_, Reason));
+                if (Reconnect) {
+                    std::cout << "Reconnecting(" << context << "): " << Client->SerialNumber_ << std::endl;
+                    Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()),
+                                           OWLSClientEvents::EstablishConnection, Client, Runner);
+                } else {
 //                DEBUG_LINE("not reconnecting");
+                }
+            } else {
+                std::cout << "Invalid client disconnect: " << Client->SerialNumber_ << std::endl;
             }
-        } else {
-            std::cout << "Invalid client disconnect: " << Client->SerialNumber_ << std::endl;
+        } catch (const Poco::Exception &E) {
+            std::cout << __func__ << ": " << context << " -> " << E.displayText() << std::endl;
+        } catch (const std::exception &E) {
+            std::cout << __func__ << ": " << context << " -> " << E.what() << std::endl;
         }
     }
 

@@ -421,6 +421,8 @@ namespace OpenWifi {
         if(fd_!=-1) {
             Runner_->RemoveClientFd(fd_);
             fd_ = -1;
+        } else {
+            std::cout << "Disconnecting " << SerialNumber_ << " but FD==-1" << std::endl;
         }
         if(Valid_) {
             Runner_->Report().ev_disconnect++;

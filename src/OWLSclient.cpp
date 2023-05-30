@@ -438,7 +438,7 @@ namespace OpenWifi {
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                                 *Runner_, &SimulationRunner::OnSocketShutdown));
                 std::cout << __LINE__ << std::endl;
-                WS_->shutdown();
+//                WS_->shutdown();
                 std::cout << __LINE__ << std::endl;
                 (*WS_).close();
                 std::cout << __LINE__ << std::endl;

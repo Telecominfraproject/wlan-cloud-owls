@@ -158,7 +158,6 @@ namespace OpenWifi {
             auto Op = Flags & Poco::Net::WebSocket::FRAME_OP_BITMASK;
 
             if (MessageSize == 0 && Flags == 0 && Op == 0) {
-                RemoveClientFd(socket);
                 OWLSClientEvents::Disconnect(__func__, Guard, client, this, "Error while waiting for data in WebSocket", true);
                 return;
             }
@@ -200,8 +199,6 @@ namespace OpenWifi {
             Logger_.warning(fmt::format("Exception({}): Generic exception: {}", client->SerialNumber_,
                                         E.displayText()));
         }
-
-        RemoveClientFd(socket);
         OWLSClientEvents::Disconnect(__func__, Guard,client, this, "Error while waiting for data in WebSocket", true);
     }
 

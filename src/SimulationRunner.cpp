@@ -69,7 +69,6 @@ namespace OpenWifi {
                         return;
                     }
                     if(client.second->Mutex_.try_lock()) {
-                        std::lock_guard Guard(client.second->Mutex_);
                         if (client.second->Connected_) {
                             client.second->Update();
                         }

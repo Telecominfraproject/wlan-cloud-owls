@@ -437,8 +437,11 @@ namespace OpenWifi {
                 Reactor_.removeEventHandler(
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                                 *Runner_, &SimulationRunner::OnSocketShutdown));
+                std::cout << __LINE__ << std::endl;
                 WS_->shutdown();
+                std::cout << __LINE__ << std::endl;
                 (*WS_).close();
+                std::cout << __LINE__ << std::endl;
                 Connected_ = false;
                 std::cout << fmt::format("Disconnecting a client({}){}: ", context, SerialNumber_) << std::endl;
             }else {

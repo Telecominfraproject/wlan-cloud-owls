@@ -54,7 +54,6 @@ namespace OpenWifi::OWLSClientEvents {
             } catch (const std::exception &E) {
                 DEBUG_LINE("exception2");
             }
-            DEBUG_LINE("failed");
             OWLSClientEvents::Disconnect(__func__, ClientGuard,Client, Runner, "Error sending stats event", true);
         }
     }

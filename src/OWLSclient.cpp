@@ -614,67 +614,23 @@ namespace OpenWifi {
         }
     }
 
-/*
-	bool OWLSclient::Send(const std::string &Cmd) {
+    bool OWLSclient::SendObject(const char *context, const Poco::JSON::Object::Ptr &Object) {
         if(!Runner_->Running()) {
             return false;
         }
-
-		try {
-			uint32_t BytesSent = WS_->sendFrame(Cmd.c_str(), Cmd.size());
-			if (BytesSent == Cmd.size()) {
-				SimStats()->AddOutMsg(Runner_->Id(),Cmd.size());
-				return true;
-			} else {
-                DEBUG_LINE("fail to send");
-				Logger_.warning(
-					fmt::format("SEND({}): incomplete. Sent: {}", SerialNumber_, BytesSent));
-			}
-		} catch (const Poco::Exception &E) {
-            DEBUG_LINE("exception1");
-			Logger_.log(E);
-        } catch (const std::exception &E) {
-            DEBUG_LINE("exception2");
-        }
-
-		return false;
-	}
-
-	bool OWLSclient::SendWSPing() {
-        if(!Runner_->Running()) {
-            return false;
-        }
-		try {
-			WS_->sendFrame(
-				"", 0, Poco::Net::WebSocket::FRAME_OP_PING | Poco::Net::WebSocket::FRAME_FLAG_FIN);
-			return true;
-		} catch (const Poco::Exception &E) {
-            DEBUG_LINE("failed");
-			Logger_.log(E);
-        } catch (const std::exception &E) {
-            DEBUG_LINE("exception2");
-        }
-		return false;
-	}
-*/
-
-    bool OWLSclient::SendObject(const char *context, const Poco::JSON::Object::Ptr &O) {
-        if(!Runner_->Running()) {
-            return false;
-        }
-        std::ostringstream os;
+        auto os = std::make_unique<std::ostringstream>();
         try {
-            O->stringify(os);
-            uint32_t BytesSent = WS_->sendFrame(os.str().c_str(), os.str().size());
-            if (BytesSent == os.str().size()) {
+            Object->stringify(*os);
+            uint32_t BytesSent = WS_->sendFrame(os->str().c_str(), os->str().size());
+            if (BytesSent == os->str().size()) {
                 SimStats()->AddOutMsg(Runner_->Id(),BytesSent);
                 return true;
             } else {
-                std::cout << fmt::format("SendObject({},{}): size={} sent={}", context, SerialNumber_, os.str().size(), BytesSent) << std::endl;
-                Logger_.warning(fmt::format("SendObject({},{}): size={} sent={}", context, SerialNumber_, os.str().size(), BytesSent));
+                std::cout << fmt::format("SendObject({},{}): size={} sent={}", context, SerialNumber_, os->str().size(), BytesSent) << std::endl;
+                Logger_.warning(fmt::format("SendObject({},{}): size={} sent={}", context, SerialNumber_, os->str().size(), BytesSent));
             }
         } catch (const Poco::Exception &E) {
-            std::cout << fmt::format("SendObject({},{}): size={} exception={}", context, SerialNumber_, os.str().size(), E.displayText()) << std::endl;
+            std::cout << fmt::format("SendObject({},{}): size={} exception={}", context, SerialNumber_, os->str().size(), E.displayText()) << std::endl;
             Logger_.log(E);
         } catch (const std::exception &E) {
             DEBUG_LINE("exception2");

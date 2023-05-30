@@ -65,7 +65,7 @@ namespace OpenWifi::OWLSClientEvents {
 
         std::lock_guard ClientGuard(Client->Mutex_);
 
-        Client->Logger_.information(fmt::format("connecting({}): host={} port={}", Client->SerialNumber_,
+        Client->Logger_.information(fmt::format("Connecting({}): host={} port={}", Client->SerialNumber_,
                                         uri.getHost(), uri.getPort()));
 
         try {
@@ -92,14 +92,14 @@ namespace OpenWifi::OWLSClientEvents {
             Client->Logger_.information(fmt::format("connecting({}): connected.", Client->SerialNumber_));
         } catch (const Poco::Exception &E) {
             Client->Logger_.warning(
-                    fmt::format("connecting({}): exception. {}", Client->SerialNumber_, E.displayText()));
+                    fmt::format("Connecting({}): exception. {}", Client->SerialNumber_, E.displayText()));
             Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         } catch (const std::exception &E) {
             Client->Logger_.warning(
-                    fmt::format("connecting({}): std::exception. {}", Client->SerialNumber_, E.what()));
+                    fmt::format("Connecting({}): std::exception. {}", Client->SerialNumber_, E.what()));
             Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         } catch (...) {
-            Client->Logger_.warning(fmt::format("connecting({}): unknown exception. {}", Client->SerialNumber_));
+            Client->Logger_.warning(fmt::format("Connecting({}): unknown exception. {}", Client->SerialNumber_));
             Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         }
     }

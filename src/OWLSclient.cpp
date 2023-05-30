@@ -421,8 +421,6 @@ namespace OpenWifi {
         if(fd_!=-1) {
             Runner_->RemoveClientFd(fd_);
             fd_ = -1;
-        } else {
-            std::cout << "Disconnecting " << SerialNumber_ << " but FD==-1" << std::endl;
         }
         if(Valid_) {
             Runner_->Report().ev_disconnect++;
@@ -437,18 +435,10 @@ namespace OpenWifi {
                 Reactor_.removeEventHandler(
                         *WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
                                 *Runner_, &SimulationRunner::OnSocketShutdown));
-                std::cout << __LINE__ << std::endl;
-//                WS_->shutdown();
-                std::cout << __LINE__ << std::endl;
                 (*WS_).close();
-                std::cout << __LINE__ << std::endl;
                 Connected_ = false;
-                std::cout << fmt::format("Disconnecting a client({}){}: ", context, SerialNumber_) << std::endl;
-            }else {
-                std::cout << fmt::format("Disconnecting an unconnected client({}){}: ", context, SerialNumber_) << std::endl;
+                poco_debug(Logger_, fmt::format("Disconnecting a client({}){}: ", context, SerialNumber_));
             }
-        } else {
-            std::cout << fmt::format("Disconnecting an invalid client({}){}: ", context, SerialNumber_) << std::endl;
         }
     }
 

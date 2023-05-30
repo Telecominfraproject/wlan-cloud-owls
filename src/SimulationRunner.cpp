@@ -49,7 +49,7 @@ namespace OpenWifi {
         UpdateTimerCallback_ = std::make_unique<Poco::TimerCallback<SimulationRunner>>(
                 *this, &SimulationRunner::onUpdateTimer);
         UpdateTimer_.setStartInterval(10000);
-        UpdateTimer_.setPeriodicInterval(10 * 1000);
+        UpdateTimer_.setPeriodicInterval(2 * 1000);
         UpdateTimer_.start(*UpdateTimerCallback_, MicroServiceTimerPool());
 	}
 
@@ -61,13 +61,16 @@ namespace OpenWifi {
             OWLSNotifications::SimulationUpdate(Notification);
             ++StatsUpdates_;
 
-            if((StatsUpdates_ % 3) == 0) {
+            if((StatsUpdates_ % 15) == 0) {
                 std::lock_guard Lock(Mutex_);
 
                 for(auto &client:Clients_) {
-                    std::lock_guard   Guard(client.second->Mutex_);
-                    if(client.second->Connected_) {
-                        client.second->Update();
+                    if(client.second->Mutex_.try_lock()) {
+                        std::lock_guard Guard(client.second->Mutex_);
+                        if (client.second->Connected_) {
+                            client.second->Update();
+                        }
+                        client.second->Mutex_.unlock();
                     }
                 }
             }

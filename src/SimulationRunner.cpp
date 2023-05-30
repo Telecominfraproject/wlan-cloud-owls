@@ -45,7 +45,7 @@ namespace OpenWifi {
             Scheduler_.in(std::chrono::seconds(distrib(gen)), OWLSClientEvents::EstablishConnection, Client, this);
 			Clients_[Buffer] = Client;
 		}
-        Scheduler_.in(std::chrono::seconds(10), ProgressUpdate, this);
+        Scheduler_.every(std::chrono::seconds(10), ProgressUpdate, this);
 
 	}
 
@@ -54,7 +54,7 @@ namespace OpenWifi {
             OWLSNotifications::SimulationUpdate_t Notification;
             SimStats()->GetCurrent(sim->Id_, Notification.content, sim->UInfo_);
             OWLSNotifications::SimulationUpdate(Notification);
-            sim->Scheduler_.in(std::chrono::seconds(10), ProgressUpdate, sim);
+            // sim->Scheduler_.in(std::chrono::seconds(10), ProgressUpdate, sim);
         }
     }
 

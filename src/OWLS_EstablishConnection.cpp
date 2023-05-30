@@ -76,35 +76,36 @@ namespace OpenWifi::OWLSClientEvents {
             (*Client->WS_).setNoDelay(true);
             (*Client->WS_).setBlocking(false);
             (*Client->WS_).setMaxPayloadSize(128000);
-            Client->fd_ = Client->WS_->impl()->sockfd();
-            Runner->AddClientFd(Client->fd_, Client);
-            Client->Connected_ = true;
-            Client->Reactor_.addEventHandler(
-                    *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
-                            *Runner, &SimulationRunner::OnSocketReadable));
-            Client->Reactor_.addEventHandler(
-                    *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
-                            *Runner, &SimulationRunner::OnSocketError));
-            Client->Reactor_.addEventHandler(
-                    *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
-                            *Runner, &SimulationRunner::OnSocketShutdown));
-            Connect(ClientGuard, Client, Runner);
-            Client->Logger_.information(fmt::format("connecting({}): connected.", Client->SerialNumber_));
+            if(Connect(ClientGuard, Client, Runner)) {
+                Client->fd_ = Client->WS_->impl()->sockfd();
+                Runner->AddClientFd(Client->fd_, Client);
+                Client->Reactor_.addEventHandler(
+                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
+                                *Runner, &SimulationRunner::OnSocketReadable));
+                Client->Reactor_.addEventHandler(
+                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
+                                *Runner, &SimulationRunner::OnSocketError));
+                Client->Reactor_.addEventHandler(
+                        *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
+                                *Runner, &SimulationRunner::OnSocketShutdown));
+                Client->Connected_ = true;
+                Client->Logger_.information(fmt::format("connecting({}): connected.", Client->SerialNumber_));
+                return;
+            }
         } catch (const Poco::Exception &E) {
             Client->Logger_.warning(
                     fmt::format("Connecting({}): exception. {}", Client->SerialNumber_, E.displayText()));
-            Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         } catch (const std::exception &E) {
             Client->Logger_.warning(
                     fmt::format("Connecting({}): std::exception. {}", Client->SerialNumber_, E.what()));
-            Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         } catch (...) {
             Client->Logger_.warning(fmt::format("Connecting({}): unknown exception. {}", Client->SerialNumber_));
-            Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
         }
+        Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), Reconnect, Client, Runner);
     }
 
-    void Connect(std::lock_guard<std::mutex> & ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
+    bool Connect([[
+    maybe_unused]] std::lock_guard<std::mutex> & ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner) {
 
         try {
             Runner->Report().ev_connect++;
@@ -140,12 +141,12 @@ namespace OpenWifi::OWLSClientEvents {
                 Client->Logger_.information(fmt::format("connect({}): completed.", Client->SerialNumber_));
                 Client->Backoff_=0;
                 SimStats()->Connect(Runner->Id());
-                return;
+                return true;
             }
         } catch (const Poco::Exception &E) {
             Client->Logger().log(E);
         }
-        OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Runner, "Error occurred during connection", true);
+        return false;
     }
 
 

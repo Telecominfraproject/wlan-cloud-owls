@@ -14,7 +14,7 @@ namespace OpenWifi {
 namespace OpenWifi::OWLSClientEvents {
     void EstablishConnection(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
     void Reconnect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
-    void Connect(std::lock_guard<std::mutex> & ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+    bool Connect(std::lock_guard<std::mutex> & ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
     void State(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
     void HealthCheck(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
     void Log(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine);

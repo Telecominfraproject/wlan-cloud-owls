@@ -106,7 +106,7 @@ namespace OpenWifi {
         friend void OWLSClientEvents::EstablishConnection(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::Reconnect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         // friend void OWLSClientEvents::Connect(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
-        friend void OWLSClientEvents::Connect(std::lock_guard<std::mutex> & ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
+        friend bool OWLSClientEvents::Connect(std::lock_guard<std::mutex> & ClientGuard, const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::Log(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner, std::uint64_t Severity, const std::string & LogLine);
         friend void OWLSClientEvents::State(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);
         friend void OWLSClientEvents::HealthCheck(const std::shared_ptr<OWLSclient> &Client, SimulationRunner *Runner);

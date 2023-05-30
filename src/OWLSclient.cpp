@@ -417,7 +417,7 @@ namespace OpenWifi {
         }
 	}
 
-    void OWLSclient::Disconnect([[maybe_unused]] std::lock_guard<std::mutex> &Guard) {
+    void OWLSclient::Disconnect(const char *context, [[maybe_unused]] std::lock_guard<std::mutex> &Guard) {
         if(fd_!=-1) {
             Runner_->RemoveClientFd(fd_);
             fd_ = -1;
@@ -438,12 +438,12 @@ namespace OpenWifi {
                 WS_->shutdown();
                 (*WS_).close();
                 Connected_ = false;
-                std::cout << "Disconnecting a client: " << SerialNumber_ << std::endl;
+                std::cout << fmt::format("Disconnecting a client({}){}: ", context, SerialNumber_) << std::endl;
             }else {
-                std::cout << "Disconnecting an unconnected client: " << SerialNumber_ << std::endl;
+                std::cout << fmt::format("Disconnecting an unconnected client({}){}: ", context, SerialNumber_) << std::endl;
             }
         } else {
-            std::cout << "Disconnecting an invalid client: " << SerialNumber_ << std::endl;
+            std::cout << fmt::format("Disconnecting an invalid client({}){}: ", context, SerialNumber_) << std::endl;
         }
     }
 
@@ -465,7 +465,7 @@ namespace OpenWifi {
                 if(!Client->SendObject(__func__ ,Answer)) {
                     OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: reboot failed", true);
                 } else {
-                    Client->Disconnect(ClientGuard);
+                    Client->Disconnect(__func__, ClientGuard);
                     Client->Reset();
                     std::this_thread::sleep_for(std::chrono::seconds(20));
                     OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: reboot", true);
@@ -514,7 +514,7 @@ namespace OpenWifi {
                 if(!Client->SendObject(__func__ , Answer)) {
                     OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: upgrade failed", true);
                 } else {
-                    Client->Disconnect(ClientGuard);
+                    Client->Disconnect(__func__,ClientGuard);
                     Client->Version_++;
                     Client->SetFirmware(GetFirmware(URI));
                     std::this_thread::sleep_for(std::chrono::seconds(30));
@@ -550,7 +550,7 @@ namespace OpenWifi {
                 if(!Client->SendObject(__func__ , Answer)) {
                     OWLSClientEvents::Disconnect(__func__, ClientGuard, Client, Client->Runner_, "Command: factory failed", true);
                 } else {
-                    Client->Disconnect(ClientGuard);
+                    Client->Disconnect(__func__, ClientGuard);
                     Client->CurrentConfig_ = SimulationCoordinator()->GetSimConfigurationPtr(Utils::Now());
                     Client->UpdateConfiguration();
                     std::this_thread::sleep_for(std::chrono::seconds(5));

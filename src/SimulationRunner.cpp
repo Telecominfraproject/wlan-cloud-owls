@@ -105,18 +105,7 @@ namespace OpenWifi {
 
         {
             std::lock_guard Guard(client->Mutex_);
-            client->Disconnect(Guard);
-            client->Reactor_.removeEventHandler(
-                    *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(
-                            *this, &SimulationRunner::OnSocketReadable));
-            client->Reactor_.removeEventHandler(
-                    *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ErrorNotification>(
-                            *this, &SimulationRunner::OnSocketError));
-            client->Reactor_.removeEventHandler(
-                    *client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ShutdownNotification>(
-                            *this, &SimulationRunner::OnSocketShutdown));
-            client->fd_ = -1;
-            RemoveClientFd(socket);
+            client->Disconnect(__func__, Guard);
         }
         if (Running_) {
             OWLSClientEvents::Reconnect(client, this);
@@ -138,7 +127,7 @@ namespace OpenWifi {
         }
         {
             std::lock_guard Guard(client->Mutex_);
-            client->Disconnect(Guard);
+            client->Disconnect(__func__ , Guard);
         }
         if(Running_)
             OWLSClientEvents::Reconnect(client,this);

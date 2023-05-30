@@ -25,10 +25,9 @@ namespace OpenWifi::OWLSClientEvents {
                                        OWLSClientEvents::Update, Client, Runner);
             }
         } catch (const Poco::Exception &E) {
-            DEBUG_LINE("exception1");
-            Client->Logger().log(E);
+            poco_warning(Client->Logger_,fmt::format("Update({}): exception {}", Client->SerialNumber_, E.displayText()));
         } catch (const std::exception &E) {
-            DEBUG_LINE("exception2");
+            poco_warning(Client->Logger_,fmt::format("Update({}): std::exception {}", Client->SerialNumber_, E.what()));
         }
     }
 

@@ -25,10 +25,9 @@ namespace OpenWifi::OWLSClientEvents {
                 Runner->Scheduler().in(std::chrono::seconds(Client->Backoff()), OWLSClientEvents::EstablishConnection, Client, Runner);
             }
         } catch (const Poco::Exception &E) {
-            DEBUG_LINE("exception1");
-            Client->Logger().log(E);
+            poco_warning(Client->Logger_,fmt::format("Reconnect({}): exception {}", Client->SerialNumber_, E.displayText()));
         } catch (const std::exception &E) {
-            DEBUG_LINE("exception2");
+            poco_warning(Client->Logger_,fmt::format("Reconnect({}): std::exception {}", Client->SerialNumber_, E.what()));
         }
     }
 

@@ -31,10 +31,9 @@ namespace OpenWifi::OWLSClientEvents {
                     return;
                 }
             } catch (const Poco::Exception &E) {
-                DEBUG_LINE("exception1");
-                Client->Logger().log(E);
+                poco_warning(Client->Logger_,fmt::format("KeepAlive({}): exception {}", Client->SerialNumber_, E.displayText()));
             } catch (const std::exception &E) {
-                DEBUG_LINE("exception2");
+                poco_warning(Client->Logger_,fmt::format("KeepAlive({}): std::exception {}", Client->SerialNumber_, E.what()));
             }
             OWLSClientEvents::Disconnect(__func__, ClientGuard,Client, Runner, "Error while sending keepalive", true);
         }

@@ -34,9 +34,9 @@ namespace OpenWifi::OWLSClientEvents {
                 }
             }
         } catch (const Poco::Exception &E) {
-            std::cout << __func__ << ": " << context << " -> " << E.displayText() << std::endl;
+            poco_warning(Client->Logger_,fmt::format("Disconnect({}): exception {}", Client->SerialNumber_, E.displayText()));
         } catch (const std::exception &E) {
-            std::cout << __func__ << ": " << context << " -> " << E.what() << std::endl;
+            poco_warning(Client->Logger_,fmt::format("Disconnect({}): std::exception {}", Client->SerialNumber_, E.what()));
         }
     }
 

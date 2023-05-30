@@ -49,10 +49,9 @@ namespace OpenWifi::OWLSClientEvents {
                     return;
                 }
             } catch (const Poco::Exception &E) {
-                std::cout << "E:" << E.name() << " | " << E.what() << " | " << E.message() << std::endl;
-                Client->Logger().log(E);
+                poco_warning(Client->Logger_,fmt::format("State({}): exception {}", Client->SerialNumber_, E.displayText()));
             } catch (const std::exception &E) {
-                DEBUG_LINE("exception2");
+                poco_warning(Client->Logger_,fmt::format("State({}): std::exception {}", Client->SerialNumber_, E.what()));
             }
             OWLSClientEvents::Disconnect(__func__, ClientGuard,Client, Runner, "Error sending stats event", true);
         }

@@ -76,7 +76,8 @@ namespace OpenWifi::OWLSClientEvents {
             (*Client->WS_).setNoDelay(true);
             (*Client->WS_).setBlocking(false);
             (*Client->WS_).setMaxPayloadSize(128000);
-            Runner->AddClientFd(Client->WS_->impl()->sockfd(), Client);
+            Client->fd_ = Client->WS_->impl()->sockfd();
+            Runner->AddClientFd(Client->fd_, Client);
             Client->Connected_ = true;
             Client->Reactor_.addEventHandler(
                     *Client->WS_, Poco::NObserver<SimulationRunner, Poco::Net::ReadableNotification>(

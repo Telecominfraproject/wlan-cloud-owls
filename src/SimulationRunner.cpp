@@ -65,6 +65,9 @@ namespace OpenWifi {
                 std::lock_guard Lock(Mutex_);
 
                 for(auto &client:Clients_) {
+                    if(!Running_) {
+                        return;
+                    }
                     if(client.second->Mutex_.try_lock()) {
                         std::lock_guard Guard(client.second->Mutex_);
                         if (client.second->Connected_) {
@@ -90,6 +93,7 @@ namespace OpenWifi {
 		if (Running_) {
             Running_ = false;
             UpdateTimer_.stop();
+            std::lock_guard Guard(Mutex_);
             std::for_each(SocketReactorPool_.begin(),SocketReactorPool_.end(),[](auto &reactor) { reactor->stop(); });
             std::for_each(SocketReactorThreadPool_.begin(),SocketReactorThreadPool_.end(),[](auto &t){ t->join(); });
             SocketReactorThreadPool_.clear();

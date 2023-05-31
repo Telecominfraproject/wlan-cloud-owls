@@ -135,7 +135,7 @@ createsim() {
     echo "Simulation file is not passed as an argument. Please pass the simulation. To get example simulation definition, run 'examplesim' command and check 'example-sim.json' file"
     exit 1
   else
-    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/simulation" \
+    curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/simulation/0" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" \
     -H "accept: application/json" \

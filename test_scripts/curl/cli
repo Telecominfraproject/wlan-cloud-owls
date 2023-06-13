@@ -145,7 +145,7 @@ createsim() {
 }
 
 listsims() {
-    testargcount 0 #$
+    testargcount 0 $#
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/simulation/*" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -153,7 +153,7 @@ listsims() {
 }
 
 getsim() {
-    testargcount 1 #$
+    testargcount 1 $#
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/simulation/$1" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -161,7 +161,7 @@ getsim() {
 }
 
 deletesim() {
-    testargcount 1 #$
+    testargcount 1 $#
     curl    ${FLAGS} -X DELETE "https://${OWLS}/api/v1/simulation?id=$1" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -169,7 +169,7 @@ deletesim() {
 }
 
 startsim()  {
-    testargcount 1 #$
+    testargcount 1 $#
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=start" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -177,7 +177,7 @@ startsim()  {
 }
 
 stopsim()  {
-    testargcount 2 #$
+    testargcount 2 $#
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=stop&runningId=$2" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -185,7 +185,7 @@ stopsim()  {
 }
 
 cancelsim()  {
-    testargcount 2 #$
+    testargcount 2 $#
     curl    ${FLAGS} -X POST "https://${OWLS}/api/v1/operation/$1?operation=cancel" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -193,7 +193,7 @@ cancelsim()  {
 }
 
 getsimstats() {
-    testargcount 1 #$
+    testargcount 1 $#
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/status/$1" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -201,7 +201,7 @@ getsimstats() {
 }
 
 liststatuses() {
-    testargcount 0 #$
+    testargcount 0 $#
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/status/*" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}
@@ -209,7 +209,7 @@ liststatuses() {
 }
 
 results() {
-    testargcount 1 #$
+    testargcount 1 $#
     curl    ${FLAGS} -X GET "https://${OWLS}/api/v1/results/$1" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer ${token}" > ${result_file}

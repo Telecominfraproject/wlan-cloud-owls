@@ -146,12 +146,6 @@ components:
             - $ref: '#/components/schemas/StringList'
             - $ref: '#/components/schemas/TagValuePairList'
 
-    SystemCommandResults:
-      type: object
-      oneOf:
-        - $ref: '#/components/schemas/StringList'
-        - $ref: '#/components/schemas/TagValuePairList'
-
     SystemInfoResults:
       type: object
       properties:
@@ -179,6 +173,33 @@ components:
               expires:
                 type: integer
                 format: int64
+
+    SystemResources:
+      type: object
+      properties:
+        numberOfFileDescriptors:
+          type: integer
+          format: int64
+        currRealMem:
+          type: integer
+          format: int64
+        peakRealMem:
+          type: integer
+          format: int64
+        currVirtMem:
+          type: integer
+          format: int64
+        peakVirtMem:
+          type: integer
+          format: int64
+
+    SystemCommandResults:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/SystemResources'
+        - $ref: '#/components/schemas/SystemInfoResults'
+        - $ref: '#/components/schemas/StringList'
+        - $ref: '#/components/schemas/TagValuePairList'
 
     SystemCommandSetLogLevel:
       type: object
@@ -686,18 +707,12 @@ paths:
             type: string
             enum:
               - info
+              - extraConfiguration
+              - resources
           required: true
-
       responses:
         200:
-          description: Successful command execution
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/SystemInfoResults'
-        400:
-          $ref: '#/components/responses/BadRequest'
+          $ref: '#/components/schemas/SystemCommandResults'
         403:
           $ref: '#/components/responses/Unauthorized'
         404:

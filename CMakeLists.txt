@@ -52,7 +52,7 @@ include_directories(/usr/local/include  /usr/local/opt/openssl/include src inclu
 
 configure_file(src/ow_version.h.in ${PROJECT_SOURCE_DIR}/src/ow_version.h @ONLY)
 
-add_definitions(-DPOCO_LOG_DEBUG="1")
+add_definitions(-DPOCO_LOG_DEBUG="1" -DBOOST_NO_CXX98_FUNCTION_BASE=1)
 
 add_compile_options(-Wall -Wextra)
 if(ASAN)

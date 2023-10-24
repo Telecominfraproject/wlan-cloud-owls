@@ -171,6 +171,31 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "lastModified", LastModified);
 	}
 
+	void DefaultFirmware::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj, "deviceType", deviceType);
+		field_to_json(Obj, "description", Description);
+		field_to_json(Obj, "uri", uri);
+		field_to_json(Obj, "revision", revision);
+		field_to_json(Obj, "imageCreationDate", imageCreationDate);
+		field_to_json(Obj, "created", Created);
+		field_to_json(Obj, "lastModified", LastModified);
+	}
+
+	bool DefaultFirmware::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj, "deviceType", deviceType);
+			field_from_json(Obj, "description", Description);
+			field_from_json(Obj, "uri", uri);
+			field_from_json(Obj, "revision", revision);
+			field_from_json(Obj, "imageCreationDate", imageCreationDate);
+			field_from_json(Obj, "created", Created);
+			field_from_json(Obj, "lastModified", LastModified);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
 	void CommandDetails::to_json(Poco::JSON::Object &Obj) const {
 		EmbedDocument("details", Obj, Details);
 		EmbedDocument("results", Obj, Results);
@@ -405,6 +430,10 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "acctConfig", acctConfig);
 		field_to_json(Obj, "coaConfig", coaConfig);
 		field_to_json(Obj, "useByDefault", useByDefault);
+		field_to_json(Obj, "radsecKeepAlive", radsecKeepAlive);
+		field_to_json(Obj, "poolProxyIp", poolProxyIp);
+		field_to_json(Obj, "radsecPoolType", radsecPoolType);
+		field_to_json(Obj, "enabled", enabled);
 	}
 
 	bool RadiusProxyPool::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -415,6 +444,10 @@ namespace OpenWifi::GWObjects {
 			field_from_json(Obj, "acctConfig", acctConfig);
 			field_from_json(Obj, "coaConfig", coaConfig);
 			field_from_json(Obj, "useByDefault", useByDefault);
+			field_from_json(Obj, "radsecKeepAlive", radsecKeepAlive);
+			field_from_json(Obj, "poolProxyIp", poolProxyIp);
+			field_from_json(Obj, "radsecPoolType", radsecPoolType);
+			field_from_json(Obj, "enabled", enabled);
 			return true;
 		} catch (const Poco::Exception &E) {
 		}
@@ -633,10 +666,19 @@ namespace OpenWifi::GWObjects {
 		field_to_json(Obj, "interface", interface);
 		field_to_json(Obj, "secret", secret);
 		field_to_json(Obj, "nasId", nasId);
+		field_to_json(Obj, "calledStationId", calledStationId);
 	}
 
 	void RADIUSSessionList::to_json(Poco::JSON::Object &Obj) const {
 		field_to_json(Obj, "sessions", sessions);
+	}
+
+	void RadiusCoADMParameters::to_json(Poco::JSON::Object &Obj) const {
+		field_to_json(Obj, "accountingSessionId", accountingSessionId);
+		field_to_json(Obj, "accountingMultiSessionId", accountingMultiSessionId);
+		field_to_json(Obj, "callingStationId", callingStationId);
+		field_to_json(Obj, "chargeableUserIdentity", chargeableUserIdentity);
+		field_to_json(Obj, "userName", userName);
 	}
 
 	bool RadiusCoADMParameters::from_json(const Poco::JSON::Object::Ptr &Obj) {
@@ -645,6 +687,28 @@ namespace OpenWifi::GWObjects {
 			field_from_json(Obj, "accountingMultiSessionId", accountingMultiSessionId);
 			field_from_json(Obj, "callingStationId", callingStationId);
 			field_from_json(Obj, "chargeableUserIdentity", chargeableUserIdentity);
+			field_from_json(Obj, "userName", userName);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
+	bool DeviceTransferRequest::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj, "serialNumber", serialNumber);
+			field_from_json(Obj, "server", server);
+			field_from_json(Obj, "port", port);
+			return true;
+		} catch (const Poco::Exception &E) {
+		}
+		return false;
+	}
+
+	bool DeviceCertificateUpdateRequest::from_json(const Poco::JSON::Object::Ptr &Obj) {
+		try {
+			field_from_json(Obj, "serialNumber", serialNumber);
+			field_from_json(Obj, "encodedCertificate", encodedCertificate);
 			return true;
 		} catch (const Poco::Exception &E) {
 		}

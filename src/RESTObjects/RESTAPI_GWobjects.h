@@ -182,6 +182,26 @@ namespace OpenWifi::GWObjects {
 		bool from_json(const Poco::JSON::Object::Ptr &Obj);
 	};
 
+	struct DefaultFirmware {
+		std::string deviceType;
+		std::string Description;
+		std::string uri;
+		std::string revision;
+		uint64_t imageCreationDate;
+		uint64_t Created;
+		uint64_t LastModified;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
+	struct DefaultFirmwareList {
+		std::vector<DefaultFirmware>	firmwares;
+
+		void to_json(Poco::JSON::Object &Obj) const;
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
 	struct CommandDetails {
 		std::string UUID;
 		std::string SerialNumber;
@@ -340,6 +360,10 @@ namespace OpenWifi::GWObjects {
 		RadiusProxyServerConfig acctConfig;
 		RadiusProxyServerConfig coaConfig;
 		bool useByDefault = false;
+		std::string 	radsecPoolType;
+		std::string 	poolProxyIp;
+		std::uint64_t 	radsecKeepAlive=25;
+		bool			enabled=true;
 
 		void to_json(Poco::JSON::Object &Obj) const;
 		bool from_json(const Poco::JSON::Object::Ptr &Obj);
@@ -403,6 +427,7 @@ namespace OpenWifi::GWObjects {
 								inputGigaWords = 0,
 								outputGigaWords = 0;
 		std::uint32_t 			sessionTime = 0;
+		std::string 			calledStationId;
 
 #ifdef TIP_GATEWAY_SERVICE
 		RADIUS::RadiusPacket	accountingPacket;
@@ -420,7 +445,68 @@ namespace OpenWifi::GWObjects {
 		std::string 			accountingSessionId,
 								accountingMultiSessionId,
 								callingStationId,
-								chargeableUserIdentity;
+								chargeableUserIdentity,
+								userName;
+
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+		void to_json(Poco::JSON::Object &Obj) const;
+	};
+
+	enum class RadiusPoolStrategy {
+		round_robin, random, weighted, unknown
+	};
+
+	enum class RadiusEndpointType {
+		generic, radsec, globalreach, orion, unknown
+	};
+
+	static inline RadiusEndpointType RadiusEndpointType(const std::string &T) {
+		if(T=="generic") return RadiusEndpointType::generic;
+		if(T=="radsec") return RadiusEndpointType::radsec;
+		if(T=="globalreach") return RadiusEndpointType::globalreach;
+		if(T=="orion") return RadiusEndpointType::orion;
+		return RadiusEndpointType::unknown;
+	}
+
+	static inline RadiusPoolStrategy RadiusPoolStrategy(const std::string &T) {
+		if(T=="round_robin") return RadiusPoolStrategy::round_robin;
+		if(T=="random") return RadiusPoolStrategy::random;
+		if(T=="weighted") return RadiusPoolStrategy::weighted;
+		return RadiusPoolStrategy::unknown;
+	}
+
+	static inline std::string to_string(enum RadiusEndpointType T) {
+		switch(T) {
+		case RadiusEndpointType::generic: return "generic";
+		case RadiusEndpointType::radsec: return "radsec";
+		case RadiusEndpointType::globalreach: return "globalreach";
+		case RadiusEndpointType::orion: return "orion";
+		default:
+			return "unknown";
+		}
+	}
+
+	static inline std::string to_string(enum RadiusPoolStrategy T) {
+		switch(T) {
+		case RadiusPoolStrategy::round_robin: return "round_robin";
+		case RadiusPoolStrategy::random: return "random";
+		case RadiusPoolStrategy::weighted: return "weighted";
+		default:
+			return "unknown";
+		}
+	}
+
+	struct DeviceTransferRequest {
+		std::string 	serialNumber;
+		std::string 	server;
+		std::uint64_t 	port;
+
+		bool from_json(const Poco::JSON::Object::Ptr &Obj);
+	};
+
+	struct DeviceCertificateUpdateRequest {
+		std::string 	serialNumber;
+		std::string 	encodedCertificate;
 
 		bool from_json(const Poco::JSON::Object::Ptr &Obj);
 	};

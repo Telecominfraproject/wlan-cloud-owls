@@ -134,4 +134,6 @@ target_link_libraries(owls PRIVATE
         ${MySQL_LIBRARIES}
         ${ZLIB_LIBRARIES}
         fmt::fmt
-        CppKafka::cppkafka)
+        CppKafka::cppkafka
+        resolv
+)

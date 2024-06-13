@@ -105,7 +105,7 @@ namespace OpenWifi {
 					NewMessage.partition(0);
 					NewMessage.payload(Msg->Payload());
 					Producer.produce(NewMessage);
-					Producer.flush();
+					Producer.poll((std::chrono::milliseconds) 0);
 				}
 			} catch (const cppkafka::HandleException &E) {
 				poco_warning(Logger_,
@@ -115,6 +115,10 @@ namespace OpenWifi {
 			} catch (...) {
 				poco_error(Logger_, "std::exception");
 			}
+                        if (Queue_.size() == 0) {
+                                // message queue is empty, flush all previously sent messages
+                                Producer.flush();
+                        }
 			Note = Queue_.waitDequeueNotification();
 		}
 		poco_information(Logger_, "Stopped...");
